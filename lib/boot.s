@@ -43,15 +43,12 @@ _m68kVectorTable:
 	dc.l	_ex, _ex, _ex, _ex
 
 ProgHeader:
-	/* Program metadata */
-	dc.b	"SEGA MEGA DRIVE "	/* Hardware name (16 bytes) */
-	dc.b	"(C)SEGA 1992.SEP"	/* Copyright holder & release date (16 bytes) */
-	dc.b	"YOUR GAME NAME                                  "	/* Domestic name of program/game (48 bytes) */
-	dc.b	"YOUR GAME NAME                                  "	/* Intl name of program/game (48 bytes) */
-	
-
+	.include "proghead"
 
 _entryPoint:
 	/* Begin hardware init */
 	move	#0x2700,%sr
+
+
+__END:
 	
