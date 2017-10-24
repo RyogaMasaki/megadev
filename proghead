@@ -1,7 +1,7 @@
 /* Program metadata */
 /* Modify this as necessary */
-  dc.b  "SEGA MEGA DRIVE "  /* Hardware name (16 bytes) */
-  dc.b  "(C)SEGA 1992.SEP"  /* Copyright holder & release date (16 bytes) */
-  dc.b  "YOUR GAME NAME                                  "  /* Domestic name of program/game (48 bytes) */
-  dc.b  "YOUR GAME NAME                                  "  /* Intl name of program/game (48 bytes) */
+  .ascii "SEGA MEGA DRIVE " /* Hardware name (16 bytes) */
+  .ascii "(C)SEGA 1992.SEP" /* Copyright holder & release date (16 bytes) */
+  .ascii "YOUR GAME NAME                                  " /* Domestic name of program/game (48 bytes) */
+  .ascii "YOUR GAME NAME                                  " /* Intl name of program/game (48 bytes) */
 

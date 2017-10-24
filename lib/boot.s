@@ -1,6 +1,7 @@
-; Sega Megadrive Startup Code
-; Based on implementation in SGDK
-; and other sources online
+/* Sega Megadrive Startup Code 
+ * Based on implementation in SGDK
+ * and other sources online
+ */
 
 	.org 0x00000000
 
