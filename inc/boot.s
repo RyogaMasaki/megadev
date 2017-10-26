@@ -5,12 +5,15 @@
 
 .org 0x00000000
 
+/* Makes the _start symbol visible to the linker */
+.global _start
+
 .include "io_def.s"
 .include "vdp_def.s"
 
 .equ    STACK_ADDR,    0x00fffe00
 
-__START:
+_start:
 _m68kVectorTable:
 	dc.l	STACK_ADDR			/* Initial SSP */
 	dc.l	_entry					/* Program start */

@@ -2,19 +2,22 @@ MegaDev
 =======
 A very minimal Sega Megadrive development framework in M68000 assembly.
 
-Assembler
+Toolchain
 ---------
-Uses GNU assembler (gas) directives with the m68k-coff target. Note that the last version of binutils to support m68k-coff is 2.16.1 and the last version of gcc to support it is 3.4.2. You will need to build a cross-compiler using these versions to compile. See this page for more details: http://darkdust.net/index.php/writings/megadrive/crosscompiler
+The code is written for the GNU assembler (GAS) with the m68k-elf target. If you do not already have a toolchain setup, you'll need to compile Binutils and (optionally) GCC
 
-If 'make install' is failing due to problems with texinfo, we can skip the documentation installation. Run this command in any directory where there is a Makefile present:
-
-	echo "MAKEINFO = :" >> Makefile
-
-build binutils
+Binutils:
 	./configure --prefix=$OPTDIR --target=m68k-elf
 
-build GCC
+GCC:
 	./configure --prefix=$OPTDIR --target=m68k-elf --enable-languages=c --disable-nls
+
+NOTES:
+compile AS
+	m68k-elf-as -m68000 -Iinc -o test.o
+
+link LD
+	m68k-elf-ld --oformat=binary -Ttext=0 [--verbose] --output=outfile [infiles]
 
 DISCLAIMER
 ----------
