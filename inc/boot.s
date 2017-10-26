@@ -13,6 +13,7 @@
 
 .equ    STACK_ADDR,    0x00fffe00
 
+.text
 _start:
 _m68kVectorTable:
 	dc.l	STACK_ADDR			/* Initial SSP */
@@ -58,7 +59,7 @@ _m68kVectorTable:
 	dc.l	_ex, _ex, _ex, _ex
 
 	/* Include the MegaDrive program header */
-	.include "md_head.s"
+.include "md_head.s"
 
 /* Standard M68k exceptions */
 _errBus:			/* Bus error */
