@@ -3,14 +3,17 @@
  * and other sources online
  */
 
-	.org 0x00000000
+.org 0x00000000
+
+.include "io_def.s"
+.include "vdp_def.s"
+
+.equ    STACK_ADDR,    0x00fffe00
 
 __START:
-	.ascii	"<========"
-
 _m68kVectorTable:
-	dc.l	0x00fffe00			/* Stack address */
-	dc.l	_entryPoint			/* Program start */
+	dc.l	STACK_ADDR			/* Initial SSP */
+	dc.l	_entry				/* Program start */
 	
 	/* Standard M68k exception vectors */
 	dc.l	_errBus
@@ -156,13 +159,28 @@ _ex:				/* Generic exception handler */
 	jmp _ex
 
 ProgHeader:
-	.include "proghead"
+	.include "md_head.s"
 
-_entryPoint:
-	/* Begin hardware init */
-	move	#0x2700,%sr
-mainLoop:
-	jmp mainLoop
+_entry:
+	move	#0x2700,%sr			/* disabled interrupts */
+	
+	tmssCheck:
+	move.b	(IO_VERSION), %d0
+	andi.b	#0x0f, %d0
+	beq	clearRam	/* if version 0, skip TMSS */
+	move.l	#0x53454741, IO_TMSS	/* write 'SEGA' ascii to TMSS port */
 
-__END:
-	.ascii	"========>"
+
+	clearRam:
+	clr.l %d0
+	clr.l %d6
+	movea.l %d0, %a6	/* a6 = 0 */
+	move	%a6, %sp	/* reset stack pointer (A7) */
+	move.w	#0x3FF, %d6 /* set up the loop count in d6 */
+
+	1:	move.l	%d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
+		dbra %d6, 1b		/* set to 0 */
+
+	/* --- Jump to main --- */
+	move    #$2300, sr			/* re-enable interrupts */
+	jmp __MAIN	

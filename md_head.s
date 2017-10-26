@@ -1,4 +1,5 @@
-/* Program metadata */
+
+/* MegaDrive program metadata */
 /* Modify this as necessary */
   .ascii "SEGA MEGA DRIVE " /* Hardware name (16 bytes) */
   .ascii "(C)SEGA 1992.SEP" /* Copyright holder & release date (16 bytes) */
@@ -19,4 +20,3 @@
 	dc.l	0x00000000	/* Unused */
 	.ascii "                                        "	/* Notes (40 bytes) */
 	.ascii "JUE             "	/* Region codes (16 bytes) */
-
