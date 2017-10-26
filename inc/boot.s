@@ -182,5 +182,5 @@ _entry:
 		dbra %d6, 1b		/* set to 0 */
 
 	/* --- Jump to main --- */
-	move    #$2300, sr			/* re-enable interrupts */
+	move    #0x2300, %sr			/* re-enable interrupts */
 	jmp __MAIN	

@@ -7,4 +7,3 @@ __MAIN:
 	jmp mainLoop
 
 __END:
-	.ascii	"========>"
