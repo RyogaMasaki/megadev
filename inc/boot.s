@@ -13,7 +13,7 @@
 __START:
 _m68kVectorTable:
 	dc.l	STACK_ADDR			/* Initial SSP */
-	dc.l	_entry				/* Program start */
+	dc.l	_entry					/* Program start */
 	
 	/* Standard M68k exception vectors */
 	dc.l	_errBus
@@ -30,6 +30,9 @@ _m68kVectorTable:
 	/* Unused exceptions (12 entries) */
 	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
 	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
+	
+	/* Spurious interrupt */
+	dc.l	_spur
 
 	/* Interrupt Requests (IRQ) */
 	dc.l	_irq1
@@ -50,6 +53,9 @@ _m68kVectorTable:
 	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
 	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
 	dc.l	_ex, _ex, _ex, _ex
+
+	/* Include the MegaDrive program header */
+	.include "md_head.s"
 
 /* Standard M68k exceptions */
 _errBus:			/* Bus error */
@@ -80,6 +86,9 @@ _errLine1010:		/* Line 1010 emulator */
 	jmp _ex
 
 _errLine1111:		/* Line 1111 emulator */
+	jmp _ex
+
+_spur:
 	jmp _ex
 
 /* Interrupt Requests */
@@ -157,9 +166,6 @@ _trapF:
 _ex:				/* Generic exception handler */
 
 	jmp _ex
-
-ProgHeader:
-	.include "md_head.s"
 
 _entry:
 	move	#0x2700,%sr			/* disabled interrupts */

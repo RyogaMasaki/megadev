@@ -10,6 +10,12 @@ If 'make install' is failing due to problems with texinfo, we can skip the docum
 
 	echo "MAKEINFO = :" >> Makefile
 
+build binutils
+	./configure --prefix=$OPTDIR --target=m68k-elf
+
+build GCC
+	./configure --prefix=$OPTDIR --target=m68k-elf --enable-languages=c --disable-nls
+
 DISCLAIMER
 ----------
 This project is primarily a personal one to sharpen assembly coding skills as well as to familiarize myself with Megadrive hardware and development. Things probably won't be 100% optimal.
