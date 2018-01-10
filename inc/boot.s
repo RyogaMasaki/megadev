@@ -112,6 +112,7 @@ _irq5:				/* Unused */
 	jmp _ex
 
 _vBlankInt:			/* Vertical Blank interrupt */
+	addq.b   #1, (vblank)
 	rte
 
 _irq7:				/* Unused */
@@ -192,5 +193,7 @@ _entry:
 		dbra %d6, 1b		/* set to 0 */
 
 	/* --- Jump to main --- */
-	move    #0x2300, %sr			/* re-enable interrupts */
 	jmp __MAIN	
+
+.data
+	vblank: .byte 0
