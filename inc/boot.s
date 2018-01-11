@@ -111,7 +111,7 @@ _irq5:				/* Unused */
 	jmp _ex
 
 _vBlankInt:			/* Vertical Blank interrupt */
-	jmp vbInterrupt
+	jmp vBlankInt
 
 _irq7:				/* Unused */
 	jmp _ex

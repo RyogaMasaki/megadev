@@ -13,8 +13,8 @@
 .text
 
 vdpInit:
-	move.l #VDP_CTRL_PORT, %a4
-	move.l #VDP_DATA_PORT, %a5
+	lea VDP_CTRL_PORT, %a4
+	lea VDP_DATA_PORT, %a5
 
 	move.w #0x8000, %d5
 	move.w #0x0100, %d7
@@ -29,7 +29,7 @@ vdpInit:
 	rts
 
 waitVBlank:
-	move.l	#vblank, %a6
+	lea vblank, %a6
 	move.l (%a6), %d0
 1:move.l (%a6), %d1
 	cmp.l %d0, %d1
@@ -37,7 +37,7 @@ waitVBlank:
 	move.b #0, (%a6)
 	rts
 
-vbInterrupt:
+vBlankInt:
 	addq.b   #1, (vblank)
 	rte
 

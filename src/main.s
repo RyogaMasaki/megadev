@@ -8,7 +8,7 @@ move    #0x2000, %sr
 jsr vdpInit
 jsr setupPalette
 
-mainLoop:	
+mainLoop:
 	jsr waitVBlank
 	jmp mainLoop
 

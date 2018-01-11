@@ -1,5 +1,5 @@
 # Custom toolchain directory
-MD_CHAIN=/opt/md_dev/binutils
+MD_CHAIN=/opt/md_dev
 MD_BIN=$(MD_CHAIN)/bin
 
 # Local directories
@@ -15,7 +15,7 @@ LD:=$(MD_BIN)/m68k-elf-ld
 OBJC:=$(MD_BIN)/m68k-elf-objcopy 
 
 AS_FLAGS := -m68000 -I$(INCDIR)
-LD_FLAGS := --oformat=binary -T md.ld -nostdlib 
+LD_FLAGS := -T md.ld -nostdlib
 
 SRC := $(shell find $(SRCDIR) -type f -name *.s)
 OBJ := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC:.s=.o))
