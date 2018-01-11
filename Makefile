@@ -1,5 +1,5 @@
 # Custom toolchain directory
-MD_CHAIN=/opt/md_dev
+MD_CHAIN=/opt/md_dev/binutils
 MD_BIN=$(MD_CHAIN)/bin
 
 # Local directories

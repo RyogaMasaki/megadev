@@ -9,7 +9,6 @@
 .global _start
 
 .include "io_def.s"
-.include "vdp_def.s"
 
 .equ    STACK_ADDR,    0x00fffe00
 
@@ -112,8 +111,7 @@ _irq5:				/* Unused */
 	jmp _ex
 
 _vBlankInt:			/* Vertical Blank interrupt */
-	addq.b   #1, (vblank)
-	rte
+	jmp vbInterrupt
 
 _irq7:				/* Unused */
 	jmp _ex
@@ -189,11 +187,8 @@ _entry:
 	move	%a6, %sp	/* reset stack pointer (A7) */
 	move.w	#0x3FF, %d6 /* set up the loop count in d6 */
 
-	1:	move.l	%d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
+	1:move.l	%d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
 		dbra %d6, 1b		/* set to 0 */
 
 	/* --- Jump to main --- */
 	jmp __MAIN	
-
-.data
-	vblank: .byte 0
