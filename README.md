@@ -8,9 +8,8 @@ This project is primarily a personal one to sharpen assembly coding skills as we
 The code is written for the GNU assembler (GAS) with the m68k-elf target. If you do not already have a toolchain setup, you'll need to compile Binutils and (optionally) GCC
 
 ## Toolchain setup
-Binutils:
-	./configure --prefix=$OPTDIR --target=m68k-elf
+If you're using Arch Linux, an M68k cross compiler is available in the AUR. At the minimum, you will need binutils for the assembler and linker:
+https://aur.archlinux.org/packages/m68k-elf-binutils/
 
-GCC:
-	./configure --prefix=$OPTDIR --target=m68k-elf --enable-languages=c --disable-nls
-
+You will also want gcc if you plan to use C:
+https://aur.archlinux.org/packages/m68k-elf-gcc-bootstrap/

@@ -1,6 +1,7 @@
 # Custom toolchain directory
-MD_CHAIN=/opt/md_dev
-MD_BIN=$(MD_CHAIN)/bin
+#MD_CHAIN=/opt/md_dev
+#MD_BIN=$(MD_CHAIN)/bin
+MD_BIN=/usr/bin
 
 # Local directories
 SRCDIR := src
@@ -12,26 +13,26 @@ BINDIR := bin
 CC:=$(MD_BIN)/m68k-elf-gcc
 AS:=$(MD_BIN)/m68k-elf-as
 LD:=$(MD_BIN)/m68k-elf-ld
-OBJC:=$(MD_BIN)/m68k-elf-objcopy 
 
 AS_FLAGS := -m68000 -I$(INCDIR)
+CC_FLAGS := -c -O -I$(INCDIR)
 LD_FLAGS := -T md.ld -nostdlib
 
-SRC := $(shell find $(SRCDIR) -type f -name *.s)
-OBJ := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC:.s=.o))
+SRC_S := $(shell find $(SRCDIR) -type f -name *.s)
+SRC_C := $(shell find $(SRCDIR) -type f -name *.c)
+OBJ_S := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_S:.s=.o))
+OBJ_C := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_C:.c=.o))
 
 TARGET := $(BINDIR)/out.bin
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ_S) $(OBJ_C)
 	$(LD) $(LD_FLAGS) -o $(BUILDDIR)/unsized.bin $^
 	dd if=$(BUILDDIR)/unsized.bin of=$(TARGET) bs=8K conv=sync
 	$(RM) $(BUILDDIR)/unsized.bin
 
-#compile assembly files
-$(BUILDDIR)/%.o: $(SRC)
-	$(AS) $(AS_FLAGS) -o $@ $^
-
-#compile c files
+$(BUILDDIR)/%.o: $(SRC_S) $(SRC_C)
+	$(AS) $(AS_FLAGS) -o $@ $(SRC_S)
+	$(CC) $(CC_FLAGS) -o $@ $(SRC_C)
 
 #clean
 clean:

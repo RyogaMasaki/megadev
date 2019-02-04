@@ -190,5 +190,5 @@ _entry:
 	1:move.l	%d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
 		dbra %d6, 1b		/* set to 0 */
 
-	/* --- Jump to main --- */
-	jmp __MAIN	
+	/* jump to the main function */
+	jmp main2

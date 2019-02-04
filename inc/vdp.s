@@ -2,9 +2,9 @@
 /* VDP Definitions */
 /* http://md.squee.co/VDP */
 
-.equ	VDP_DATA_PORT,   0xC00000
-.equ	VDP_CTRL_PORT,   0xC00004
-.equ	VDP_HV_COUNT,    0xC00008
+.equ	VDP_DATA_PORT,   0xC00000  | 8/16 bit r/w
+.equ	VDP_CTRL_PORT,   0xC00004  | 8/16 bit r/w
+.equ	VDP_HV_COUNT,    0xC00008  | 8/16 bit r
 .equ	VDP_DEBUG,       0xC0001C
 
 .equ	VDP_REG_0,	0x8000
@@ -28,6 +28,7 @@ vdpInit:
 	dbra %d0, 1b
 	rts
 
+.global waitVBlank
 waitVBlank:
 	lea vblank, %a6
 	move.l (%a6), %d0
@@ -44,11 +45,22 @@ vBlankInt:
 setupPalette:
 	move.w #0x8F02, VDP_CTRL_PORT   | Set autoincrement to 2 bytes
 	move.l #0xC0000003, VDP_CTRL_PORT | Set up VDP to write to CRAM address 0x0000
-	lea sysPalette, %a0          | Load address of Palette into a0
+	lea sysPalette, %a0          | Load address of Palette into a0 */
 	move.l #0x07, %d0         | 32 bytes of data (8 longwords, minus 1 for counter) in palette
  
 	1:
-	move.l (%a0)+, 0x00C00000 | Move data to VDP data port, and increment source address
+	move.l (%a0)+, VDP_DATA_PORT | Move data to VDP data port, and increment source address
+	dbra %d0, 1b
+	rts
+
+setupFont:
+	move.w #0x8F02, VDP_CTRL_PORT
+	move.l #0x40200000, VDP_CTRL_PORT
+	lea sysFont, %a0
+	move.l #0x100, %d0
+
+	1:
+	move.l (%a0)+, VDP_DATA_PORT
 	dbra %d0, 1b
 	rts
 
@@ -99,15 +111,8 @@ sysPalette:
 	dc.w 0x0600 | Colour E - Navy blue
 	dc.w 0x0060 | Colour F - Dark green
 
-	CharacterH:
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11111110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x11000110
-   dc.l 0x00000000
+sysFont:
+   .incbin "../etc/tmss_font.bin"
 
 .data
 	vblank: .byte 0
