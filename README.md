@@ -13,3 +13,6 @@ https://aur.archlinux.org/packages/m68k-elf-binutils/
 
 You will also want gcc if you plan to use C:
 https://aur.archlinux.org/packages/m68k-elf-gcc-bootstrap/
+
+# Copyright Info
+Included is a font from Wonderboy, slightly modified to act as a basic 'system font.' This data is almost certainly copyrighted to Sega, so it should not be included in any commercial projects.
