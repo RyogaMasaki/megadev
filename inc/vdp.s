@@ -57,7 +57,7 @@ setupFont:
 	move.w #0x8F02, VDP_CTRL_PORT
 	move.l #0x40200000, VDP_CTRL_PORT
 	lea sysFont, %a0
-	move.l #0x100, %d0
+	move.l #0xb60, %d0
 
 	1:
 	move.l (%a0)+, VDP_DATA_PORT
@@ -112,7 +112,7 @@ sysPalette:
 	dc.w 0x0060 | Colour F - Dark green
 
 sysFont:
-   .incbin "../etc/tmss_font.bin"
+   .incbin "../etc/font8x8"
 
 .data
 	vblank: .byte 0
