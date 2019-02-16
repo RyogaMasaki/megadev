@@ -105,12 +105,15 @@ _irq3:				/* Unused */
 	jmp _ex
 
 _hBlankInt:			/* Horizontal Blank interrupt */
+	nop
 	rte
 
 _irq5:				/* Unused */
 	jmp _ex
 
 _vBlankInt:			/* Vertical Blank interrupt */
+	nop
+	nop
 	jmp vBlankInt
 
 _irq7:				/* Unused */
@@ -191,4 +194,5 @@ _entry:
 		dbra %d6, 1b		/* set to 0 */
 
 	/* jump to the main function */
-	jmp main2
+	jmp main
+

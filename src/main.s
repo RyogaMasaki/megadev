@@ -10,15 +10,16 @@ jsr vdpInit
 jsr setupPalette
 jsr setupFont
 
+lea helloWorld, %a0
+jsr drawString
+
 mainLoop:
-	move.w #0x8F02, VDP_CTRL_PORT
-	move.l #0x40000003, VDP_CTRL_PORT
-	move.w #0x0008, VDP_DATA_PORT
-	move.w #0x0005, VDP_DATA_PORT
-	move.w #0x000c, VDP_DATA_PORT
-	move.w #0x000c, VDP_DATA_PORT
-	move.w #0x000f, VDP_DATA_PORT
+	
 	jsr waitVBlank
 	jmp mainLoop
+
+helloWorld:
+	.ascii " Hello World! :)"
+	dc.b 0
 
 _end:
