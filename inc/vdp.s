@@ -6,6 +6,10 @@
 	move.l #0x40000000 + ((\addr & 0x3FFF) << 16) + ((\addr & 0xC000) >> 14), VDP_CTRL_PORT
 .endm
 
+.macro VRAM_WRITE_D6 addr
+	move.l #0x40000000 + ((\addr & 0x3FFF) << 16) + ((\addr & 0xC000) >> 14), %d6
+.endm
+
 .macro CRAM_READ addr
 	move.l #0x00000020 + (\addr << 16), VDP_CTRL_PORT
 .endm
@@ -67,9 +71,6 @@
 .macro VDP_AUTOINC val
 	move.w #0x8F00 + \val, VDP_CTRL_PORT
 .endm
-
-	
-
 
 /* VDP Definitions */
 /* http://md.squee.co/VDP */
@@ -133,18 +134,15 @@ setupFont:
 
 drawString:
 	/*
-		TO DO: actually implement the offset
+		TO DO: implement tile offset
 		a0 - ptr to text
-		d0 - vram offset
 	*/
 	move.w #0, %d2
-	VRAM_WRITE 0xc000
-
+	VRAM_WRITE 0xC000
 	1:
 	move.b (%a0)+, %d2
 	beq 2f
 	sub #0x20, %d2
-	or #0x8000, %d2
 	move.w %d2, VDP_DATA_PORT
 	bra 1b
 	2:
@@ -164,12 +162,12 @@ vdpInitRegisters:
 	dc.b 0x00 | 08: Unused
 	dc.b 0x00 | 09: Unused
 	dc.b 0x00 | 0A: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)
-	dc.b 0x08 | 0B: External interrupts on, V/H scrolling on
+	dc.b 0x08 | 0B: External interrupts on, V/H fullscreen scrollings
 	dc.b 0x81 | 0C: Shadows and highlights off, interlace off, H40 mode (40 cells horizontally)
 	dc.b 0x34 | 0D: Horiz. scroll table at 0xD000 (bits 0-5)
 	dc.b 0x00 | 0E: Unused here
 	dc.b 0x02 | 0F: Autoincrement 2
-	dc.b 0x01 | 10: Vert. scroll 32, Horiz. scroll 64
+	dc.b 0x00 | 10: Vert. scroll 32, Horiz. scroll 32
 	dc.b 0x00 | 11: Window Plane X pos 0 left (pos in bits 0-4, left/right in bit 7)
 	dc.b 0x00 | 12: Window Plane Y pos 0 up (pos in bits 0-4, up/down in bit 7)
 	dc.b 0x00 | 13: DMA length lo byte
