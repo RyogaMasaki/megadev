@@ -15,7 +15,7 @@ CC := $(M68K_PATH)/m68k-elf-gcc
 AS := $(M68K_PATH)/m68k-elf-as
 LD := $(M68K_PATH)/m68k-elf-ld
 
-AS_FLAGS := -m68000 -I$(INCDIR)
+AS_FLAGS := --register-prefix-optional -mcpu=68000 -I$(INCDIR)
 CC_FLAGS := -c -O -I$(INCDIR)
 LD_FLAGS := -T md.ld -nostdlib
 

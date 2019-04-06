@@ -7,12 +7,14 @@
 main:
 move    #0x2000, %sr
 jsr vdpInit
-jsr setupPalette
-jsr setupFont
+jsr loadPalette
+jsr loadFont
 
 lea helloWorld, %a0
-moveq #0, %d0
-jsr drawString
+jsr drawString32
+
+lea helloWorld2, %a0
+jsr drawString32
 
 mainLoop:
 	
@@ -23,6 +25,14 @@ mainLoop:
 	jmp mainLoop
 
 helloWorld:
+	dc.b 0
+	dc.b 14
+	.ascii " Hello World! :)"
+	dc.b 0
+
+helloWorld2:
+	dc.b 3
+	dc.b 10
 	.ascii " Hello World! :)"
 	dc.b 0
 
