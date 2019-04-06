@@ -82,6 +82,11 @@
 .text
 
 vdpInit:
+	VRAM_WRITE 0xA000
+	move.w #0x3000, %d0
+1:move.w #0, VDP_DATA_PORT
+	dbra %d0, 1b
+	
 	lea VDP_CTRL_PORT, %a5
 
 	move.w #0x8000, %d5		| start at first register
