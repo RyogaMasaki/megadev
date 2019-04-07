@@ -1,5 +1,5 @@
 # MegaDev
-A very minimal Sega Megadrive development framework
+A very minimal Sega Megadrive development framework. Useful as boilerplate for a new project.
 
 ## DISCLAIMER - DO NOT USE THIS
 This project is primarily a personal one to sharpen assembly coding skills as well as to familiarize myself with Megadrive hardware and development. Things are not complete and are certainly not optimal.
