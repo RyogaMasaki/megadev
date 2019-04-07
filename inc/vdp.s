@@ -127,23 +127,22 @@ loadFont:
 	dbra %d0, 1b
 	rts
 
-	/*
-		drawString functions
-		Draws ASCII text to scroll plane A at x/y coordinates
-		String format:
-			byte 1: x pos
-			byte 2: y pos
-			byte 3: ascii text, 0 terminated
-		
-		The three variations (32, 64, 128) should be called depending
-		on the current horizontal scroll size as set in VDP reg 16
-
-		INPUT:
-			a0 - ptr to string
-		OUTPUT:
-			None
-
-	*/
+/*
+	drawString functions
+	Draws ASCII text to scroll plane A at x/y coordinates
+	String format:
+		byte 1: x pos
+		byte 2: y pos
+		byte 3: ascii text, 0 terminated
+	
+	The three variations (32, 64, 128) should be called depending
+	on the current horizontal scroll size as set in VDP reg 16
+	INPUT:
+		a0 - ptr to string
+	OUTPUT:
+		None
+*/
+.global drawString32
 drawString32:
 movem.l d4-d6,-(sp)
 moveq #6, d4

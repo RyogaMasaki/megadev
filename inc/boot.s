@@ -10,7 +10,7 @@
 
 .include "io_def.s"
 
-.equ    STACK_ADDR,    0x00fffe00
+.equ    STACK_ADDR,    0xfffe00
 
 .text
 _start:
@@ -19,32 +19,33 @@ _m68kVectorTable:
 	dc.l	_entry					/* Program start */
 	
 	/* Standard M68k exception vectors */
-	dc.l	_errBus
-	dc.l	_errAddr
-	dc.l	_errIllegal
-	dc.l	_errZero
-	dc.l	_errChkInst
-	dc.l	_errTrapV
-	dc.l	_errPriv
-	dc.l	_errTrace
-	dc.l	_errLine1010
-	dc.l	_errLine1111
+	dc.l	_exBUS
+	dc.l	_exADDRESS
+	dc.l	_exILLEGAL
+	dc.l	_exZERO
+	dc.l	_exCHKINST
+	dc.l	_exTRAPV
+	dc.l	_exPRIV
+	dc.l	_exTRACE
+	dc.l	_exLINE1010
+	dc.l	_exLINE1111
 
 	/* Unused exceptions (12 entries) */
-	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
+	.fill 12, 4, 0
+	/*dc.l	_ex, _ex, _ex, _ex, _ex, _ex
+	dc.l	_ex, _ex, _ex, _ex, _ex, _ex*/
 	
 	/* Spurious interrupt */
-	dc.l	_spur
+	dc.l	_exSPUR
 
-	/* Interrupt Requests (IRQ) */
-	dc.l	_irq1
-	dc.l	_extInt			/* IRQ2 - External Interrupt */
-	dc.l	_irq3
-	dc.l	_hBlankInt		/* IRQ4 - Horizontal Blank */
-	dc.l	_irq5
-	dc.l	_vBlankInt		/* IRQ6 - Vertical Blank */
-	dc.l	_irq7
+	/* IRQ autovectors */
+	dc.l	0
+	dc.l	_EXINT	| IRQ2 - External Interrupt
+	dc.l	0
+	dc.l	_HINT		| IRQ4 - Horizontal Interrupt
+	dc.l	0
+	dc.l	_VINT		| IRQ6 - Vertical Interrupt
+	dc.l	0
 
 	/* Trap exceptions */
 	dc.l	_trap0, _trap1, _trap2, _trap3
@@ -53,73 +54,99 @@ _m68kVectorTable:
 	dc.l	_trapC, _trapD, _trapE, _trapF
 
 	/* Unused exceptions (16 entries) */
+		.fill 16, 4, 0
+	/*dc.l	_ex, _ex, _ex, _ex, _ex, _ex
 	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex
+	dc.l	_ex, _ex, _ex, _ex*/
 
 	/* Include the MegaDrive program header */
 .include "md_head.s"
 
-/* Standard M68k exceptions */
-_errBus:			/* Bus error */
-	jmp _ex
 
-_errAddr:			/* Address error */
-	jmp _ex
+/* Error Exception implementations */
+_exBUS:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "BUS ERROR"
 
-_errIllegal:		/* Illegal instruction */
-	jmp _ex
+_exADDRESS:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "ADDRESS ERROR"
 
-_errZero:			/* Divide by zero */
-	jmp _ex
+_exILLEGAL:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "ILLEGAL INSTRUCTION"
 
-_errChkInst:		/* CHK instruction */
-	jmp _ex
+_exZERO:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "ZERO DIVIDE"
 
-_errTrapV:			/* TRAPV instruction */
-	jmp _ex
+_exCHKINST:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "CHK INSTRUCTION"
 
-_errPriv:			/* Privilege violation */
-	jmp _ex
+_exTRAPV:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "TRAPV"
 
-_errTrace:			/* Trace */
-	jmp _ex
+_exPRIV:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "PRIVELEGE VIOLATION"
 
-_errLine1010:		/* Line 1010 emulator */
-	jmp _ex
+_exTRACE:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "TRACE"
 
-_errLine1111:		/* Line 1111 emulator */
-	jmp _ex
+_exLINE1010:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "LINE 1010 EMULATOR"
 
-_spur:
-	jmp _ex
+.align 2
+_exLINE1111:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "LINE 1111 EMULATOR"
 
+.align 2
+_exSPUR:
+	lea 1f, a0
+	jmp handleException
+	1: dc.b 1, 1
+	.asciz "SPURIOUS"
+
+.align 2
 /* Interrupt Requests */
-_irq1:				/* Unused */
-	jmp _ex
-
-_extInt:			/* External interrupt */
-	rte
-
-_irq3:				/* Unused */
-	jmp _ex
-
-_hBlankInt:			/* Horizontal Blank interrupt */
+_EXINT:
 	nop
 	rte
 
-_irq5:				/* Unused */
-	jmp _ex
-
-_vBlankInt:			/* Vertical Blank interrupt */
+_HINT:
 	nop
+	rte
+
+_VINT:
 	nop
 	jmp vBlankInt
 
-_irq7:				/* Unused */
-	jmp _ex
-
-/* TRAP */
+/* Trap exceptions */
 
 _trap0:
 	rte
@@ -169,9 +196,11 @@ _trapE:
 _trapF:
 	rte
 
-_ex:				/* Generic exception handler */
-
-	jmp _ex
+/* Generic exception handler */
+handleException:				
+	jsr drawString32
+	lockloop:
+	jmp lockloop
 
 _entry:
 	move	#0x2700,%sr			/* disabled interrupts */
