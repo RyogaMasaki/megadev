@@ -1,3 +1,5 @@
 bin/
 build/
+test/
 notes
+.vscode/
