@@ -16,7 +16,7 @@ vdp_init_regs:
 	dc.b 0x05 | 04: Pattern table for Scroll Plane B at 0xA000 (bits 0-2)
 	dc.b 0x70 | 05: Sprite table at 0xE000 (bits 0-6)
 	dc.b 0x00 | 06: Unused here
-	dc.b 0b00000010 | 07: Background colour - bits 0-3 = colour, bits 4-5 = subpalette
+	dc.b 0b00000000 | 07: Background colour - bits 0-3 = colour, bits 4-5 = subpalette
 	dc.b 0x00 | 08: Unused
 	dc.b 0x00 | 09: Unused
 	dc.b 0x00 | 0A: Frequency of Horiz. interrupt in Rasters (number of lines travelled by the beam)

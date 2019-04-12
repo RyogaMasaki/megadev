@@ -2,48 +2,48 @@
 
 /* Helper constants */
 /* These should be OR'ed to the bit-shifted address */
-.equ CRAM_WRITE,  0xC000
-.equ VRAM_WRITE,  0x4000
+.equ CRAM_WRITE,  0xC0000000
+.equ VRAM_WRITE,  0x40000000
 .equ VSRAM_WRITE, 0x40000010
 .equ CRAM_READ,   0x00000020
-.equ VRAM_READ,   0x0
+.equ VRAM_READ,   0x00000000
 .equ VSRAM_READ,  0x00000010
 
 .text
-
-
-
-setup_input:
+setup_inputs:
 	move #0x2700, sr
-	move.w	#0x100, 0xA11100	| Stop Z80 
-/*1:btst	#0, 0xA11101	| Has the Z80 stopped?
+	move.w	#0x100, Z80_BUSREQ	| Stop Z80 
+1:btst	#0, Z80_BUSREQ	| Has the Z80 stopped?
 	bne.s	1b	| If not, wait.
-	*/
 	moveq	#0b01000000, d0	| PD6 is an output
 	move.b	d0, IO_CTRL1	| Configure port A
 	move.b	d0, IO_CTRL2	| Configure port B 
 	move.b	d0, IO_CTRL3	| Configure port C
-	move.w	#0, 0xA11100	| Restart the Z80
-	/*
+	move.w	#0, Z80_BUSREQ	| Restart the Z80
 	move	#0x2000, sr	| Re-enable ints rts 
-	*/
 	rts
 
-read_input:
-	move.w	#0x100, 0xA11100	| Stop Z80 and wait
-/*
-1:btst	#0, 0xA11101	| Has the Z80 stopped?
+read_inputs:
+	move.w	#0x100, Z80_BUSREQ	| Stop Z80 and wait
+1:btst	#0, Z80_BUSREQ	| Has the Z80 stopped?
 	bne.s	1b	| If not, wait.
-	*/
-  lea	input_state, a0	| Area where joypad states are written
+
+  lea	input_p1_hold, a0	| Area where joypad states are written
 	lea	0xA10003, a1	| First joypad port
-  moveq	#2, d7	| Read all 3 control ports
-1:move.b	#0, (a1)	| Assert /TH rept 4 nop	| Wait until data is ready. endr
+  moveq	#1, d7
+1:move.b	#0, (a1)	| Assert /TH
+	nop  | wait for the controller device
+	nop
+	nop
+	nop
   move.b	(a1), d0	| Read back controller states. (00SA00DU)
 	lsl.b	#2, d0	| Shift start and A into the high 2 bits
 	and.b	#0xC0, d0	| Get only S+A buttons
-  move.b	#0x40, (a1)	| De-assert /TH rept 4
-	nop	| Wait until data is ready. endr
+  move.b	#0x40, (a1)	| De-assert /TH
+	nop	| wait for controller
+	nop
+	nop
+	nop
   move.b	(a1), d1	| Read back the controller states. (11CBRLDU)
 	and.b	#0x3F, d1	| Get only CBRLDU alone
 	or.b	d1, d0	| OR together the control states
@@ -55,9 +55,7 @@ read_input:
 	move.b	d1, (a0)+	| Write the held bits
   addq.w	#2, a1	| Use next control port
 	dbf	d7, 1b	| Loop until all joypads are read
-	/*
-	move.w	#0x0, 0xA11100	| Re-start the Z80
-	*/
+	move.w	#0x0, Z80_BUSREQ	| Re-start the Z80
 	rts
  
 /*
@@ -73,7 +71,7 @@ read_input:
 vdp_load_pal:
 	/* vdp auto increment should be set to 2 already */
 	movem.l d7, -(sp)
-	move.w CRAM_WRITE, VDP_CTRL
+	move.l #CRAM_WRITE, VDP_CTRL
 	move.l #0x1f, d7       | 128 bytes of data (32 dwords) in palette, minus 1 for counter
 1:move.l (a0)+, VDP_DATA
 	dbra d7, 1b
@@ -93,9 +91,11 @@ vdp_load_pal:
 .global vdp_load_subpal
 vdp_load_subpal:
 	movem.l d7, -(sp)
-	lsl.w #5, d0	| shift x5 to left to multiply subpal index to byte offset (each subpal = 32 bytes)
-	ori.w #CRAM_WRITE.w, d0 | set the bits for cram write
-	move.w d0, VDP_CTRL
+	lsl.l #5, d0	| shift x5 to left to multiply subpal index to byte offset (each subpal = 32 bytes) */
+	lsl.l #8, d0  | shift x16 to move the bits into the upper word
+	lsl.l #8, d0
+	ori.l #CRAM_WRITE, d0 | set the bits for cram write
+	move.l d0, VDP_CTRL
 
 	move.l #0x07, d7	| 32 bytes of data (8 dwords) in subpalette, minus 1 for counter
 1:move.l (a0)+, VDP_DATA
@@ -172,4 +172,12 @@ print:
 	2:
 	movem.l (sp)+, d4-d6
 	rts
+
+.data
+	input_p1_hold:  dc.b 0
+	input_p1_press: dc.b 0
+	input_p2_hold:  dc.b 0
+	input_ps_press: dc.b 0
+
+.text
 

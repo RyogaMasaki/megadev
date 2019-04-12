@@ -2,13 +2,14 @@
 M68K_PATH := /usr/bin
 
 # Output binary file
-OUTBIN := out.bin
+OUTBIN := out.md
+OUTELF := out.elf
 
 # Local directories
 SRCDIR := src
 SYSDIR := sys
 BUILDDIR := build
-BINDIR := bin
+OUTDIR := bin
 
 # Toolchain
 CC := $(M68K_PATH)/m68k-elf-gcc
@@ -24,12 +25,16 @@ SRC_C := $(shell find $(SRCDIR) -type f -name *.c)
 OBJ_S := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_S:.s=.o))
 OBJ_C := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_C:.c=.o))
 
-TARGET := $(BINDIR)/$(OUTBIN)
+BINTARGET := $(OUTDIR)/$(OUTBIN)
+ELFTARGET := $(OUTDIR)/$(OUTELF)
 
-$(TARGET): $(OBJ_S) $(OBJ_C)
-	$(LD) $(LD_FLAGS) -o $(BUILDDIR)/unsized.bin $^
-	dd if=$(BUILDDIR)/unsized.bin of=$(TARGET) bs=8K conv=sync
-	$(RM) $(BUILDDIR)/unsized.bin
+$(BINTARGET): $(OBJ_S) $(OBJ_C)
+	$(LD) $(LD_FLAGS) --oformat binary -o $(BUILDDIR)/tempbin $^
+	dd if=$(BUILDDIR)/tempbin of=$(BINTARGET) bs=8K conv=sync
+	$(RM) $(BUILDDIR)/tempbin
+
+$(ELFTARGET): $(OBJ_S) $(OBJ_C)
+	$(LD) $(LD_FLAGS) -o $(OUTDIR)/$(OUTELF) $^
 
 $(OBJ_S): $(SRC_S)
 	$(AS) $(AS_FLAGS) -o $@ $(SRC_S)
@@ -37,8 +42,11 @@ $(OBJ_S): $(SRC_S)
 $(OBJ_C): $(SRC_C)
 	$(CC) $(CC_FLAGS) -o $@ $(SRC_C)
 
-# Make object code only
-obj: $(OBJ_C) $(OBJ_S)
+# Create Megadrive binary
+bin: $(BINTARGET)
+
+# Create ELF binary for 
+elf: $(ELFTARGET)
 
 # Clean project
 clean:

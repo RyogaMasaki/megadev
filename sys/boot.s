@@ -34,7 +34,7 @@ _start:
 
 _sysinit:
 	move	#0x2700, sr		| Disable interrupts
-	move.b	(VERSION), d0 	| Check for TMSS
+	move.b	VERSION, d0 	| Check for TMSS
 	andi.b	#0x0f, d0
 	beq	1f	| If version 0, skip TMSS
 	move.l	#0x53454741, IO_TMSS	| Write 'SEGA' to TMSS port
@@ -43,16 +43,32 @@ _sysinit:
 1:clr.l d0
 	clr.l d6
 	movea.l d0, a6
-	/*move a6, %sp*/	/* reset stack pointer (A7) */ /*TODO: Why are we resetting the sp? */
+	/* move a6, %sp */	/* reset stack pointer (A7) */ /*TODO: Why are we resetting the sp? */
 	move.w #0x3FF, d7
 
-	2:move.l	d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
-		dbra d7, 2b		
+2:move.l	d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
+	dbra d7, 2b
+
+	/* Z80 INIT */
+	move.w  #0x100, Z80_BUSREQ
+	move.w  #0x100, Z80_RESET
+1:btst	#0,  Z80_BUSREQ
+	bne.s	1b
+
+	lea     z80_init_program, a0
+	lea     Z80_ADDR, a1
+	move.w  #(z80_init_program_len - 1), d7
+1:move.b  (a0)+,(a1)+	 | data writes to Z80 are byte size
+	dbf	d7, 1b
+
+	move.w  #0, Z80_RESET
+	move.w  #0, Z80_BUSREQ
+	move.w  #0x100, Z80_RESET
 
 	/* VDP INIT */
 	/* clear VRAM */
 	/* TODO: dma vram fill? */
-	move.w #VRAM_WRITE, VDP_CTRL
+	move.l #VRAM_WRITE, VDP_CTRL
 	move.l #0x3fff, d7
 1:move.l d0, (VDP_DATA)
 	dbra %d7, 1b
@@ -72,21 +88,30 @@ _sysinit:
 	dbra d0, 1b
 
 	/* load system font */
-	move.w #VRAM_WRITE, VDP_CTRL
+	move.l #VRAM_WRITE, VDP_CTRL
 	lea sysfont, a0
 	move.l #sysfontlen, d0
 
-	1:
-	move.l (a0)+, (VDP_DATA)
+1:move.l (a0)+, VDP_DATA
 	dbra d0, 1b
 
 	/* load system palette */
 	moveq #0, d0
 	lea syspal, a0
 	jsr vdp_load_subpal
+	
+	moveq #1, d0
+	lea syspal, a0
+	jsr vdp_load_subpal
 
-	jsr setup_input
+	jsr setup_inputs
 
 	/* and on with the show... */
 	jmp _main
 
+z80_init_program:
+	dc.l    0xAF01D91F, 0x11270021, 0x2600F977 
+	dc.l    0xEDB0DDE1, 0xFDE1ED47, 0xED4FD1E1
+	dc.l    0xF108D9C1, 0xD1E1F1F9, 0xF3ED5636
+	dc.w    0xE9E9
+.equ z80_init_program_len, .-z80_init_program

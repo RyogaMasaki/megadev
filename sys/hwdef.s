@@ -21,7 +21,8 @@
 .equ    IO_SCTRL3,	0xA1001F
 
 /* Z80 Control */
-.equ		Z80_BUSEQR, 0xA11100
+.equ    Z80_ADDR,   0xA00000
+.equ		Z80_BUSREQ, 0xA11100
 .equ		Z80_RESET,	0xA11200
 
 /* TMSS Register */

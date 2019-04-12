@@ -121,8 +121,7 @@ _trapF:
 /* Generic exception handler */
 handle_exception:				
 	jsr print32
-	lockloop:
-	jmp lockloop
+	stop #0x2700
   
 .align 2
 

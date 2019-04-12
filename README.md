@@ -16,7 +16,27 @@ You will also want gcc if you plan to use C:
 
 https://aur.archlinux.org/packages/m68k-elf-gcc-bootstrap/
 
-## File structure
+## Building
+The default makefile target will create a Megadrive compatible binary called 'out.md' in the bin directory.
+
+There is also a an 'elf' target that will create an ELF binary suitable for debugging (e.g. with Blastem's GDB integration).
+
+## Testing
+The final binary can be tested in an emulator or on hardware. Here are a couple quick commands for reference to quickly test from the bin directory:
+
+MAME:
+
+```mame genesis -cart $(pwd)/out.md -debugger on```
+
+Blastem:
+
+```blastem -d out.md```
+
+## Directory structure
+```bin```
+
+Contains built binaries
+
 ```etc```
 
 Contains miscellaneous work files that will not be incorporated into the final ROM
@@ -27,11 +47,11 @@ Contains resources (graphics, sound, etc) that will be incorporated into the ROM
 
 ```src```
 
-User source code
+User application source code
 
 ```sys```
 
-System source code and configurations
+System/hardware source code and configurations
 
-# Copyright Info
-Included is a font from Wonderboy, slightly modified to act as a basic 'system font.' This data is almost certainly copyrighted to Sega, so it should not be included in any commercial projects.
+## Misc
+This distribution includes the Saikyo Sans font by usr_share at OpenGameArt: https://opengameart.org/content/the-collection-of-8-bit-fonts-for-grafx2-r2
