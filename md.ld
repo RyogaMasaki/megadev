@@ -1,5 +1,4 @@
 OUTPUT_ARCH(m68k)
-OUTPUT_FORMAT(binary)
 
 MEMORY
 {
@@ -12,6 +11,7 @@ SECTIONS
   .text 0x00000000:
   {
     *(.text*)
+    *(.rodata*)
   } > ROM
 
   .data 0xFF0000 :

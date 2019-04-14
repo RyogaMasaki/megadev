@@ -1,6 +1,6 @@
+.text
 /* PROGRAM HEADER */
 /* More information can be found at https://www.plutiedev.com/rom-header */
-prog_header:
   .ascii "SEGA MEGA DRIVE " | Hardware name (16 bytes); The first four bytes MUST be 'SEGA' or TMSS Megadrives will fail
   .ascii "(C)SEGA 1988.OCT" | Copyright holder & release date (16 bytes)
   .ascii "YOUR GAME NAME                                  " | Domestic name of program/game (48 bytes)
@@ -19,3 +19,5 @@ prog_header:
 	dc.l	0x00000000	| Unused 
 	.ascii "                                        "	| Notes (40 bytes)
 	.ascii "JUE             "	| Region codes (16 bytes)
+.align 2
+

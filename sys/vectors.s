@@ -1,3 +1,4 @@
+.text
 /* M68k vector table */
 	dc.l	0xfffe00		| Stack pointer 
 	dc.l	_sysinit		| Program start
@@ -16,8 +17,6 @@
 
 	/* Unused exceptions (12 entries) */
 	.fill 12, 4, 0
-	/*dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex, _ex, _ex*/
 	
 	/* Spurious interrupt */
 	dc.l	_exSPUR
@@ -38,8 +37,5 @@
 	dc.l	_trapC, _trapD, _trapE, _trapF
 
 	/* Unused exceptions (16 entries) */
-		.fill 16, 4, 0
-	/*dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex, _ex, _ex
-	dc.l	_ex, _ex, _ex, _ex*/
-	
+	.fill 16, 4, 0
+

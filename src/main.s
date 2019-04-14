@@ -1,19 +1,21 @@
 .include "boot.s"
 
 .text
-
+.align 2
 
 /* Your program code starts here */
-.align 2
 _main:
-/* Interrupts are still disabled at this point; enable them */
-move    #0x2000, %sr
-
-lea helloworld_str, %a0
-jsr print32
+	INTERRUPT_ENABLE			 | Interrupts were disabled during initialization; re-enable them
+	PRINT helloworld_str, #0, #14
 
 main_loop:
-	jsr waitVBlank
+	/* wait for a vblank before we do any processing */
+	jsr vblank_wait
+	jsr read_inputs
+	move.l (input_p1_hold), d2
+	move.w #0, d0
+	move.w #16, d1
+	jsr printval32_long
 	move.l #0x50000003, VDP_CTRL
   move.w d4, VDP_DATA
   add.w #1, d4
@@ -21,12 +23,12 @@ main_loop:
 	jmp main_loop
 
 /* Very basic vblank wait loop */
-.global waitVBlank
-waitVBlank:
+.global vblank_wait
+vblank_wait:
 	lea vblank, a6
-	move.l a6, d0
-1:move.l a6, d1
-	cmp.l d0, d1
+	move.b (a6), d0
+1:move.b (a6), d1
+	cmp.b d0, d1
 	beq 1b
 	move.b #0, (a6)
 	rts 
@@ -34,14 +36,13 @@ waitVBlank:
 /* VBlank */
 vblank_int:
 	addq.b   #1, (vblank)
-	jsr read_inputs
 	rte
 
+.section .rodata
 helloworld_str:
-	dc.b 0, 14
-	.asciz "HELLO WORLD! :)"
+	.asciz "HELLO WORLD "
 
 .data
-	vblank: dc.b 0
+	vblank: ds.b 1
 _end:
 

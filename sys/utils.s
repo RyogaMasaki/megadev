@@ -1,7 +1,7 @@
-
+.text
 
 /* Helper constants */
-/* These should be OR'ed to the bit-shifted address */
+/* These should be OR'ed to the VDP compatible bit-shifted address */
 .equ CRAM_WRITE,  0xC0000000
 .equ VRAM_WRITE,  0x40000000
 .equ VSRAM_WRITE, 0x40000010
@@ -9,7 +9,8 @@
 .equ VRAM_READ,   0x00000000
 .equ VSRAM_READ,  0x00000010
 
-.text
+
+.global setup_inputs
 setup_inputs:
 	move #0x2700, sr
 	move.w	#0x100, Z80_BUSREQ	| Stop Z80 
@@ -23,6 +24,7 @@ setup_inputs:
 	move	#0x2000, sr	| Re-enable ints rts 
 	rts
 
+.global read_inputs
 read_inputs:
 	move.w	#0x100, Z80_BUSREQ	| Stop Z80 and wait
 1:btst	#0, Z80_BUSREQ	| Has the Z80 stopped?
@@ -104,80 +106,188 @@ vdp_load_subpal:
 	rts
 
 /*
-	drawString functions
-	Draws ASCII text to scroll plane A at x/y coordinates
+	print
+	Prints ASCII text to scroll plane A at x/y coordinates
 	String format:
 		byte 1: x pos
 		byte 2: y pos
 		byte 3: ascii text, 0 terminated
-	
-	The three variations (32, 64, 128) should be called depending
-	on the current horizontal scroll size as set in VDP reg 16
+
+	Note that plane_width must be set properly (match the value of VDP register
+	0x10) to correctly place the text with X/Y coords
 	INPUT:
+		d0 - x pos
+		d1 - y pos
 		a0 - ptr to string
 	OUTPUT:
 		None
 */
-.global print32
-print32:
-movem.l d4-d6,-(sp)
-moveq #6, d4
-bra print
+print:
+	movem.l d0-d3,-(sp)
+	move.b (plane_width), d2	| need to know the width of chrs in a row on the plane
+	andi.b #0x3, d2
+	cmp.b #0x2, d2
+	blt 1f	| 32 chrs
+	beq 2f	| 64 chrs
+	moveq #8, d3 | 128 chrs
+	bra 4f
+1:moveq #6, d3
+	bra 4f
+2:moveq #7, d3
 
-.global print64
-print64:
-movem.l d4-d6,-(sp)
-moveq #7, d4
-bra print
-
-.global print128
-print128:
-movem.l d4-d6,-(sp)
-moveq #8, d4
-bra print
-
-/* Do not call this directly! Use the entry functions above */
-print:	
-	moveq #0, d5
-	moveq #0, d6
-	move.b (%a0)+, %d5	| first byte is x pos
-	lsl.w #1, d5
-	move.b (%a0)+, %d6	| second byte is y pos
-	lsl.w d4, d6
-	add.w d5, d6				| d6 contains offset from base
-
-	/* add offset to base and format address for VDP*/
-	add.l #VDP_SCROLLA_PTBL, d6
-	move.l d6, d5
-	
-	lsr.l #8, %d6
-	lsr.l #6, %d6
-
-	lsl.l #8, %d5
-	lsl.l #8, %d5
-
-	or.l %d6, %d5
-	bset #30, %d5
-	bclr #31, %d5
-	move.l %d5, (VDP_CTRL)
+4:jsr set_printxy_offset
 	
 	/* read/send ascii data */
-	moveq #0, %d6
-	1:
-	move.b (%a0)+, %d6
+	clr.l d0
+1:move.b (a0)+, d0
 	beq 2f
-	sub #0x20, %d6
-	move.w %d6, (VDP_DATA)
+	sub #0x20, d0
+	move.w d0, (VDP_DATA)
 	bra 1b
-	2:
-	movem.l (sp)+, d4-d6
+2:movem.l (sp)+, d0-d3
+	rts
+
+/*
+	print_value functions
+	Prints ASCII text to scroll plane A at x/y coordinates based
+	on a value from a given address
+	
+	The three variations (32, 64, 128) should be called depending
+	on the current horizontal scroll size as set in VDP reg 16
+	INPUT:
+		d0 - x pos
+		d1 - y pos
+		d2 - value to print
+	OUTPUT:
+		None
+*/
+
+.global printval32_byte
+printval32_byte:
+	moveq #6, d3
+	bra print_value_byte
+
+.global printval64_byte
+printval64_byte:
+	moveq #7, d3
+	bra print_value_byte
+
+.global printval128_byte
+printval128_byte:
+	moveq #8, d3
+	bra print_value_byte
+
+print_value_byte:
+	jsr set_printxy_offset
+
+	move.w #0x1, d7
+1:rol.b #4, d2
+	move.b d2, d1
+	and.w #0x0f, d1
+	cmp.b #0x09, d1
+	bgt 2f
+	add.b #0x10, d1
+	bra 3f
+2:add.b #0x17, d1
+3:move.w d1, VDP_DATA
+	dbf d7, 1b
+	rts
+
+.global printval32_word
+printval32_word:
+	moveq #6, d3
+	bra print_value_word
+
+.global printval64_word
+printval64_word:
+	moveq #7, d3
+	bra print_value_word
+
+.global printval128_word
+printval128_word:
+	moveq #8, d3
+	bra print_value_word
+
+print_value_word:
+	jsr set_printxy_offset
+
+	move.w #0x3, d7
+1:rol.w #4, d2
+	move.w d2, d1
+	and.w #0x0f, d1
+	cmp.b #0x09, d1
+	bgt 2f
+	add.b #0x10, d1
+	bra 3f
+2:add.b #0x17, d1
+3:move.w d1, VDP_DATA
+	dbf d7, 1b
+	rts
+
+.global printval32_long
+printval32_long:
+	moveq #6, d3
+	bra print_value_long
+
+.global printval64_long
+printval64_long:
+	moveq #7, d3
+	bra print_value_long
+
+.global printval128_long
+printval128_long:
+	moveq #8, d3
+	bra print_value_long
+
+print_value_long:
+	jsr set_printxy_offset
+
+	move.w #0x7, d7
+1:rol.l #4, d2
+	move.l d2, d1
+	and.w #0x0f, d1
+	cmp.b #0x09, d1
+	bgt 2f
+	add.b #0x10, d1
+	bra 3f
+2:add.b #0x17, d1
+3:move.w d1, VDP_DATA
+	dbf d7, 1b
+	rts
+
+/*
+	set_printxy_offset
+	Calculates and sets the correct offset in VRAM for a given X/Y coord
+*/
+set_printxy_offset:
+	andi.b #0xff, d0	| d0 = xpos
+	andi.b #0xff, d1	| d1 = ypos
+	lsl.w #1, d0			| each name pattern entry is 2 bytes; shift x offset to multiply by 2
+	lsl.w d3, d1			| d3 = playfield width (32,64,128)
+	add.w d1, d0			| d0 now contains offset from nametable base
+
+	add.l #VDP_SCROLLA_PTBL, d0
+	move.l d0, d1
+
+	/* Shift things around to make the VDP happy */
+	lsr.l #8, d0
+	lsr.l #6, d0
+
+	lsl.l #8, d1
+	lsl.l #8, d1
+
+	or.l d0, d1
+	bset #30, d1
+	bclr #31, d1
+	move.l d1, VDP_CTRL
 	rts
 
 .data
-	input_p1_hold:  dc.b 0
-	input_p1_press: dc.b 0
-	input_p2_hold:  dc.b 0
-	input_ps_press: dc.b 0
+	dummy:					ds.b 1
+	plane_width:		ds.b 1
+	input_p1_hold:  ds.b 1
+	input_p1_press: ds.b 1
+	input_p2_hold:  ds.b 1
+	input_p2_press: ds.b 1
 
-.text
 

@@ -1,4 +1,5 @@
 /* Hardware definitions */
+.text
 /* Version register */
 .equ    VERSION,	  0xA10001  | 16/32 bit r
 
@@ -32,7 +33,6 @@
 .equ	VDP_CTRL,			0xC00004  | 16 bit r/w
 .equ	VDP_HVCOUNT,  0xC00008  | 16 bit r
 .equ	VDP_DEBUG,    0xC0001C
-
 
 
 /* Help macros */

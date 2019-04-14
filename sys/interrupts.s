@@ -1,3 +1,4 @@
+.text
 /* External interrupt */
 _EXINT:
 rte
@@ -9,3 +10,4 @@ rte
 /* VBLANK interrupt */
 _VINT:
 jmp vblank_int
+

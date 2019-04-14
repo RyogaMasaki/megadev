@@ -1,75 +1,50 @@
+.text
 /* Error Exception implementations */
 _exBUS:
-	lea 1f, a0
+	lea strBUSERR, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "BUS ERROR"
 
 _exADDRESS:
-	lea 1f, a0
+	lea strADDRERR, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "ADDRESS ERROR"
 
 _exILLEGAL:
-	lea 1f, a0
+	lea strILLEGAL, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "ILLEGAL INSTRUCTION"
 
 _exZERO:
-	lea 1f, a0
+	lea strZERODIV, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "ZERO DIVIDE"
 
 _exCHKINST:
-	lea 1f, a0
+	lea strCHKINST, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "CHK INSTRUCTION"
 
 _exTRAPV:
-	lea 1f, a0
+	lea strTRAPV, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "TRAPV"
 
 _exPRIV:
-	lea 1f, a0
+	lea strPRIVV, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "PRIVELEGE VIOLATION"
 
 _exTRACE:
-	lea 1f, a0
+	lea strTRACE, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "TRACE"
 
 _exLINE1010:
-	lea 1f, a0
+	lea strL1010, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "LINE 1010 EMULATOR"
 
-.align 2
 _exLINE1111:
-	lea 1f, a0
+	lea strL1111, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "LINE 1111 EMULATOR"
 
-.align 2
 _exSPUR:
-	lea 1f, a0
+	lea strSPUR, a0
 	jmp handle_exception
-	1: dc.b 1, 1
-	.asciz "SPURIOUS"
 
-.align 2
 /* Trap exceptions */
-
 _trap0:
 	rte
 
@@ -119,9 +94,51 @@ _trapF:
 	rte
 
 /* Generic exception handler */
-handle_exception:				
-	jsr print32
+handle_exception:
+	moveq #1, d0
+	moveq #1, d1
+	jsr print				| print exception type as defined above
+	PRINT strPC, #1, #2
+	moveq #4, d0
+	moveq #2, d1
+	move.l 0xa(sp), d2	| PC is 0ffset 0xa from interrupt stack pointer
+	jsr printval32_long
+
+	PRINT strSR, #1, #3
+	moveq #4, d0
+	moveq #3, d1
+	move.w 0x8(sp), d2 	| SR is offset 0x8
+	jsr printval32_word
+
+	PRINT strADDR, #1, #4
+	moveq #6, d0
+	moveq #4, d1
+	move.l 0x2(sp), d2 | access address is offset 0x2
+	jsr printval32_long
+
+	PRINT strOPC, #1, #5
+	moveq #8, d0
+	moveq #5, d1
+	move.w 0x6(sp), d2 | opcode is offset 0x6
+	jsr printval32_word
+
 	stop #0x2700
-  
-.align 2
+
+.section .rodata
+strBUSERR:  .asciz "BUS ERROR"
+strADDRERR: .asciz "ADDRESS ERROR"
+strILLEGAL: .asciz "ILLEGAL INSTRUCTION"
+strZERODIV: .asciz "ZERO DIVIDE"
+strCHKINST: .asciz "CHK INSTRUCTION"
+strTRAPV:   .asciz "TRAPV"
+strPRIVV:   .asciz "PRIVELEGE VIOLATION"
+strTRACE:   .asciz "TRACE"
+strL1010:   .asciz "LINE 1010 EMULATOR"
+strL1111:   .asciz "LINE 1111 EMULATOR"
+strSPUR:    .asciz "SPURIOUS"
+
+strPC:   .asciz "PC="
+strSR:   .asciz "SR="
+strADDR: .asciz "ADDR="
+strOPC:  .asciz "OPCODE="
 

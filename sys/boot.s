@@ -3,8 +3,8 @@
 	https://github.com/RyogaMasaki/megadev
 */
 
-/* Hardware definitions */
-.include "hwdef.s"
+/* Hardware constants & helper macros */
+.include "global.s"
 
 .org 0x00000000
 
@@ -32,8 +32,9 @@ _start:
 /* Initial system resources (font, palette) */
 .include "sysres.s"
 
+.text
 _sysinit:
-	move	#0x2700, sr		| Disable interrupts
+	INTERRUPT_DISABLE
 	move.b	VERSION, d0 	| Check for TMSS
 	andi.b	#0x0f, d0
 	beq	1f	| If version 0, skip TMSS
@@ -87,6 +88,9 @@ _sysinit:
 	add.w d7, d5
 	dbra d0, 1b
 
+	/* set plane width mirror in memory for print functions */
+	move.b #0, plane_width
+
 	/* load system font */
 	move.l #VRAM_WRITE, VDP_CTRL
 	lea sysfont, a0
@@ -109,6 +113,7 @@ _sysinit:
 	/* and on with the show... */
 	jmp _main
 
+.section .rodata
 z80_init_program:
 	dc.l    0xAF01D91F, 0x11270021, 0x2600F977 
 	dc.l    0xEDB0DDE1, 0xFDE1ED47, 0xED4FD1E1

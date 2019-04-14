@@ -48,6 +48,8 @@ bin: $(BINTARGET)
 # Create ELF binary for 
 elf: $(ELFTARGET)
 
+all: $(BINTARGET) $(ELFTARGET)
+
 # Clean project
 clean:
 	$(RM) -r $(BUILDDIR)/* $(TARGET)

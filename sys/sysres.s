@@ -1,3 +1,4 @@
+.section .rodata
 sysfont:
   .incbin "../res/sysfont.mdchr"
 	.equ sysfontlen, .-sysfont
