@@ -283,11 +283,10 @@ set_printxy_offset:
 	rts
 
 .data
-	dummy:					ds.b 1
-	plane_width:		ds.b 1
-	input_p1_hold:  ds.b 1
-	input_p1_press: ds.b 1
-	input_p2_hold:  ds.b 1
-	input_p2_press: ds.b 1
-
-
+	dummy:					.byte 1
+	plane_width:		.byte 1
+	input_p1_hold:  .byte 1
+	input_p1_press: .byte 1
+	input_p2_hold:  .byte 1
+	input_p2_press: .byte 1
+	

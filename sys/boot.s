@@ -6,8 +6,29 @@
 /* Hardware constants & helper macros */
 .include "global.s"
 
-.org 0x00000000
+.org 0
 
+/*
+	As a general rule, the .rodata section should be kept	above
+	the .text section due to some quirks in GAS. Please see README
+	for more info.
+*/
+.section .rodata
+/* Initial environment configuration */
+.include "config.s"
+
+/* Initial system resources (font, palette) */
+.include "sysres.s"
+
+/* TODO: Z80 subsystem */
+z80_init_program:
+	.long    0xAF01D91F, 0x11270021, 0x2600F977 
+	.long    0xEDB0DDE1, 0xFDE1ED47, 0xED4FD1E1
+	.long    0xF108D9C1, 0xD1E1F1F9, 0xF3ED5636
+	.word    0xE9E9
+.equ z80_init_program_len, .-z80_init_program
+
+.align 2
 .text
 .global _start
 _start:
@@ -26,12 +47,6 @@ _start:
 /* Utility functions */
 .include "utils.s"
 
-/* Initial environment configuration */
-.include "config.s"
-
-/* Initial system resources (font, palette) */
-.include "sysres.s"
-
 .text
 _sysinit:
 	INTERRUPT_DISABLE
@@ -44,7 +59,6 @@ _sysinit:
 1:clr.l d0
 	clr.l d6
 	movea.l d0, a6
-	/* move a6, %sp */	/* reset stack pointer (A7) */ /*TODO: Why are we resetting the sp? */
 	move.w #0x3FF, d7
 
 2:move.l	d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
@@ -113,10 +127,3 @@ _sysinit:
 	/* and on with the show... */
 	jmp _main
 
-.section .rodata
-z80_init_program:
-	dc.l    0xAF01D91F, 0x11270021, 0x2600F977 
-	dc.l    0xEDB0DDE1, 0xFDE1ED47, 0xED4FD1E1
-	dc.l    0xF108D9C1, 0xD1E1F1F9, 0xF3ED5636
-	dc.w    0xE9E9
-.equ z80_init_program_len, .-z80_init_program

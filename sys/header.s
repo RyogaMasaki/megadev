@@ -6,17 +6,17 @@
   .ascii "YOUR GAME NAME                                  " | Domestic name of program/game (48 bytes)
   .ascii "YOUR GAME NAME                                  " | Intl name of program/game (48 bytes)
 	.ascii "GM XXXXXXXX-XX"	| Version identifier (14 bytes)
-	dc.w	0x0000 | Checksum
+	.word	0x0000 | Checksum
 	.ascii "J               "	| Supported input devices (16 bytes)
-	dc.l	0x00000000	| Start address of ROM
-	dc.l	0x003FFFFF	| End address of ROM 
-	dc.l	0x00FF0000	| Start address of RAM
-	dc.l	0x00FFFFFF	| End address of RAM
+	.long	0x00000000	| Start address of ROM
+	.long	0x003FFFFF	| End address of ROM 
+	.long	0x00FF0000	| Start address of RAM
+	.long	0x00FFFFFF	| End address of RAM
 	.ascii	"    " 		| Extra RAM
-	dc.l	0x00000000	| Extra RAM start address
-	dc.l	0x00000000	| Extra RAM end address
-	dc.l	0x00000000	| Modem support 
-	dc.l	0x00000000	| Unused 
+	.long	0x00000000	| Extra RAM start address
+	.long	0x00000000	| Extra RAM end address
+	.long	0x00000000	| Modem support 
+	.long	0x00000000	| Unused 
 	.ascii "                                        "	| Notes (40 bytes)
 	.ascii "JUE             "	| Region codes (16 bytes)
 .align 2

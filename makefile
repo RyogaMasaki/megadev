@@ -16,8 +16,8 @@ CC := $(M68K_PATH)/m68k-elf-gcc
 AS := $(M68K_PATH)/m68k-elf-as
 LD := $(M68K_PATH)/m68k-elf-ld
 
-AS_FLAGS := --register-prefix-optional -mcpu=68000 -I$(SYSDIR)
-CC_FLAGS := -c -O -I$(SYSDIR)
+AS_FLAGS := -g --register-prefix-optional -mcpu=68000 -I$(SYSDIR)
+CC_FLAGS := -g -c -O -I$(SYSDIR)
 LD_FLAGS := -T md.ld -nostdlib
 
 SRC_S := $(shell find $(SRCDIR) -type f -name *.s)
@@ -29,12 +29,10 @@ BINTARGET := $(OUTDIR)/$(OUTBIN)
 ELFTARGET := $(OUTDIR)/$(OUTELF)
 
 $(BINTARGET): $(OBJ_S) $(OBJ_C)
-	$(LD) $(LD_FLAGS) --oformat binary -o $(BUILDDIR)/tempbin $^
-	dd if=$(BUILDDIR)/tempbin of=$(BINTARGET) bs=8K conv=sync
-	$(RM) $(BUILDDIR)/tempbin
+	$(LD) $(LD_FLAGS) --oformat binary -o /dev/stdout $^ | dd of=$(BINTARGET) bs=8K conv=sync status=none
 
 $(ELFTARGET): $(OBJ_S) $(OBJ_C)
-	$(LD) $(LD_FLAGS) -o $(OUTDIR)/$(OUTELF) $^
+	$(LD) $(LD_FLAGS) -o $(ELFTARGET) $^
 
 $(OBJ_S): $(SRC_S)
 	$(AS) $(AS_FLAGS) -o $@ $(SRC_S)
@@ -45,14 +43,14 @@ $(OBJ_C): $(SRC_C)
 # Create Megadrive binary
 bin: $(BINTARGET)
 
-# Create ELF binary for 
+# Create ELF binary with debugging symbols
 elf: $(ELFTARGET)
 
 all: $(BINTARGET) $(ELFTARGET)
 
 # Clean project
 clean:
-	$(RM) -r $(BUILDDIR)/* $(TARGET)
+	$(RM) -r $(BUILDDIR)/* $(BINTARGET) $(ELFTARGET)
 
 #init
 init:

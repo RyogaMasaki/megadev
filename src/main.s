@@ -41,8 +41,7 @@ vblank_int:
 .section .rodata
 helloworld_str:
 	.asciz "HELLO WORLD "
-
 .data
-	vblank: ds.b 1
+	vblank: .byte 1
 _end:
 
