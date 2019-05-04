@@ -1,6 +1,7 @@
 .text
 /* External interrupt */
 _EXINT:
+/* jsr ext_rx */
 rte
 
 /* HBLANK interrupt */

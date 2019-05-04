@@ -10,9 +10,80 @@
 .equ VSRAM_READ,  0x00000010
 
 
-.global setup_inputs
-setup_inputs:
-	move #0x2700, sr
+/*
+	init_ext
+	Sets up port 
+
+	INPUT:
+		None
+	OUTPUT:
+		d0 - byte value read from external device
+*/
+init_ext:
+	INTERRUPT_DISABLE
+	move.w	#0x100, Z80_BUSREQ	| stop Z80 
+1:btst	#0, Z80_BUSREQ				| wait for stop
+	bne.s	1b
+	
+	/* Set comm speed; Serial in/out mode; Enable Rx interrupt */
+	move.b	#((EXT_BAUD << 6) + 0b00111000), EXT_SCTRL
+	move.b #0x7f, EXT_CTRL
+	move.w	#0, Z80_BUSREQ	| Restart the Z80
+	INTERRUPT_ENABLE
+	rts
+
+
+/*
+	ext_rx
+	Reads a byte from the external device
+
+	INPUT:
+		None
+	OUTPUT:
+		d0 - byte value received
+*/
+/* TODO: How does RERR play into this? */
+ext_rx:
+	movem.l d0-d7/a0-a6,-(sp)
+1:btst #1, (EXT_SCTRL)		| check bit 1 (Rxd READY) first
+	beq 1b
+	
+	moveq #0, d0 
+	move.b (EXT_RXDATA), d0
+
+	movem.l (sp)+, d0-d7/a0-a6
+	rts
+
+/*
+	ext_tx
+	Transmits a byte to the external device
+
+	INPUT:
+		None
+	OUTPUT:
+		d0 - byte value to transmit
+*/
+ext_tx:
+	movem.l d1, -(sp)
+2:move.b (EXT_SCTRL), d1
+	btst #0, d1
+	bne 2b
+	move.b d0, EXT_TXDATA
+	movem.l (sp)+, d1
+	rts
+
+/*
+	init_inputs
+	Loads a full system palette (64 colors) into CRAM
+
+	INPUT:
+		a0 - ptr to palette data
+	OUTPUT:
+		None
+*/
+.global init_inputs
+init_inputs:
+	INTERRUPT_DISABLE
 	move.w	#0x100, Z80_BUSREQ	| Stop Z80 
 1:btst	#0, Z80_BUSREQ	| Has the Z80 stopped?
 	bne.s	1b	| If not, wait.
@@ -21,15 +92,11 @@ setup_inputs:
 	move.b	d0, IO_CTRL2	| Configure port B 
 	move.b	d0, IO_CTRL3	| Configure port C
 	move.w	#0, Z80_BUSREQ	| Restart the Z80
-	move	#0x2000, sr	| Re-enable ints rts 
+	INTERRUPT_ENABLE
 	rts
 
 .global read_inputs
 read_inputs:
-	move.w	#0x100, Z80_BUSREQ	| Stop Z80 and wait
-1:btst	#0, Z80_BUSREQ	| Has the Z80 stopped?
-	bne.s	1b	| If not, wait.
-
   lea	input_p1_hold, a0	| Area where joypad states are written
 	lea	0xA10003, a1	| First joypad port
   moveq	#1, d7
@@ -57,7 +124,6 @@ read_inputs:
 	move.b	d1, (a0)+	| Write the held bits
   addq.w	#2, a1	| Use next control port
 	dbf	d7, 1b	| Loop until all joypads are read
-	move.w	#0x0, Z80_BUSREQ	| Re-start the Z80
 	rts
  
 /*
@@ -138,7 +204,7 @@ print:
 4:jsr set_printxy_offset
 	
 	/* read/send ascii data */
-	clr.l d0
+	moveq #0, d0
 1:move.b (a0)+, d0
 	beq 2f
 	sub #0x20, d0

@@ -55,7 +55,7 @@ _sysinit:
 	beq	1f	| If version 0, skip TMSS
 	move.l	#0x53454741, IO_TMSS	| Write 'SEGA' to TMSS port
 
-	/* clear RAM */
+  /* clear RAM */
 1:clr.l d0
 	clr.l d6
 	movea.l d0, a6
@@ -63,6 +63,8 @@ _sysinit:
 
 2:move.l	d0, -(%a6)	/* decrease ptr till we hit 0xFFE00000 */
 	dbra d7, 2b
+
+	move.l #0, sp  | point USP to top of stack
 
 	/* Z80 INIT */
 	move.w  #0x100, Z80_BUSREQ
@@ -118,11 +120,7 @@ _sysinit:
 	lea syspal, a0
 	jsr vdp_load_subpal
 	
-	moveq #1, d0
-	lea syspal, a0
-	jsr vdp_load_subpal
-
-	jsr setup_inputs
+	jsr init_inputs
 
 	/* and on with the show... */
 	jmp _main

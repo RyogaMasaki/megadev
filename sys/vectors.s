@@ -1,6 +1,6 @@
 .text
 /* M68k vector table */
-	.long	0xfffe00		| Stack pointer 
+	.long	0xFFFE00		| Supervisor Stack Pointer
 	.long	_sysinit		| Program start
 	
 	/* Standard M68k exception vectors */
