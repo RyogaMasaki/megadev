@@ -1,9 +1,10 @@
-# MegaDev
-A very minimal Sega Megadrive development framework. Useful as boilerplate for a new project.
+# MEGADEV
+*HIGH GRADE MULTIPURPOSE USE*
+
+A lightweight Sega Mega Drive and Mega CD development framework. Useful as boilerplate for a new project.
 
 ## DISCLAIMER - DO NOT USE THIS FOR SERIOUS PROJECTS
 This project is still heavily work in progress. I would not recommend using it for any serious projects yet.
-
 
 ## Toolchain
 The code is written for use with GNU development tools built with the m68k-elf target. At a minimum, you will need binutils for the assembler and linker. Optionally, you can install gcc for programming in C and gdb for debugging.
@@ -42,39 +43,42 @@ Blastem:
 
 ```blastem -d out.md```
 
-## Directory structure
-```bin```
+## Default directory structure
+```dist```
 
-Contains built binaries
+Final built binaries
+
+```build```
+
+Compilation work directory
 
 ```etc```
 
-Contains miscellaneous work files that will not be incorporated into the final ROM
+Contains miscellaneous files that will not be incorporated into the final binaries
 
 ```res```
 
-Contains resources (graphics, sound, etc) that will be incorporated into the ROM
+Contains resources (graphics, sound, etc) that will be incorporated into the final binaries
 
-```src```
+```md_src```
 
-User application source code
+Source code for Mega Drive program
 
-```sys```
+```cd_src```
 
-System/hardware source code and configurations
+Source code for Mega CD program
 
-## Misc
-### Byte definitions, .rodata and debug builds
-GAS is a bit quirky when assembling with the -g/--gen-debug option. As such, if you plan to use ELF builds for debugging, the following rules should be kept in mind:
+```lib```
 
-- The .rodata section should generally be placed before the .text section in each asm source file. As an exception, if it contains only .word or .long definitions, it can be placed anywhere (though it still needs the .section identifier, of course). However, if .byte or .incbin are used at all, it must appear before .text.
-- For byte sized definitions (in .rodata or .data), use .byte instead of dc.b or ds.b. As a matter of consistency, it is strongly sugguest you use .word and .long instead of dc.w/dc.l (though they won't necessarily cause a problem).
+MEGADEV libraries and C headers
 
-If you get this error:
+```cfg```
 
-```Error: unaligned opcodes detected in executable segment```
+Linker scripts
 
-while attempting to build a binary, double check your code against the rules above. If you don't plan on using debug builds at all, you can remove the 
+```tools```
 
-### System Font
+Build utilities
+
+## System Font
 This distribution includes the [Saikyo Sans font by usr_share at OpenGameArt](https://opengameart.org/content/the-collection-of-8-bit-fonts-for-grafx2-r2).

@@ -8,8 +8,9 @@ MEMORY
 
 SECTIONS
 {
-  .text 0x200100:
+  .text 0x200000:
   {
+    /*build/src_cd/mmd_header.o (.text)*/
     *(.text*)
     *(.rodata*)
   } > ROM

@@ -12,6 +12,7 @@ OBJ:=$(OBJ:.s=.o)
 
 OBJS:=$(addprefix $(BUILD_PATH)/, $(OBJ))
 
+
 all: md_rom
 default: md_rom
 
@@ -24,8 +25,6 @@ init:
 	@cp -ri $(MEGADEV_PATH)/res/* $(RES_PATH)
 	@cp -ri $(MEGADEV_PATH)/lib/megadev.(s|h) $(SRC_PATH)
 	@cp -ri $(MEGADEV_PATH)/src_md/* $(SRC_PATH)
-
-
 
 md_rom: prebuild $(BUILD_PATH)/$(PROJECT_NAME)_symbols.txt $(DIST_PATH)/$(PROJECT_NAME).md postbuild
 

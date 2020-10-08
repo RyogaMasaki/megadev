@@ -170,7 +170,8 @@ _sp_dstart:
 .section .data
 
 mmd_filename:
-	.asciz "DUMMY0.MMD;1"
+	#.asciz "DUMMY0.MMD;1"
+	.asciz "TEST.MMD;1"
 .align 2
 
 _sp_dend:

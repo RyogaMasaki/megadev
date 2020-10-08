@@ -10,7 +10,7 @@ SECTIONS
 {
   .text 0x00000000:
   {
-    /*build/src_md/md_header.o (.text)*/
+    build/src_md/md_header.o (.text)
     *(.text*)
     *(.rodata*)
   } > ROM

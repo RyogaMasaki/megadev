@@ -15,7 +15,7 @@ PROJECT_NAME=megadev_dev
 # Build project in debug mode
 DEBUG:=1
 
-TARGET:=md
+TARGET:=cd
 
 MEGADEV_PATH:=.
 
@@ -74,19 +74,19 @@ AS:=$(M68K_PREFIX)as
 ASM_Z80:=sjasmplus
 
 # setup includes
-INC:=-I$(LIB_PATH) -I$(RES_PATH)
+INC:=-I$(LIB_PATH) -I$(RES_PATH) -I$(BUILD_PATH)
 
 # default flags
 CC_FLAGS:=-m68000 -Wall -Wextra -Wno-shift-negative-value -fno-builtin
 #DEF_FLAGS_Z80:=-i$(SRC_DIR) -i$(INC_DIR) -i$(RES_DIR) -i$(LIB_DIR)
 AS_FLAGS:=--register-prefix-optional --bitwise-or
-LD_FLAGS:=-nostdlib #--oformat binary
+LD_FLAGS:=-nostdlib
 
 # debug/final build flags
 ifeq ($(DEBUG), 1)
   CC_FLAGS+=-O1 -ggdb -DDEBUG
 else
-  CC_FLAGS+=-O3 -fuse-linker-plugin -fno-web -fno-gcse -fno-unit-at-a-time -fomit-frame-pointer -flto
+  CC_FLAGS+=-O3 -fno-web -fno-gcse -fno-unit-at-a-time -fomit-frame-pointer
 endif
 
 # gather files

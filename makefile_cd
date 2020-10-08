@@ -3,12 +3,32 @@
 SRC_PATH:=src_cd
 
 # path to all files to be included on the output disc
-DISC_PATH:=disc
+DISC_PATH:=dist
 
 BOOT_DIR:=boot
 
-# Name of the CD boot sector binary
-BOOTBIN:=boot.bin
+
+
+MMD_WORDRAM:=test.def
+
+MMD_WORDRAM:=$(addprefix $(SRC_PATH)/,$(MMD_WORDRAM))
+
+MMD_WORDRAM_OUT:=$(addprefix $(BUILD_PATH)/, $(MMD_WORDRAM:.def=.out))
+
+MMD_SRC:=$(wildcard $(SRC_PATH)/*.[cs])
+
+MMD_OBJ:=$(MMD_SRC:.c=.o)
+MMD_OBJ:=$(MMD_OBJ:.s=.o)
+MMD_OBJ:=$(addprefix $(BUILD_PATH)/,$(MMD_OBJ))
+MMD_SYMBOLS:=$(MMD_OBJ:.o=_symbols.txt)
+
+
+MMD_WORDRAM_SRC:=$(addprefix $(SRC_PATH)/, $(MMD_WORDRAM_SRC))
+
+MMD_BIN:=$(addprefix $(DISC_PATH)/,$(notdir $(MMD_WORDRAM_OUT:.out=.mmd)))
+
+
+
 
 # this is the filename used for source code or resources for 
 # the Initial Program (IP) and System Program (SP)
@@ -18,7 +38,7 @@ BOOTBIN:=boot.bin
 IP:=ip
 SP:=sp
 
-IP_SRC:=$(wildcard $(SRC_PATH)/$(IP).[cs])
+IP_SRC:=$(wildcard $(SRC_PATH)/boot/$(IP).[cs])
 #IP_SRC+=$(SRC_PATH)/$(IP).s
 
 IP_OBJ:=$(IP_SRC:.c=.o)
@@ -29,7 +49,7 @@ IP_BIN:=$(IP_OBJ:.o=.bin)
 IP_OUT:=$(IP_OBJ:.o=.out)
 IP_SYMBOLS:=$(IP_OBJ:.o=_symbols.txt)
 
-SP_SRC:=$(wildcard $(SRC_PATH)/$(SP).[cs])
+SP_SRC:=$(wildcard $(SRC_PATH)/boot/$(SP).[cs])
 #SP_SRC+=$(SRC_PATH)/$(SP).s
 
 SP_OBJ:=$(SP_SRC:.c=.o)
@@ -40,26 +60,21 @@ SP_BIN:=$(SP_OBJ:.o=.bin)
 SP_OUT:=$(SP_OBJ:.o=.out)
 SP_SYMBOLS:=$(SP_OBJ:.o=_symbols.txt)
 
-BOOT_SRC:=$(SRC_PATH)/boot.s
+BOOT_SRC:=$(SRC_PATH)/boot/boot.s
 BOOT_OBJ:=$(addprefix $(BUILD_PATH)/, $(BOOT_SRC:.s=.o))
 BOOT_BIN:=$(BOOT_OBJ:.o=.bin)
 
-all: boot
-default: boot
-Default: boot
+all: disc
+default: disc
 
-boot: prebuild $(BUILD_PATH)/$(BOOTBIN) postbuild
 
-boot_debug: FLAGS:=$(DEF_FLAGS_CC) -O1 -ggdb -DDEBUG=1 -fno-lto
-boot_debug: BUILDTYPE=boot_debug
-boot_debug: prebuild $(BUILD_PATH)/$(BOOTBIN) $(BUILD_PATH)/boot_symbols.txt postbuild
-
-disc: BUILDTYPE=disc
-disc: prebuild $(BUILD_PATH)/$(PROJECT).iso postbuild
 
 .PHONY: clean
 
-clean: clean_boot
+clean: clean_mmd clean_boot clean_disc
+
+clean_mmd:
+	@rm -rf $(MMD_OBJ) $(MMD_WORDRAM_OUT) $(MMD_SYMBOLS)
 	
 clean_ip:
 	@rm -rf $(IP_OBJ) $(IP_OUT) $(IP_BIN) $(IP_SYMBOLS)
@@ -70,11 +85,29 @@ clean_sp:
 clean_boot: clean_ip clean_sp
 	@rm -rf $(BOOT_OBJ) $(BOOT_BIN)
 
+clean_disc:
+	@rm -rf $(BUILD_PATH)/$(PROJECT_NAME).iso
+
 ip: $(IP_BIN)
 
 sp: $(SP_BIN)
 
-boot: $(BOOT_BIN)
+boot: ip sp $(BOOT_BIN)
+
+mmd: $(MMD_OBJ) $(MMD_BIN)
+
+disc: mmd boot $(BUILD_PATH)/$(PROJECT_NAME).iso
+
+$(BUILD_PATH)/$(PROJECT_NAME).iso: $(BOOT_BIN)
+	mkisofs -iso-level 1 -G $< -pad -V "$(PROJECT_NAME)" -o $@ $(DISC_PATH)
+
+$(MMD_BIN): $(MMD_WORDRAM_OUT)
+		$(OBJCPY) -O binary $< $@
+
+$(MMD_WORDRAM_OUT): $(MMD_WORDRAM)
+	$(AS) $(AS_FLAGS) $(INC) $(LIB_PATH)/mmd_header.s -o$(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
+	$(LD) $(LD_FLAGS) -T $(CFG_PATH)/mmd.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORDRAM)))))
+	$(NM) -n $@ > $(MMD_WORDRAM_OUT:.out=_symbols.txt)
 
 $(IP_OUT): $(IP_OBJ)
 	$(LD) $(LD_FLAGS) -T $(CFG_PATH)/ip.ld -o $@ $<
@@ -88,6 +121,9 @@ $(SP_OUT): $(SP_OBJ)
 	$(NM) -n $@ > $(SP_SYMBOLS)
 
 $(SP_BIN): $(SP_OUT)
+	$(OBJCPY) -O binary $< $@
+
+$(BOOT_BIN): $(BOOT_OBJ)
 	$(OBJCPY) -O binary $< $@
 
 $(BUILD_PATH)/%.o: %.c

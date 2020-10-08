@@ -1,0 +1,2 @@
+sysfont.chr
+sysfont.pal

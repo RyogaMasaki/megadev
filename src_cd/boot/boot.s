@@ -48,9 +48,13 @@ Region:		.ascii "JUE             "
 	We need to compile ip and sp seperately since they need their own
 	memory map (ip runs from work ram, sp from PRG RAM)
 */
-		.incbin "ip.bin"
+IPStart:
+		.incbin "src_cd/boot/ip.bin"
+IPEnd:
 
 .org	0x1000
-		.incbin	"sp.bin"
+SPStart:
+		.incbin	"src_cd/boot/sp.bin"
+SPEnd:
 
 .align	0x8000
