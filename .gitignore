@@ -1,5 +1,3 @@
-bin/
+dist/
 build/
-test/
-notes
 .vscode/

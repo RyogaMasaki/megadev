@@ -1,59 +1,121 @@
-# Custom toolchain directory
-M68K_PATH := /usr/bin
+################################################################################
+# MEGADEV - Development tools for Mega Drive and Mega CD hardware
+# https://github.com/drojaazu/megadev
+################################################################################
 
-# Output binary file
-OUTBIN := out.md
-OUTELF := out.elf
+################################################################################
+# PROJECT CONFIGURATION
+# Settings with 'MD' and 'CD' are specific to Mega Drive and Mega CD hardware,
+# respectively
+################################################################################
 
-# Local directories
-SRCDIR := src
-SYSDIR := sys
-BUILDDIR := build
-OUTDIR := bin
+# This will be used for filename output
+PROJECT_NAME=megadev_dev
 
-# Toolchain
-CC := $(M68K_PATH)/m68k-elf-gcc
-AS := $(M68K_PATH)/m68k-elf-as
-LD := $(M68K_PATH)/m68k-elf-ld
+# Build project in debug mode
+DEBUG:=1
 
-AS_FLAGS := -g --register-prefix-optional -mcpu=68000 -I$(SYSDIR)
-CC_FLAGS := -g -c -O -I$(SYSDIR)
-LD_FLAGS := -T md.ld -nostdlib
+TARGET:=md
 
-SRC_S := $(shell find $(SRCDIR) -type f -name *.s)
-SRC_C := $(shell find $(SRCDIR) -type f -name *.c)
-OBJ_S := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_S:.s=.o))
-OBJ_C := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC_C:.c=.o))
+MEGADEV_PATH:=.
 
-BINTARGET := $(OUTDIR)/$(OUTBIN)
-ELFTARGET := $(OUTDIR)/$(OUTELF)
+# Resources path
+RES_PATH:=res
 
-$(BINTARGET): $(OBJ_S) $(OBJ_C)
-	$(LD) $(LD_FLAGS) --oformat binary -o /dev/stdout $^ | dd of=$(BINTARGET) bs=8K conv=sync status=none
+# Build path, will contain objects during compilation
+BUILD_PATH:=build
 
-$(ELFTARGET): $(OBJ_S) $(OBJ_C)
-	$(LD) $(LD_FLAGS) -o $(ELFTARGET) $^
+# Final built output path
+DIST_PATH:=dist
 
-$(OBJ_S): $(SRC_S)
-	$(AS) $(AS_FLAGS) -o $@ $(SRC_S)
+# Z80 CPU code path
+Z80_SRC_PATH:=z80_src
 
-$(OBJ_C): $(SRC_C)
-	$(CC) $(CC_FLAGS) -o $@ $(SRC_C)
+TOOLS_PATH:=$(MEGADEV_PATH)/tools
 
-# Create Megadrive binary
-bin: $(BINTARGET)
+# MEGADEV SDK paths
+# library (this includes C headers)
+LIB_PATH:=$(MEGADEV_PATH)/lib
 
-# Create ELF binary with debugging symbols
-elf: $(ELFTARGET)
+# build time tools
+TOOLS_PATH:=$(MEGADEV_PATH)/tools
 
-all: $(BINTARGET) $(ELFTARGET)
+# linker scripts
+CFG_PATH:=$(MEGADEV_PATH)/cfg
 
-# Clean project
-clean:
-	$(RM) -r $(BUILDDIR)/* $(BINTARGET) $(ELFTARGET)
+# specify your M68k GNU toolchain prefix
+M68K_PREFIX?=m68k-elf-
 
-#init
-init:
-	mkdir build
-	mkdir bin
 
+################################################################################
+# You shouldn't need to configure anything further
+# for your project below this line
+################################################################################
+
+# fancy colors cause we're fancy
+CLEAR=\033[0m
+RED=\033[1;31m
+YELLOW=\033[1;33m
+GREEN=\033[1;32m
+
+# NOTE: we assume all commands appear somewhere in PATH.
+# If you've manually configured/built some of these
+# tools and their directories are not listed in PATH
+# you will need to specify the full path of each command
+
+# m68k toolset
+CC:=$(M68K_PREFIX)gcc
+OBJCPY:=$(M68K_PREFIX)objcopy
+NM:=$(M68K_PREFIX)nm
+LD:=$(M68K_PREFIX)ld
+AS:=$(M68K_PREFIX)as
+
+# z80 toolset
+ASM_Z80:=sjasmplus
+
+# setup includes
+INC:=-I$(LIB_PATH) -I$(RES_PATH)
+
+# default flags
+CC_FLAGS:=-m68000 -Wall -Wextra -Wno-shift-negative-value -fno-builtin
+#DEF_FLAGS_Z80:=-i$(SRC_DIR) -i$(INC_DIR) -i$(RES_DIR) -i$(LIB_DIR)
+AS_FLAGS:=--register-prefix-optional --bitwise-or
+LD_FLAGS:=-nostdlib #--oformat binary
+
+# debug/final build flags
+ifeq ($(DEBUG), 1)
+  CC_FLAGS+=-O1 -ggdb -DDEBUG
+else
+  CC_FLAGS+=-O3 -fuse-linker-plugin -fno-web -fno-gcse -fno-unit-at-a-time -fomit-frame-pointer -flto
+endif
+
+# gather files
+RES:=$(wildcard $(RES_PATH)/*.res)
+RES_SRC:=$(RES:.res=.s)
+RES_H:=$(RES:.res=.h)
+
+ifeq ($(TARGET), md)
+  # MD ROM
+  include makefile_md
+endif
+
+ifeq ($(TARGET), cd)
+  # Mega CD
+  include makefile_cd
+endif
+
+res: $(RES_SRC) $(RES_H) postbuild
+
+
+prebuild:
+	@mkdir -p $(BUILD_PATH)/$(SRC_PATH) $(BUILD_PATH)/$(RES_PATH)
+	@echo -e "${YELLOW}Beginning $(BUILDTYPE) project build...${CLEAR}"
+
+postbuild:
+	@echo -e "${GREEN}Build complete!${CLEAR}"
+
+clean_res:
+	@rm -rf $(RES_SRC) $(RES_OBJ)
+
+$(RES_H) $(RES_SRC): $(RES)
+	$(TOOLS_PATH)/makeres.sh $(RES_PATH)

@@ -1,7 +1,9 @@
-.text
+.org 0
+
+.section .text
 /* M68k vector table */
-	.long	0xFFFE00		| Supervisor Stack Pointer
-	.long	_sysinit		| Program start
+	.long	0xFFFE00		/* Stack Pointer */
+	.long	main		/* Program start */
 	
 	/* Standard M68k exception vectors */
 	.long	_exBUS
@@ -23,11 +25,11 @@
 
 	/* IRQ autovectors */
 	.long	0
-	.long	_EXINT	| IRQ2 - External Interrupt
+	.long	_EXINT	/* IRQ2 - External Interrupt */
 	.long	0
-	.long	_HINT		| IRQ4 - Horizontal Interrupt
+	.long	_HINT		/* IRQ4 - Horizontal Interrupt */
 	.long	0
-	.long	_VINT		| IRQ6 - Vertical Interrupt
+	.long	_VINT		/* IRQ6 - Vertical Interrupt */
 	.long	0
 
 	/* Trap exceptions */

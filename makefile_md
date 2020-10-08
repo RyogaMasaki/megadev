@@ -1,0 +1,51 @@
+
+SRC_PATH:=src_md
+
+MD_ROM:=$(DIST_PATH)/$(PROJECT_NAME).md
+
+SRC:=$(wildcard $(SRC_PATH)/*.[cs])
+
+OBJ:=$(SRC) $(RES_SRC)
+
+OBJ:=$(OBJ:.c=.o)
+OBJ:=$(OBJ:.s=.o)
+
+OBJS:=$(addprefix $(BUILD_PATH)/, $(OBJ))
+
+all: md_rom
+default: md_rom
+
+clean:
+	@rm -rf $(OBJS)
+
+# initialize a new project
+init:
+	@mkdir -p $(DIST_PATH) $(BUILD_PATH) $(RES_PATH) $(SRC_PATH)
+	@cp -ri $(MEGADEV_PATH)/res/* $(RES_PATH)
+	@cp -ri $(MEGADEV_PATH)/lib/megadev.(s|h) $(SRC_PATH)
+	@cp -ri $(MEGADEV_PATH)/src_md/* $(SRC_PATH)
+
+
+
+md_rom: prebuild $(BUILD_PATH)/$(PROJECT_NAME)_symbols.txt $(DIST_PATH)/$(PROJECT_NAME).md postbuild
+
+$(MD_ROM): $(BUILD_PATH)/$(PROJECT_NAME).out
+	@$(OBJCPY) -O binary $< $(BUILD_PATH)/temp
+	@dd if=$(BUILD_PATH)/temp of=$@ bs=128K conv=sync status=none
+	@rm -f $(BUILD_PATH)/temp
+
+$(BUILD_PATH)/$(PROJECT_NAME)_symbols.txt: $(BUILD_PATH)/$(PROJECT_NAME).out
+	$(NM) -n $< > $@
+
+$(BUILD_PATH)/$(PROJECT_NAME).out: $(OBJS)
+	#$(CC) $(CC_FLAGS) -n -T $(CFG_PATH)/md_rom.ld -nostdlib $(OBJS) -o $@
+	$(LD) $(LD_FLAGS) -I$(BUILD_PATH)/$(SRC_PATH) -T $(CFG_PATH)/md_rom.ld -nostdlib -o $@ $(OBJS)
+
+$(BUILD_PATH)/%.o: %.c
+	$(CC) $(CC_FLAGS) $(INC) -c $< -o $@
+
+$(BUILD_PATH)/%.o: %.s
+	$(AS) $(AS_FLAGS) $(INC) $< -o $@
+
+%.o80: %.s80
+	@$(ASM_Z80) $(DEF_FLAGS_Z80) --raw=$@ $<

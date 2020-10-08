@@ -1,0 +1,116 @@
+# NOTE - Look into -R option for ld to reference IP
+
+SRC_PATH:=src_cd
+
+# path to all files to be included on the output disc
+DISC_PATH:=disc
+
+BOOT_DIR:=boot
+
+# Name of the CD boot sector binary
+BOOTBIN:=boot.bin
+
+# this is the filename used for source code or resources for 
+# the Initial Program (IP) and System Program (SP)
+# These should generally not be changed, but if you must, be sure to update 
+# boot.s to the new filenames as well.
+
+IP:=ip
+SP:=sp
+
+IP_SRC:=$(wildcard $(SRC_PATH)/$(IP).[cs])
+#IP_SRC+=$(SRC_PATH)/$(IP).s
+
+IP_OBJ:=$(IP_SRC:.c=.o)
+IP_OBJ:=$(IP_OBJ:.s=.o)
+IP_OBJ:=$(addprefix $(BUILD_PATH)/, $(IP_OBJ))
+
+IP_BIN:=$(IP_OBJ:.o=.bin)
+IP_OUT:=$(IP_OBJ:.o=.out)
+IP_SYMBOLS:=$(IP_OBJ:.o=_symbols.txt)
+
+SP_SRC:=$(wildcard $(SRC_PATH)/$(SP).[cs])
+#SP_SRC+=$(SRC_PATH)/$(SP).s
+
+SP_OBJ:=$(SP_SRC:.c=.o)
+SP_OBJ:=$(SP_OBJ:.s=.o)
+SP_OBJ:=$(addprefix $(BUILD_PATH)/, $(SP_OBJ))
+
+SP_BIN:=$(SP_OBJ:.o=.bin)
+SP_OUT:=$(SP_OBJ:.o=.out)
+SP_SYMBOLS:=$(SP_OBJ:.o=_symbols.txt)
+
+BOOT_SRC:=$(SRC_PATH)/boot.s
+BOOT_OBJ:=$(addprefix $(BUILD_PATH)/, $(BOOT_SRC:.s=.o))
+BOOT_BIN:=$(BOOT_OBJ:.o=.bin)
+
+all: boot
+default: boot
+Default: boot
+
+boot: prebuild $(BUILD_PATH)/$(BOOTBIN) postbuild
+
+boot_debug: FLAGS:=$(DEF_FLAGS_CC) -O1 -ggdb -DDEBUG=1 -fno-lto
+boot_debug: BUILDTYPE=boot_debug
+boot_debug: prebuild $(BUILD_PATH)/$(BOOTBIN) $(BUILD_PATH)/boot_symbols.txt postbuild
+
+disc: BUILDTYPE=disc
+disc: prebuild $(BUILD_PATH)/$(PROJECT).iso postbuild
+
+.PHONY: clean
+
+clean: clean_boot
+	
+clean_ip:
+	@rm -rf $(IP_OBJ) $(IP_OUT) $(IP_BIN) $(IP_SYMBOLS)
+
+clean_sp:
+	@rm -rf $(SP_OBJ) $(SP_OUT) $(SP_BIN) $(SP_SYMBOLS)
+
+clean_boot: clean_ip clean_sp
+	@rm -rf $(BOOT_OBJ) $(BOOT_BIN)
+
+ip: $(IP_BIN)
+
+sp: $(SP_BIN)
+
+boot: $(BOOT_BIN)
+
+$(IP_OUT): $(IP_OBJ)
+	$(LD) $(LD_FLAGS) -T $(CFG_PATH)/ip.ld -o $@ $<
+	$(NM) -n $@ > $(IP_SYMBOLS)
+
+$(IP_BIN): $(IP_OUT)
+	$(OBJCPY) -O binary $< $@
+
+$(SP_OUT): $(SP_OBJ)
+	$(LD) $(LD_FLAGS) -T $(CFG_PATH)/sp.ld -o $@ $<
+	$(NM) -n $@ > $(SP_SYMBOLS)
+
+$(SP_BIN): $(SP_OUT)
+	$(OBJCPY) -O binary $< $@
+
+$(BUILD_PATH)/%.o: %.c
+	$(CC) $(CC_FLAGS) $(INC) -c $< -o $@
+
+$(BUILD_PATH)/%.o: %.s
+	$(AS) $(AS_FLAGS) $(INC) $< -o $@
+
+$(BUILD_PATH)/$(PROJECT).iso: $(BUILD_PATH)/$(BOOTBIN)
+	mkisofs -iso-level 1 -G $< -pad -V "$(PROJECT)" -o $@ $(DISC_DIR)
+
+#$(BUILD_PATH)/boot.out: $(BUILD_PATH)/sp.bin $(BUILD_PATH)/ip.bin
+#	$(AS) $(DEF_FLAGS_AS) $(BOOT_DIR)/boot.s -o $@
+
+#$(BUILD_PATH)/$(BOOTBIN): $(BUILD_PATH)/boot.out
+#	$(OBJCPY) -O binary $< $@
+
+#$(BUILD_PATH)/sp.bin: $(BUILD_PATH)/$(BOOT_DIR)/sp.o
+#	$(LD) $(DEF_FLAGS_LD) -T $(CFG_DIR)/sp.ld -o $@ $<
+
+#$(BUILD_PATH)/ip.bin: $(BUILD_PATH)/$(BOOT_DIR)/ip.o
+#	$(LD) $(DEF_FLAGS_LD) -T $(CFG_DIR)/ip.ld -o $@ $<
+
+$(BUILD_PATH)/boot_symbols.txt: $(BUILD_PATH)/boot.out
+	$(NM) -n $< > $@
+	
