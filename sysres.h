@@ -1,4 +1,4 @@
-// src_cd/sysres.h
+// sysres.h
 #ifndef SYSRES__RES_H
 #define SYSRES__RES_H
 

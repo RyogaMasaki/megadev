@@ -67,14 +67,13 @@ BOOT_BIN:=$(BOOT_OBJ:.o=.bin)
 all: disc
 default: disc
 
-
-
 .PHONY: clean
 
-clean: clean_mmd clean_boot clean_disc
+clean: clean_res clean_mmd clean_boot clean_disc
 
 clean_mmd:
-	@rm -rf $(MMD_OBJ) $(MMD_WORDRAM_OUT) $(MMD_SYMBOLS)
+	@rm -rf $(MMD_OBJ) $(MMD_WORDRAM_OUT) $(MMD_SYMBOLS) $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
+
 	
 clean_ip:
 	@rm -rf $(IP_OBJ) $(IP_OUT) $(IP_BIN) $(IP_SYMBOLS)
@@ -96,7 +95,7 @@ boot: ip sp $(BOOT_BIN)
 
 mmd: $(MMD_OBJ) $(MMD_BIN)
 
-disc: mmd boot $(BUILD_PATH)/$(PROJECT_NAME).iso
+disc: res mmd boot $(BUILD_PATH)/$(PROJECT_NAME).iso
 
 $(BUILD_PATH)/$(PROJECT_NAME).iso: $(BOOT_BIN)
 	mkisofs -iso-level 1 -G $< -pad -V "$(PROJECT_NAME)" -o $@ $(DISC_PATH)
@@ -106,7 +105,7 @@ $(MMD_BIN): $(MMD_WORDRAM_OUT)
 
 $(MMD_WORDRAM_OUT): $(MMD_WORDRAM)
 	$(AS) $(AS_FLAGS) $(INC) $(LIB_PATH)/mmd_header.s -o$(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
-	$(LD) $(LD_FLAGS) -T $(CFG_PATH)/mmd.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORDRAM)))))
+	$(LD) $(LD_FLAGS) -R $(IP_OUT) -T $(CFG_PATH)/mmd.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORDRAM)))))
 	$(NM) -n $@ > $(MMD_WORDRAM_OUT:.out=_symbols.txt)
 
 $(IP_OUT): $(IP_OBJ)
@@ -127,7 +126,7 @@ $(BOOT_BIN): $(BOOT_OBJ)
 	$(OBJCPY) -O binary $< $@
 
 $(BUILD_PATH)/%.o: %.c
-	$(CC) $(CC_FLAGS) $(INC) -c $< -o $@
+	$(CC) $(CC_FLAGS) $(INC) $(CC_INC) -c $< -o $@
 
 $(BUILD_PATH)/%.o: %.s
 	$(AS) $(AS_FLAGS) $(INC) $< -o $@

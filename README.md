@@ -27,6 +27,10 @@ GNU linker (ld): <https://sourceware.org/binutils/docs/ld/index.html>
 GNU debugger (gdb): <https://sourceware.org/gdb/current/onlinedocs/gdb/>
 GNU compiler (gcc): <https://gcc.gnu.org/onlinedocs/gcc/>
 
+## Development
+The three makefiles should be copied to your project directory. The `makefile` file should be configured for your target hardware (Mega Drive or Mega CD), then `make init` will create the initial directories based on your settings and copy some necessary files.
+(TODO also add default src such as ip/sp/boot and header)
+
 ## Building
 The default makefile target will create a Megadrive compatible binary called 'out.md' in the bin directory.
 

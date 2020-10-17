@@ -37,7 +37,8 @@ int main() {
   vram_clear();
   cram_clear();
   cram_load_palette_c(&sysfont_pal, 16, 0);
-  vram_load_tiles_c(&sysfont_chr, 65, 0);
+  // vram_load_tiles_c(&sysfont_chr, 65, 0);
+  vdp_dma_transfer_wrapper_c(&sysfont_chr, (65 * 32), VDP_ADDR(0, VRAM, DMA));
 
   vram_use_offset = 65;
 

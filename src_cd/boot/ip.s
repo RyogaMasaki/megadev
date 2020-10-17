@@ -49,6 +49,8 @@ IP_INIT:
 	move.w	#_end-main_ap-1, d7	/*size of the chunk*/
 1:move.b	(a0)+, (a1)+					/*move it*/
 	dbf			d7, 1b
+	moveq		#1, d0
+	jsr			send_sub_cmd				/* end cmd 1 to Sub CPU*/
 	jmp			mmd_loader_ptr		/*and jump to it*/
 
 
@@ -82,10 +84,7 @@ IP_INIT:
 	CPU - load an MMD and execute it, and play an audio track.
 */
 main_ap:
-	# send cmd 1 - load MMD file
-	moveq		#1, d0
-	jsr			send_sub_cmd				/* end cmd 1 to Sub CPU*/
-	
+	# send cmd 1 - load MMD file	
 	movea.l	MAIN_2M_BASE+8, a0	/*get MMD entry point*/
 	move.l	MAIN_2M_BASE+2, d0	/*get MMD data destination*/
 	beq			1f				/*if no destination, skip the copy*/

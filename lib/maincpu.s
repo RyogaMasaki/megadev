@@ -14,9 +14,11 @@
  Main CPU Memory Map
 -----------------------------------------------------------------------
 */
+.global MAIN_2M_BASE
 .equ MAIN_2M_BASE,	0x200000	/* word RAM base in 2M bit mode */
+.global MAIN_1M_BASE
 .equ MAIN_1M_BASE,	0x200000	/* word RAM base in 1M bit mode */
-.equ IP_START,			0xff0000	/* start of IP program */
+#.equ IP_START,			0xff0000	/* start of IP program */
 .equ STACK,					0xfffd00	/* start of STACK (grows down) */
 
 /*
@@ -61,13 +63,16 @@
 */
 .equ		MAIN_GA_BASE,		0xA12000 							/*Main CPU gate array registers base address */
 .equ		GA_RESET,			  MAIN_GA_BASE+0x0000 	/* peripheral reset */
+.global GA_MEMORYMODE
 .equ		GA_MEMORYMODE,	MAIN_GA_BASE+0x0002 	/* memory mode/write protect */
 .equ		GA_CDCMODE,			MAIN_GA_BASE+0x0004 	/* CDC mode/device dest */
 .equ		GA_HINTVECT,		MAIN_GA_BASE+0x0006 	/* H-INT address */
 .equ		GA_CDCHOSTDATA,	MAIN_GA_BASE+0x0008 	/* 16-bit CDC host data */
 .equ		GA_STOPWATCH,		MAIN_GA_BASE+0x000C 	/* CDC/gp timer 30.72us lsb */
 .equ		GA_COMFLAGS,		MAIN_GA_BASE+0x000E 	/* CPU to CPU commo bit flags */
+.global GA_COMCMD0
 .equ		GA_COMCMD0,		  MAIN_GA_BASE+0x0010 	/* 8 SUB->MAIN word registers */
+.global GA_COMCMD1
 .equ		GA_COMCMD1,		  MAIN_GA_BASE+0x0012
 .equ		GA_COMCMD2,		  MAIN_GA_BASE+0x0014
 .equ		GA_COMCMD3,		  MAIN_GA_BASE+0x0016
@@ -75,7 +80,9 @@
 .equ		GA_COMCMD5,		  MAIN_GA_BASE+0x001A
 .equ		GA_COMCMD6,		  MAIN_GA_BASE+0x001C
 .equ		GA_COMCMD7,		  MAIN_GA_BASE+0x001E
+.global GA_COMSTAT0
 .equ		GA_COMSTAT0,		MAIN_GA_BASE+0x0020 	/* 8 MAIN->SUB word registers */
+.global GA_COMSTAT1
 .equ		GA_COMSTAT1,		MAIN_GA_BASE+0x0022
 .equ		GA_COMSTAT2,		MAIN_GA_BASE+0x0024
 .equ		GA_COMSTAT3,		MAIN_GA_BASE+0x0026
@@ -117,6 +124,7 @@
 .equ		MEMORYMODE_WP7_MSK,			0x8000
 
 .equ		MEMORYMODE_RET_BIT,			0
+.global MEMORYMODE_DMNA_BIT
 .equ		MEMORYMODE_DMNA_BIT,			1
 .equ		MEMORYMODE_MODE_BIT,			2
 .equ		MEMORYMODE_WP0_BIT,			8

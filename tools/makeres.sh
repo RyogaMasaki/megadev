@@ -1,17 +1,21 @@
 #!/bin/sh
 # Generate asm to include resources
-echo $BUILD_PATH
-
 if [ -n "$1" ]
   then
-		cd "$1"
+		in_dir="$1"
+fi
+
+if [ -n "$2" ]
+	then
+		out_dir="$2"
 fi
 
 # process resources
-for resfile in *.res; do
+for resfile in $in_dir/*.res; do
+	echo "Processing $resfile..."
 	res_file=$(basename $resfile .res)
-  res_sfile=$res_file.s
-	res_hfile=$res_file.h
+  res_sfile=$out_dir/$res_file.s
+	res_hfile=$out_dir/$res_file.h
 	# asm source file
 	echo ".section .rodata" > $res_sfile
 	echo >> $res_sfile

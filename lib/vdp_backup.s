@@ -5,13 +5,9 @@
 .section .text
 
 /* Ports & Registers */
-#.global VDP_DATA
 .equ	VDP_DATA,			0xC00000  /* 16 bit r/w */
-#.global VDP_CTRL
 .equ	VDP_CTRL,			0xC00004  /* 16 bit r/w */
-#.global VDP_HVCOUNT
 .equ	VDP_HVCOUNT,  0xC00008  /* 16 bit r */
-
 .equ	VDP_DEBUG,    0xC0001C
 
 /*
@@ -45,7 +41,36 @@
 .equ VDP_REG16, 0x9600
 .equ VDP_REG17, 0x9700
 
+/* Helper constants */
+/* These should be OR'ed to the VDP formatted address */
+.equ CRAM_WRITE,  0xC0000000
+.equ VRAM_WRITE,  0x40000000
+.equ VSRAM_WRITE, 0x40000010
+.equ CRAM_READ,   0x00000020
+.equ VRAM_READ,   0x00000000
+.equ VSRAM_READ,  0x00000010
 
+/*
+	CALC_NMTBL_ADDR_PLANE_A
+	Generates the normalized address for the Plane A name table using the cached
+	VDP register value
+*/
+.macro CALC_NMTBL_ADDR_PLANE_A dreg
+	move.b vdp_nmtbl_plane_a, \dreg
+	lsl.l #8, \dreg
+	lsl.l #2, \dreg
+.endm
+
+/*
+	CALC_NMTBL_ADDR_PLANE_B
+	Generates the standard address for the Plane A name table using the cahced VDP
+	register value
+*/
+.macro CALC_NMTBL_ADDR_PLANE_B dreg
+	move.b (vdp_nmtbl_plane_b), \dreg
+	lsl.l #8, \dreg
+	lsl.l #5, \dreg
+.endm
 
 /*
 	CALC_VDP_CTRL_ADDR
@@ -58,7 +83,6 @@
 	BREAK:
 		dreg_work
 */
-/*
 .macro CALC_VDP_CTRL_ADDR dreg_addr dreg_work
 	# move lower word to upper
 	swap \dreg_addr
@@ -71,35 +95,7 @@
 	# clear irrelevant bits
 	and.l #0x3fff0003, \dreg_addr
 .endm
-*/
 
-/*
-	Converts an address in the specifed D register to
-	VDP ctrl port format
-	After which, the control port constants below can be OR'ed against
-	it to set up its functionality
-*/
-.macro MAKE_VDP_ADDR dreg
-	and.l #0xffff, \dreg
-	lsl.l #2, \dreg
-	lsr.w #2, \dreg
-	swap \dreg
-.endm
-
-/* VDP control port address helper constants */
-/* These should be OR'ed to the VDP formatted address */
-.equ VRAM_READ,   0x00000000
-.equ VRAM_WRITE,  0x40000000
-.equ CRAM_READ,   0x00000020
-.equ CRAM_WRITE,  0xC0000000
-.equ VSRAM_READ,  0x00000010
-.equ VSRAM_WRITE, 0x40000010
-
-.equ USE_DMA, 0x80
-.equ VRAM_TO_VRAM, 0x40
-
-.equ VRAM_WRITE_DMA, (VRAM_WRITE | USE_DMA)
-.equ CRAM_WRITE_DMA, (CRAM_WRITE | USE_DMA)
 
 
 /*
@@ -136,7 +132,7 @@
 .equ WRITE, 0b00000111
 .equ DMA,   0b00100111
 
-# This is a "function" that will set a symbol called vdp_addr with
+# This is a "quasi" function that will set a symbol called vdp_addr with
 # the properly formatted address for use on the VDP control port
 .macro VDP_ADDR addr,ram,cmd
 	.set vdp_addr, 
@@ -216,7 +212,7 @@ vdp_dma_fill_sub:
 	# setup fill value and trigger dma write
 	# move fill value to upper half of word
 	lsl.w #8, d2
-	move.w d2, (VDP_DATA)
+	move.w d2, VDP_DATA
 
 	rts
 
@@ -284,29 +280,176 @@ vdp_dma_transfer_sub:
 	POPM d0-d3/a5
 	rts
 
-.global get_tiles_per_row
-get_tiles_per_row:
-	move.b vdp_plane_size, d2
-	and.w #3, d2
-	# find number of tiles per row
-	moveq #32, d1
-	cmp.b #3, d2
+/*
+	vdp_set_plane_size
+	Sets size of Plane A & B
+	
+	IN:
+		d0 - Plane size byte
+	BREAK:
+		d6
+*/
+vdp_set_plane_size:
+	# clean up d0 just in case
+	and.l #0x33, d0
+	move.b d0, vdp_plane_size
+	move.l d0, d6
+	or.w #VDP_REG10_PLANESIZE, d0
+	move.w d0, VDP_CTRL
+	# move the width/height into their own values
+	
+	# the width/height values act as shift values so we can calculate the size by
+	# shifting 1 by the number specified to get the proper size
+	move.b d6, d0
+	and.l #0x03, d0
+	cmp.b #0x03, d0
 	bne 1f
-	and.b #2, d2
-1:lsl.w d2, d1
+	move.b #0x02, d0
+1:move.b d0, vdp_plane_width
+	lsr.b #4, d6
+	cmp.b 0x03, d6
+	bne 2f
+	move.b 0x02, d6
+2:move.b d6, vdp_plane_height
+	rts
+
+/*
+ * vram_clear
+ * Clears entire VRAM
+ */
+.global vram_clear
+vram_clear:
+	moveq #0, d0
+	move.l #VRAM_WRITE, VDP_CTRL
+	move.l #0x3fff, d7
+1:move.l d0, VDP_DATA
+	dbra d7, 1b
   rts
 
 /*
+ * cram_clear
+ * Clears entire CRAM
+ */
+.global cram_clear
+cram_clear:
+	moveq #0, d0
+	move.l #CRAM_WRITE, VDP_CTRL
+	move.l #31, d7
+1:move.l d0, VDP_DATA
+	dbra d7, 1b
+	rts
 
+.global vdp_load_registers_c
+vdp_load_registers_c:
+	movea.l	4(sp), a0
+
+/*
+ * vdp_load_registers
+ * Load values into all VDP registers
+ * IN:
+ * a0 - ptr to array of register data
+ */
+.global vdp_load_registers
+vdp_load_registers:
+	lea VDP_CTRL, a1
+
+	move.w #0x8000, d5		/* start at first register */
+	move.w #0x100, d7		/* each register addr is offset by 0x100 */
+
+	moveq #0x17, d0				/* 0x18 registers */
+
+1:move.b (a0)+, d5
+	move.w d5, (a1)
+	add.w d7, d5
+	dbra d0, 1b
+
+	# TODO THE BELOW IS TEMPORARY, REMOVE IT
+		moveq #0, d0
+	move.b #0x11, d0
+	jsr vdp_set_plane_size
+	move.b #(VDP_SCROLLA_NMTBL >> 10), (vdp_nmtbl_plane_a)
+	move.b #(VDP_SCROLLB_NMTBL >> 13), (vdp_nmtbl_plane_b)
+  rts
+
+
+.global vram_load_tiles_c
+vram_load_tiles_c:
+	movea.l	4(a7), a0
+	move.l	8(a7), d0
+	move.l	0xc(a7), d1
+
+/*
+ * vram_load_tiles
+ * Load tiles into vram
+ * (Data length should be divisible by 4,
+ * which shouldn't be a problem if the data
+ * is valid tiles)
+ * IN:
+ * a0 - ptr to tile data
+ * d0 - number of tiles
+ * d1 - VRAM offset in which to load data (in tiles)
+ */
+vram_load_tiles:
+	/* shift vram offset (tile count * 32) */
+	lsl.l #5, d1
+	# generate correct addr format
+	CALC_VDP_CTRL_ADDR d1 d6
+	# set VRAM write bit
+	or.l #VRAM_WRITE, d1
+	move.l d1, VDP_CTRL
+	# each tile is 32 bytes, tile count * 32 (lshift 5)
+	# divide by 4 (rshift 2) since we're sending longs
+	lsl.l #3, d0
+
+1:move.l (a0)+, VDP_DATA
+	dbra d0, 1b
+
+	rts
+
+.global cram_load_palette_c
+cram_load_palette_c:
+	movea.l	4(a7), a0
+	move.l	8(a7), d0
+	move.l	0xc(a7), d1
+
+/*
+ * cram_load_palette
+ * Load palette data into CRAM
+ * IN:
+ *  a0 - ptr to color data
+ *  d0 - count of color entries
+ *  d1 - CRAM entry offset (in colors)
+ */
+cram_load_palette:
+	# 2 bytes per color
+	lsl.l #1, d1
+  CALC_VDP_CTRL_ADDR d1 d6
+	# set CRAM write bit
+	or.l #CRAM_WRITE, d1
+	move.l d1, VDP_CTRL
+1:move.w (a0)+, VDP_DATA
+	dbra d0, 1b
+	rts
+
+#.global vblank_wait
+#vblank_wait:
+	lea vblank_flag, a6		/* check our vblank flag*/
+1:move.b (a6), d0		/* MOVE will set Z flag if the value is 0 */
+	beq 1b
+	move.b #0, (a6)		/* reset flag and return to processing */
+	rts
+
+#vblank_int:
+	addq.b   #1, (vblank_flag)	/* vblank occurred; set flag */
+	rte
+
+/*
 	IN:
-	 d0 - x/y pos (x upper byte, y lower byte)
+	d0 - x/y pos (x upper byte, y lower byte)
 
 	OUT:
-	 d0 - offset to x/y pos
-	 d1 - number of tiles per row
-
-	BREAK:
-	 d2
+	d0 - offset to x/y pos
+	d1 - number of tiles per row
 */
 .global vdp_xy_pos
 vdp_xy_pos:
@@ -332,41 +475,19 @@ vdp_xy_pos:
 	move.l d2, d0
 	rts
 
-
-/*
- * vram_clear
- * Clears entire VRAM
- * BREAK:
- *  d0, d7, a5
- */
-.global vdp_vram_clear
-vdp_vram_clear:
-	moveq #0, d0
-	lea VDP_DATA, a5
-	move.l #VRAM_WRITE, VDP_CTRL
-	move.l #0x3fff, d7
-1:move.l d0, (a5)
-	dbra d7, 1b
-  rts
-
-/*
- * cram_clear
- * Clears entire CRAM
- * BREAK:
- *  d0, d7, a5
- */
-.global vdp_cram_clear
-vdp_cram_clear:
-	moveq #0, d0
-	lea VDP_DATA, a5
-	move.l #CRAM_WRITE, VDP_CTRL
-	move.l #31, d7
-1:move.l d0, (a5)
-	dbra d7, 1b
-	rts
-
 .section .bss
-vdp_plane_size: .byte 0
-.align 2
-dma_trigger: .word 0
 
+# the plane size is a little unintuitive to work with, so we also have seperate
+# width and heightsettings which uses the lowest three bits for each mode
+# (0 - 32 tiles, 1 - 64 tiles, 2 - 128 tiles)
+vdp_plane_size: .byte 0
+vdp_plane_width: .byte 0
+vdp_plane_height: .byte 0
+vdp_nmtbl_plane_a: .byte 0
+vdp_nmtbl_plane_b: .byte 0
+vdp_nmtbl_window: .byte 0
+vdp_sprtbl: .byte 0
+.global vblank_flag
+vblank_flag: .byte 0
+dma_trigger: .word 0
+.align 2

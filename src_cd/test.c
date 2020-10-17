@@ -1,6 +1,5 @@
 #include "io.h"
 #include "print.h"
-#include "res.h"
 #include "system.h"
 #include "tilemap.h"
 #include "types.h"
@@ -43,8 +42,6 @@ int main() {
   cram_load_palette_c(&sysfont_pal, 16, 0);
   vram_load_tiles_c(&sysfont_chr, 65, 0);
   vram_use_offset = 65;
-
-  vram_load_tiles_c(&res_border_chr, 139, vram_use_offset);
 
   u8 test1 = 115;
   printval_u8_c(&test1, 0x0f08);

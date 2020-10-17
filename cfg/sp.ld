@@ -4,7 +4,8 @@ SECTIONS
 {
   .text 0x006000 :
   {
-    *(.text)
+    *(.text*)
+    *(.rodata*)
   }
   _stext = . ;
 

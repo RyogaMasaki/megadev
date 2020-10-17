@@ -15,7 +15,7 @@ PROJECT_NAME=megadev_dev
 # Build project in debug mode
 DEBUG:=1
 
-TARGET:=cd
+TARGET:=md
 
 MEGADEV_PATH:=.
 
@@ -75,6 +75,7 @@ ASM_Z80:=sjasmplus
 
 # setup includes
 INC:=-I$(LIB_PATH) -I$(RES_PATH) -I$(BUILD_PATH)
+CC_INC:=-Wa,-I$(LIB_PATH)
 
 # default flags
 CC_FLAGS:=-m68000 -Wall -Wextra -Wno-shift-negative-value -fno-builtin
@@ -89,11 +90,6 @@ else
   CC_FLAGS+=-O3 -fno-web -fno-gcse -fno-unit-at-a-time -fomit-frame-pointer
 endif
 
-# gather files
-RES:=$(wildcard $(RES_PATH)/*.res)
-RES_SRC:=$(RES:.res=.s)
-RES_H:=$(RES:.res=.h)
-
 ifeq ($(TARGET), md)
   # MD ROM
   include makefile_md
@@ -104,8 +100,11 @@ ifeq ($(TARGET), cd)
   include makefile_cd
 endif
 
-res: $(RES_SRC) $(RES_H) postbuild
-
+# gather res files
+RES:=$(wildcard $(RES_PATH)/*.res)
+RES_SRC:=$(addprefix $(SRC_PATH)/,$(notdir $(RES:.res=.s)))
+RES_H:=$(RES_SRC:.s=.h)
+RES_OBJ:=$(addprefix $(BUILD_PATH)/,$(RES_SRC:.s=.o))
 
 prebuild:
 	@mkdir -p $(BUILD_PATH)/$(SRC_PATH) $(BUILD_PATH)/$(RES_PATH)
@@ -114,8 +113,15 @@ prebuild:
 postbuild:
 	@echo -e "${GREEN}Build complete!${CLEAR}"
 
-clean_res:
-	@rm -rf $(RES_SRC) $(RES_OBJ)
+init:
+	@mkdir -p $(SRC_PATH) $(BUILD_PATH)/$(SRC_PATH) $(RES_PATH) $(DIST_PATH)
+	
 
-$(RES_H) $(RES_SRC): $(RES)
-	$(TOOLS_PATH)/makeres.sh $(RES_PATH)
+res: $(RES_SRC) $(RES_H) $(RES_OBJ)
+
+clean_res:
+	@rm -rf $(RES_OBJ)
+
+$(RES_SRC) $(RES_H): $(RES)
+	$(TOOLS_PATH)/makeres.sh $(RES_PATH) $(SRC_PATH)
+	

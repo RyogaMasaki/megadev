@@ -147,17 +147,17 @@ ext_tx:
 	rts
 
 
-.section .data
+.section .bss
 	.global input_p1
 	input_p1:
 	.global input_p1_hold
-	input_p1_hold:  .byte 1
+	input_p1_hold:  .byte 0
 	.global input_p1_press
-	input_p1_press: .byte 1
+	input_p1_press: .byte 0
 	.global input_p2
 	input_p2:
 	.global input_p2_hold
-	input_p2_hold:  .byte 1
+	input_p2_hold:  .byte 0
 	.global input_p2_press
-	input_p2_press: .byte 1
+	input_p2_press: .byte 0
 	
