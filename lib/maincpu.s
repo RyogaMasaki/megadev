@@ -61,7 +61,9 @@
  Main CPU Gate Array Registers
 -----------------------------------------------------------------------
 */
+
 .equ		MAIN_GA_BASE,		0xA12000 							/*Main CPU gate array registers base address */
+.global GA_RESET
 .equ		GA_RESET,			  MAIN_GA_BASE+0x0000 	/* peripheral reset */
 .global GA_MEMORYMODE
 .equ		GA_MEMORYMODE,	MAIN_GA_BASE+0x0002 	/* memory mode/write protect */

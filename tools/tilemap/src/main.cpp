@@ -30,7 +30,7 @@ struct runtime_config {
   bool no_map_optimize{false};
 };
 
-bool process_args(runtime_config& cfg, int argc, char** argv);
+int process_args(runtime_config& cfg, int argc, char** argv);
 
 int main(int argc, char** argv) {
   try {
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
   return 0;
 }
 
-bool process_args(runtime_config& cfg, int argc, char** argv) {
+int process_args(runtime_config& cfg, int argc, char** argv) {
   string short_opts{":i:o:b:phTM"};
   std::vector<option> long_opts{{"image", required_argument, nullptr, 'i'},
                                 {"output", required_argument, nullptr, 'o'},

@@ -19,6 +19,18 @@
 	move	#0x2000, sr	
 .endm
 
+.altmacro
+.macro Z80_BUSREQ
+LOCAL loop
+	move.w #0x100, Z80_BUSREQ
+loop:
+  btst #0,  Z80_BUSREQ
+	bne.s	loop
+.endm
+
+.macro Z80_BUSRELEASE
+	move.w  #0, Z80_BUSREQ
+.endm
 /*
 -----------------------------------------------------------------------
  HEX2BCD

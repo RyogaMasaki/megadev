@@ -23,47 +23,19 @@ enum PalLine { Line0, Line1, Line2, Line3 };
 ################################################################################
 */
 
-#define VRAM 0b00100001
-#define CRAM 0b00101011
-#define VSRAM 0b00100101
+// bus
+//#define VRAM 0b00100001
+//#define CRAM 0b00101011
+//#define VSRAM 0b00100101
 
-#define READ 0b00001100
-#define WRITE 0b00000111
-#define DMA 0b00100111
+// command
+//#define READ 0b00001100
+//#define WRITE 0b00000111
+//#define DMA 0b00100111
 
-#define VDP_ADDR(addr, ram, cmd)                        \
-  (((ram & cmd) & 3) << 30) | ((addr & 0x3FFF) << 16) | \
-      (((ram & cmd) & 0xFC) << 2) | ((addr & 0xC000) >> 14)
-
-/*
-################################################################################
-# VDP DMA TRANSFER
-# Macros and subroutines for doing DMA transfers
-################################################################################
-*/
-
-void vdp_dma_transfer(void* source_addr, unsigned int length,
-                      unsigned int vdp_dest_addr, int from_word_ram) {
-  register unsigned int sa_d0 asm("d0") = source_addr;
-  if (from_word_ram == TRUE) sa_d0 += 2;
-  register unsigned int l_d1 asm("d1") = length;
-  register unsigned int da_d2 asm("d2") = vdp_dest_addr;
-
-  asm("jsr vdp_dma_transfer_sub" ::"d"(sa_d0), "d"(l_d1), "d"(da_d2) : "a5");
-
-  return;
-};
-
-void vdp_dma_fill(void* dest_addr, u16 length, u8 value) {
-  register u32 dest_addr_d0 asm("d0") = dest_addr;
-  register u16 length_d1 asm("d1") = length;
-  register u8 value_d2 asm("d2") = value;
-
-  asm("jsr vdp_dma_fill_sub" ::"d"(dest_addr_d0), "d"(length_d1), "d"(value_d2)
-      : "d3", "a5");
-
-  return;
-};
+#define VDP_ADDR(addr, bus, cmd)                         \
+  ((((bus & cmd) & 3) << 30) | ((addr & 0x3FFF) << 16) | \
+   (((bus & cmd) & 0xFC) << 2) | ((addr & 0xC000) >> 14))
 
 struct TilePosInfo {
   u32 NametableOffset;

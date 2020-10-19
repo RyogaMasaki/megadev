@@ -13,3 +13,4 @@
 .include "interrupts.s"
 .include "exceptions.s"
 .include "md_system.s"
+.include "dma.s"
