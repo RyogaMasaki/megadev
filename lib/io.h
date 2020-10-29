@@ -18,6 +18,6 @@ extern u16 input_p2;
 extern u8 input_p1_hold;
 extern u8 input_p1_press;
 
-void update_inputs_c() { asm("jsr update_inputs" ::: "d0", "d1", "a0", "a1"); };
+void update_inputs_c();
 
 #endif

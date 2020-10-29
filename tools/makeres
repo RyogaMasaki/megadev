@@ -30,10 +30,14 @@ for resfile in $in_dir/*.res; do
 		thisres=${thisresfile//\./\_}
 	  echo ".global $thisres" >> $res_sfile
 		echo "$thisres:" >> $res_sfile
-		echo "  .incbin \"$thisresfile\"" >> $res_sfile
-		echo "  .align 2" >> $res_sfile
+		echo ".incbin \"$thisresfile\"" >> $res_sfile
+		echo ".global ${thisres}_sz" >> $res_sfile
+		echo "${thisres}_sz: .word . - ${thisres}" >> $res_sfile
+		echo ".align 2" >> $res_sfile
 		echo >> $res_sfile
-		echo "extern void *$thisres;" >> $res_hfile
+		echo "extern char const *${thisres};" >> $res_hfile
+		echo "extern u16 const ${thisres}_sz;" >> $res_hfile
+		echo >> $res_hfile
 	done < $resfile
 	echo >> $res_hfile
 	echo "#endif" >> $res_hfile

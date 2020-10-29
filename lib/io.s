@@ -30,14 +30,6 @@
 
 .section .text
 
-/*
-	init_inputs
-
-	INPUT:
-		a0 - ptr to palette data
-	OUTPUT:
-		None
-*/
 .global init_inputs
 init_inputs:
 	INTERRUPT_DISABLE

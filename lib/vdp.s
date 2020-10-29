@@ -4,7 +4,7 @@
 
 .section .text
 
-/* Ports & Registers */
+/* Ports */
 .equ	VDP_DATA,			0xC00000  /* 16 bit r/w */
 .equ	VDP_CTRL,			0xC00004  /* 16 bit r/w */
 .equ	VDP_HVCOUNT,  0xC00008  /* 16 bit r */
@@ -12,7 +12,7 @@
 .equ	VDP_DEBUG,    0xC0001C
 
 /*
-	VDP Register Word
+	VDP Registers
 	This is the register specificier formatted for use on the control port. The
 	value should be OR'ed against a value with the register data to write in the
 	lower hald of the word
@@ -41,6 +41,18 @@
 .equ VDP_REG15, 0x9500
 .equ VDP_REG16, 0x9600
 .equ VDP_REG17, 0x9700
+
+/* Status register bits */
+.equ PAL_HARDWARE, 0x0001
+.equ DMA_IN_PROGRESS, 0x0002
+.equ HBLANK_IN_PROGRESS, 0x0004
+.equ VBLANK_IN_PROGRESS, 0x0008
+.equ ODD_FRAME, 0x0010
+.equ SPR_COLLISION, 0x0020
+.equ SPR_LIMIT, 0x0040
+.equ VINT_TRIGGERED, 0x0080
+.equ FIFO_FULL, 0x0100
+.equ FIFO_EMPTY, 0x0200
 
 /*
 	CALC_VDP_CTRL_ADDR
@@ -222,8 +234,48 @@ vdp_cram_clear:
 	dbra d7, 1b
 	rts
 
+.global vdp_wait_dma
+vdp_wait_dma:
+1:move.w (VDP_CTRL), d6
+	and.w #DMA_IN_PROGRESS, d6
+	beq 2f
+	nop
+	bra 1b
+2:rts
+
+/*
+	a0 - ptr to regs (0x18 bytes)
+	BREAK:
+	d6, d7, a5
+*/
+.global vdp_load_regs
+vdp_load_regs:
+	lea VDP_CTRL, a5
+	move.w #VDP_REG00, d6
+	moveq #0x17, d7
+1:move.b (a0)+, d6
+	move.w d6, (a5)
+	add.w #0x100, d6
+	dbf d7, 1b
+  rts
+
+/*
+d0 - register id
+d1 - value
+*/
+.global vdp_load_reg
+vdp_load_reg:
+	lsl.w #8, d0
+	lsl.w #8, d0
+	add.w #VDP_REG00, d0
+	add.b d1, d0
+	move.w d0, (VDP_CTRL)
+  rts
+
 .section .bss
 vdp_plane_size: .byte 0
+.align 2
+
 .align 2
 dma_trigger: .word 0
 

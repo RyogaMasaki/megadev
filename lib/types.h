@@ -1,7 +1,9 @@
 #ifndef MEGADEV__TYPES_H
 #define MEGADEV__TYPES_H
 
-#define NULL 0L;
+#define NULL 0L
+#define TRUE 1
+#define FALSE 0
 
 /**
  *  \typedef s8
@@ -34,8 +36,5 @@ typedef unsigned short u16;
  *      32 bits unsigned integer (equivalent to unsigned long).
  */
 typedef unsigned long u32;
-
-#define TRUE 1
-#define FALSE 0
 
 #endif

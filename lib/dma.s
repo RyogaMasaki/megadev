@@ -8,6 +8,10 @@
 ################################################################################
 
 /*
+
+*/
+
+/*
 	VDP_DMA_TRANSFER
 	Load data to VDP via DMA using static values
 
@@ -33,9 +37,9 @@
   vdp_dma_fill_sub
 
 	IN:
-	 d0 - dest addr (VDP_ADDR formatted)
-	 d1 - length
-	 d2 - value
+	 d0 - value
+	 d1 - length (bytes)
+	 d2 - dest addr (VDP_ADDR formatted)
 	BREAK:
 	 a5
 */
@@ -45,37 +49,37 @@ vdp_dma_fill_sub:
 	# save our interrupt status
 	move.w sr, -(sp)
 
+	# will be re-enabled by restoring SR (if it was enabled to start)
+	INTERRUPT_DISABLE
+
 	lea VDP_CTRL, a5
 
 	# length is counted in words, so divide by 2...
 	lsr.l #1, d1
-	and.l #0x7fffffff, d0
-
-	INTERRUPT_DISABLE
-
 	# load dma length
-	move.w #0x9300, d3
+	move.w #VDP_REG13, d3
 	move.b d1, d3
 	swap d3
-	move.w #0x9400, d3
+	move.w #VDP_REG14, d3
 	lsr.w #8, d1
 	move.b d1, d3
 	move.l d3, (a5)
 
-	# set vram fill
-	move.w #0x9500, (a5)
-	move.w #0x9600, (a5)
-	move.w #0x9780, (a5)
+	# set vram fill settings in src
+	move.w #VDP_REG15, (a5)
+	move.w #VDP_REG16, (a5)
+	move.w #(VDP_REG17 | 0x80), (a5)
 
 	# set dest addr
-	move.l d0, (a5)
+	and.l #0x7fffffff, d2
+	move.l d2, (a5)
 
 	Z80_BUSREQ
 
 	# setup fill value and trigger dma write
 	# move fill value to upper half of word
-	lsl.w #8, d2
-	move.w d2, (VDP_DATA)
+	lsl.w #8, d0
+	move.w d0, (VDP_DATA)
 
 	Z80_BUSRELEASE
 
@@ -83,6 +87,80 @@ vdp_dma_fill_sub:
 	POPM d0-d3/a5
 
 	rts
+
+/*
+  vdp_dma_copy_sub
+
+	IN:
+	 d0 - source addr
+	 d1 - length
+	 d2 - dest addr (VDP_ADDR formatted)
+	BREAK:
+	 a5
+*/
+.global vdp_dma_copy_sub
+vdp_dma_copy_sub:
+	PUSHM d0-d3/a5
+	# save our interrupt status
+	move.w sr, -(sp)
+
+	# will be re-enabled by restoring SR (if it was enabled to start)
+	INTERRUPT_DISABLE
+
+	lea VDP_CTRL, a5	
+
+	# length is in bytes now!
+	#lsr.l #1, d1
+	# only 16 bit source addr
+	and.l #0xffff, d0
+	# set CD4 (vram copy) bit on dest addr
+	or.l #0x40, d2
+
+	jsr vdp_wait_dma
+	# load dma length
+	move.w #VDP_REG13, d3
+	move.b d1, d3
+	swap d3
+	move.w #VDP_REG14, d3
+	lsr.w #8, d1
+	move.b d1, d3
+	move.l d3, (a5)
+	
+	# load dma source address
+	move.w #VDP_REG15, d3
+	move.b d0, d3
+	swap d3
+	lsr.l #8, d0
+	move.w #VDP_REG16, d3
+	move.b d0, d3
+	move.l d3, (a5)
+	# reg 17 takes a constant for vram copy
+	move.w #(VDP_REG17 | 0xc0), (a5)
+
+	# set auto inc to 1 for internal VDP memory work...?
+	# TODO - Should we do this with DMA fill as well?
+	move.w #(VDP_REG0F|0x01), (a5)
+	Z80_BUSREQ
+
+	# set address and trigger dma write
+	#move.l d2, (a5)
+	move.w d2, (dma_trigger)
+	swap d2
+	move.w d2, (a5)
+	move.w (dma_trigger), (a5)
+	
+
+	# disable dma
+	#move.w #0x8119, (a5)
+
+	Z80_BUSRELEASE
+	
+	move.w #(VDP_REG0F|0x02), (a5)
+
+	move.w (sp)+, sr
+	POPM d0-d3/a5
+  rts
+
 
 /*
 	vdp_dma_transfer_sub
@@ -101,6 +179,9 @@ vdp_dma_transfer_sub:
 	# save our interrupt status
 	move.w sr, -(sp)
 
+	# will be re-enabled by restoring SR (if it was enabled to start)
+	INTERRUPT_DISABLE
+
 	lea VDP_CTRL, a5
 
 	# enable dma
@@ -111,26 +192,27 @@ vdp_dma_transfer_sub:
 	lsr.l #1, d0
 	and.l #0x7fffffff, d0
 
-	INTERRUPT_DISABLE
+	
+	jsr vdp_wait_dma
 	# load dma length
-	move.w #0x9300, d3
+	move.w #VDP_REG13, d3
 	move.b d1, d3
 	swap d3
-	move.w #0x9400, d3
+	move.w #VDP_REG14, d3
 	lsr.w #8, d1
 	move.b d1, d3
 	move.l d3, (a5)
 	
 	# load dma source address
-	move.w #0x9500, d3
+	move.w #VDP_REG15, d3
 	move.b d0, d3
 	swap d3
 	lsr.l #8, d0
-	move.w #0x9600, d3
+	move.w #VDP_REG16, d3
 	move.b d0, d3
 	move.l d3, (a5)
 	lsr.l #8, d0
-	move.w #0x9700, d3
+	move.w #VDP_REG17, d3
 	move.b d0, d3
 	move.w d3, (a5)
 
@@ -150,3 +232,62 @@ vdp_dma_transfer_sub:
 	move.w (sp)+,sr
 	POPM d0-d3/a5
 	rts
+
+/*
+	d0 - type (xfer/fill/copy)
+	d1 - src OR value
+	d2 - length
+	d3 - dest (vdp formatted)
+	break:
+	d4
+*/
+.global dma_enqueue
+dma_enqueue:
+  lea dma_queue, a5
+	move.w (dma_queue_write_idx), d4
+	beq 1f
+	mulu #12, d4
+	adda d4, a5
+1:move.l d1, (a5)+
+	move.w d2, (a5)+
+	move.l d3, (a5)+
+	move.w d0, (a5)+
+	# move to next queue index
+	addq #1, (dma_queue_write_idx)
+  rts
+
+.global dma_process_queue
+dma_process_queue:
+	PUSHM d0-d4/d7/a5
+	move.w (dma_queue_write_idx), d7
+	beq 5f
+	subq #1, d7
+	lea dma_queue, a5
+
+1:move.l (a5)+, d0
+  move.w (a5)+, d1
+	move.l (a5)+, d2
+	move.w (a5)+, d4
+	beq 2f
+	# TODO make this btst instead of cmp ?
+	cmp #1, d4
+	bne 3f
+	# 1 - dma fill
+	jsr vdp_dma_fill_sub
+	bra 4f
+3:# 2 - dma copy
+  jsr vdp_dma_copy_sub
+	bra 4f
+2:jsr vdp_dma_transfer_sub
+4:dbf d7, 1b
+	move.l #0, (dma_queue_write_idx)
+5:POPM d0-d4/d7/a5
+  rts
+
+.equ dma_queue_size, 0x10
+
+# u32 src/value, u16 length, u32 dest, u16 type = 12 bytes
+.section .bss
+dma_queue_write_idx: .word 0
+.global dma_queue
+dma_queue: .fill (12 * dma_queue_size)

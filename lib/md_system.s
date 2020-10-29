@@ -5,7 +5,7 @@
 /* TMSS Register */
 .equ		IO_TMSS,		0xA14000
 
-.text
+.section .text
 
 tmss_init:
 	# check hardware version

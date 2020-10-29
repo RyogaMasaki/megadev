@@ -315,8 +315,9 @@ std::vector<TilemapEntry> optimize_tilemap(
   // need to take care of any tiles that may have been in a run
   if (runlength > 1) {
     prev_tile.RunLength = runlength;
-    out_tilemap.push_back(prev_tile);
   }
+  // and account for the very last tile
+  out_tilemap.push_back(prev_tile);
 
   return out_tilemap;
 }

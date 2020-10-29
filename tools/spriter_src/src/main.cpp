@@ -121,6 +121,16 @@ int main(int argc, char **argv)
 		}
 		tile_map_file.close();
 
+		// dump palette if requested
+		if(cfg.make_palette) {
+			uptr<u8> out_pal{chrgfx::conv_palette::cvto_pal(MD_PAL, MD_COL,
+																											in_image.get_palette())};
+			std::ofstream tile_palette_file(std::string(cfg.output + ".pal"));
+			tile_palette_file.write((char *)out_pal.get(),
+															MD_PAL.get_palette_datasize_bytes());
+			tile_palette_file.close();
+		}
+
 		std::cout << "Tile count: " << std::to_string(chr_list.size()) << std::endl;
 		std::cout << "Sprite entries: " << std::to_string(spr_list.size())
 							<< std::endl;

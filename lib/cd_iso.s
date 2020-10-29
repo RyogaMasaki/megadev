@@ -1,8 +1,7 @@
-/*
+/**
 -----------------------------------------------------------------------
- cdrom.s
------------------------------------------------------------------------
- CD-ROM Access API
+ cd_iso.s
+ CD-ROM ISO File Access API
  
  This code assumes all files are located within the root directory. As
  such, it does not support subdirectories.
