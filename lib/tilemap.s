@@ -244,10 +244,15 @@ clear_tilemap:
 2:POPM d0-d7
 	rts
 
-.section .data
+.section .bss
 
-tilemap_pos_x: .word 1
-tilemap_pos_y: .word 1
-tilemap_width: .word 1
-tilemap_plane_ptr: .long 1
+tilemap_pos_x:
+.word 0
+tilemap_pos_y:
+.word 0
+tilemap_width:
+.word 0
+tilemap_plane_ptr:
+.long 0
+
 .align 2

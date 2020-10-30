@@ -1,3 +1,5 @@
+.ifndef MEGADEV__VDP_S
+.set MEGADEV__VDP_S, 1
 /*
 	Mega Drive Video Display Processor (VDP)
 */
@@ -143,14 +145,10 @@
 .equ WRITE, 0b00000111
 .equ DMA,   0b00100111
 
-# This is a "function" that will set a symbol called vdp_addr with
-# the properly formatted address for use on the VDP control port
-.macro VDP_ADDR addr,ram,cmd
-	.set vdp_addr, 
-	(((\ram & \cmd) & 3) << 30) | 
-	((\addr & 0x3FFF) << 16) | 
-	(((\ram & \cmd) & 0xFC) << 2) | 
-	((\addr & 0xC000) >> 14)
+.altmacro
+.macro SET_VDP_ADDR addr:req bus:req op:req
+	#move.l ((( 0x01 & 0x02) & 3) << 30), (\dest)
+	.set vdp_addr, ((((\bus & \op) & 3) << 30) | ((\addr & 0x3FFF) << 16) | (((\bus & \op) & 0xFC) << 2) | ((\addr & 0xC000) >> 14))
 .endm
 
 .global get_tiles_per_row
@@ -275,7 +273,7 @@ vdp_load_reg:
 .section .bss
 vdp_plane_size: .byte 0
 .align 2
-
-.align 2
 dma_trigger: .word 0
 
+
+.endif

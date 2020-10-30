@@ -1,3 +1,6 @@
+.ifndef MEGADEV__EXCEPTIONS_S
+.set MEGADEV__EXCEPTIONS_S, 1
+
 .section .text
 /* Error Exception implementations */
 .global _exBUS
@@ -120,8 +123,27 @@ _trapE:
 _trapF:
 	rte
 
-/* Generic exception handler */
 handle_exception:
+
+  
+	# cache exception stack values
+	move.w (sp), (ex_cache_sr)
+	move.l 2(sp), (ex_cache_pc)
+# clear screen, load font
+	
+	# disable display, clear c/vram
+	move.w #(VDP_REG00 + 1), (VDP_CTRL)
+	jsr vdp_cram_clear
+	jsr vdp_vram_clear
+	# set font color
+	#SET_VDP_ADDR 2 CRAM WRITE
+	
+
+	move.l #vdp_addr, (VDP_CTRL)
+	move.w 0x0eee, (VDP_DATA)
+
+
+handle_exception_old:
 	moveq #1, d0
 	moveq #1, d1
 	jsr print				/* print exception type as defined above */
@@ -152,6 +174,13 @@ handle_exception:
 	stop #0x2700
 
 .section .rodata
+
+chr_sysfont_sz:
+.word chr_sysfont_end - chr_sysfont
+chr_sysfont:
+.incbin "res/sysfont.chr"
+chr_sysfont_end:
+
 strBUSERR:  .asciz "BUS ERROR"
 strADDRERR: .asciz "ADDRESS ERROR"
 strILLEGAL: .asciz "ILLEGAL INSTRUCTION"
@@ -169,3 +198,10 @@ strSR:   .asciz "SR="
 strADDR: .asciz "ADDR="
 strOPC:  .asciz "OPCODE="
 
+.section .bss
+
+ex_cache_sr: .word 0
+ex_cache_pc: .long 0
+
+
+.endif

@@ -1085,6 +1085,4 @@
 	BURAM #BRMVERIFY
 .endm
 
-
-
 .endif

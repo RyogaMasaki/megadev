@@ -8,10 +8,6 @@
 ################################################################################
 
 /*
-
-*/
-
-/*
 	VDP_DMA_TRANSFER
 	Load data to VDP via DMA using static values
 
