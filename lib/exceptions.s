@@ -146,30 +146,30 @@ handle_exception:
 handle_exception_old:
 	moveq #1, d0
 	moveq #1, d1
-	jsr print				/* print exception type as defined above */
-	PRINT strPC, 1, 2
+	#jsr print				/* print exception type as defined above */
+	#PRINT strPC, 1, 2
 	moveq #4, d0
 	moveq #2, d1
 	move.l 0xa(sp), d2	/* PC is 0ffset 0xa from interrupt stack pointer */
-	jsr printval_u32
+	#jsr printval_u32
 
-	PRINT strSR, 1, 3
+	#PRINT strSR, 1, 3
 	moveq #4, d0
 	moveq #3, d1
 	move.w 0x8(sp), d2 	/* SR is offset 0x8 */
-	jsr printval_u16
+	#jsr printval_u16
 
-	PRINT strADDR, 1, 4
+	#PRINT strADDR, 1, 4
 	moveq #6, d0
 	moveq #4, d1
 	move.l 0x2(sp), d2 /* access address is offset 0x2 */
-	jsr printval_u32
+	#jsr printval_u32
 
-	PRINT strOPC, 1, 5
+	#PRINT strOPC, 1, 5
 	moveq #8, d0
 	moveq #5, d1
 	move.w 0x6(sp), d2 /* opcode is offset 0x6 */
-	jsr printval_u32
+	#jsr printval_u32
 
 	stop #0x2700
 

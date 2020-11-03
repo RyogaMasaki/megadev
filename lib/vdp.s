@@ -209,10 +209,10 @@ vdp_xy_pos:
 .global vdp_vram_clear
 vdp_vram_clear:
 	moveq #0, d0
-	lea VDP_DATA, a5
+	#lea VDP_DATA, a5
 	move.l #VRAM_WRITE, VDP_CTRL
 	move.l #0x3fff, d7
-1:move.l d0, (a5)
+1:move.l d0, (VDP_DATA)
 	dbra d7, 1b
   rts
 
