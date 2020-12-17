@@ -1,3 +1,7 @@
+/**
+ * tilemap.c
+ *
+ */
 #include "tilemap.h"
 
 void load_tilemap_c(u8 const* tilemap, u16 nametable_offset, u8 tiles_per_row,

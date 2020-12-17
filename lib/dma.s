@@ -8,8 +8,10 @@
 ################################################################################
 
 /*
+--------------------------------------------------------------------------------
 	VDP_DMA_TRANSFER
 	Load data to VDP via DMA using static values
+--------------------------------------------------------------------------------
 
 	BREAK:
 	 a5
@@ -30,14 +32,16 @@
 */
 
 /*
-  vdp_dma_fill_sub
-
+--------------------------------------------------------------------------------
+vdp_dma_fill_sub
+--------------------------------------------------------------------------------
 	IN:
 	 d0 - value
 	 d1 - length (bytes)
 	 d2 - dest addr (VDP_ADDR formatted)
 	BREAK:
 	 a5
+--------------------------------------------------------------------------------
 */
 .global vdp_dma_fill_sub
 vdp_dma_fill_sub:
@@ -48,10 +52,16 @@ vdp_dma_fill_sub:
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
+	jsr vdp_wait_dma
+
 	lea VDP_CTRL, a5
 
 	# length is counted in words, so divide by 2...
-	lsr.l #1, d1
+	#lsr.l #1, d1
+	# TODO this subtraction is a test...
+	subq #1, d1
+# TODO also a test, set autoinc to 1
+	move.w #(VDP_REG0F|0x01), (a5)
 	# load dma length
 	move.w #VDP_REG13, d3
 	move.b d1, d3
@@ -75,7 +85,12 @@ vdp_dma_fill_sub:
 	# setup fill value and trigger dma write
 	# move fill value to upper half of word
 	lsl.w #8, d0
-	move.w d0, (VDP_DATA)
+	move.w d0, -(sp)
+	move.w (sp)+, (VDP_DATA)
+
+jsr vdp_wait_dma
+
+move.w #(VDP_REG0F|0x02), (a5)
 
 	Z80_BUSRELEASE
 
@@ -85,8 +100,9 @@ vdp_dma_fill_sub:
 	rts
 
 /*
+--------------------------------------------------------------------------------
   vdp_dma_copy_sub
-
+--------------------------------------------------------------------------------
 	IN:
 	 d0 - source addr
 	 d1 - length
@@ -103,6 +119,8 @@ vdp_dma_copy_sub:
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
+	jsr vdp_wait_dma
+
 	lea VDP_CTRL, a5	
 
 	# length is in bytes now!
@@ -112,7 +130,6 @@ vdp_dma_copy_sub:
 	# set CD4 (vram copy) bit on dest addr
 	or.l #0x40, d2
 
-	jsr vdp_wait_dma
 	# load dma length
 	move.w #VDP_REG13, d3
 	move.b d1, d3
@@ -140,18 +157,22 @@ vdp_dma_copy_sub:
 
 	# set address and trigger dma write
 	#move.l d2, (a5)
-	move.w d2, (dma_trigger)
+	move.w d2, -(sp)
 	swap d2
 	move.w d2, (a5)
-	move.w (dma_trigger), (a5)
+	move.w (sp)+, (a5)
 	
 
 	# disable dma
 	#move.w #0x8119, (a5)
 
+	jsr vdp_wait_dma
+
+
 	Z80_BUSRELEASE
 	
 	move.w #(VDP_REG0F|0x02), (a5)
+
 
 	move.w (sp)+, sr
 	POPM d0-d3/a5
@@ -159,9 +180,10 @@ vdp_dma_copy_sub:
 
 
 /*
+--------------------------------------------------------------------------------
 	vdp_dma_transfer_sub
 	Load data to VDP via DMA using dynamic values
-
+--------------------------------------------------------------------------------
 	IN:
 	 d0 - source addr
 	 d1 - length
@@ -171,14 +193,18 @@ vdp_dma_copy_sub:
 */
 .global vdp_dma_transfer_sub
 vdp_dma_transfer_sub:
-	PUSHM d0-d3/a5
+	PUSHM d0-d3/a1/a5
 	# save our interrupt status
 	move.w sr, -(sp)
 
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
+	jsr vdp_wait_dma
+
 	lea VDP_CTRL, a5
+	# a1 will be used at the end for the final read
+	movea.l d0, a1
 
 	# enable dma
 	#move.w #0x811d, (a5)
@@ -189,7 +215,7 @@ vdp_dma_transfer_sub:
 	and.l #0x7fffffff, d0
 
 	
-	jsr vdp_wait_dma
+	
 	# load dma length
 	move.w #VDP_REG13, d3
 	move.b d1, d3
@@ -215,21 +241,32 @@ vdp_dma_transfer_sub:
 	Z80_BUSREQ
 
 	# set address and trigger dma write
-	move.w d2, (dma_trigger)
+	# put trigger on stack so it comes from RAM (per documentation)
+	move.w d2, -(sp)
 	swap d2
 	move.w d2, (a5)
-	move.w (dma_trigger), (a5)
+	move.w (sp)+, (a5)
 
 	# disable dma
 	#move.w #0x8119, (a5)
 
+	# per the documentation, we want to rewrite the first two words
+	# through the VDP port, just in case
+	swap d2
+	# remove the DMA flag
+  and.w #0xff7f, d2
+	move.l d2, (a5)
+	move.l (a1), VDP_DATA
+
 	Z80_BUSRELEASE
 
 	move.w (sp)+,sr
-	POPM d0-d3/a5
+	POPM d0-d3/a1/a5
 	rts
 
 /*
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 	d0 - type (xfer/fill/copy)
 	d1 - src OR value
 	d2 - length
@@ -252,9 +289,14 @@ dma_enqueue:
 	addq #1, (dma_queue_write_idx)
   rts
 
+/*
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+*/
 .global dma_process_queue
 dma_process_queue:
 	PUSHM d0-d4/d7/a5
+	INTERRUPT_DISABLE
 	move.w (dma_queue_write_idx), d7
 	beq 5f
 	subq #1, d7
@@ -277,6 +319,7 @@ dma_process_queue:
 2:jsr vdp_dma_transfer_sub
 4:dbf d7, 1b
 	move.l #0, (dma_queue_write_idx)
+	INTERRUPT_ENABLE
 5:POPM d0-d4/d7/a5
   rts
 
@@ -286,4 +329,4 @@ dma_process_queue:
 .section .bss
 dma_queue_write_idx: .word 0
 .global dma_queue
-dma_queue: .fill (12 * dma_queue_size)
+dma_queue: .fill (20 * dma_queue_size)

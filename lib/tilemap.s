@@ -1,25 +1,31 @@
+/**
+ * -----------------------------------------------------------------------------
+ * tilemap.s
+ * -----------------------------------------------------------------------------
+ * 
+ * -----------------------------------------------------------------------------
+ */
+
 
 .section .text
 
-
-
-/*
-IN:
-a0 - ptr to tilemap
-d0 - word- vram offset to place the tilemap
-d1 - byte - tiles per row
-d2 - long (split) - upper: base tile, lower: priority/palette settings (upper three bits of word, should be prepared!)
-
-
-- get resolution of plane (vdp register 0x10)
-- get width of tilemap (first)
-- d6 - column counter
+/**
+ * -----------------------------------------------------------------------------
+ * load_tilemap
+ * Load a tilemap to a nametable
+ *
+ * IN:
+ *  A0 - ptr to tilemap
+ *  D0 - word- vram offset to place the tilemap
+ *  D1 - byte - tiles per row
+ *  D2 - long (split) - upper: base tile, lower: priority/palette settings (upper three bits of word, should be prepared!)
+ * -----------------------------------------------------------------------------
 */
 
 .global load_tilemap
 load_tilemap:
 	PUSHM d0-d7
-	
+
 	# clear run counter
 	moveq #0, d3
 	# clear column counter
@@ -126,25 +132,22 @@ load_tilemap:
 	# d1 is num tiles per row, d0 is ptr to addr in nametable
 	add.l d1, d0
 	bra 3b
+
 2:POPM d0-d7
 	rts
 
 
-
-
-
-
-
-/*
-IN:
-a0 - ptr to tilemap
-d0 - word- vram offset of the tilemap
-d1 - byte - tiles per row
-
-- get resolution of plane (vdp register 0x10)
-- get width of tilemap (first)
-- d6 - column counter
-*/
+/**
+ * -----------------------------------------------------------------------------
+ * clear_tilemap
+ * Clears a tilemap that was loaded to a nametable
+ * 
+ * IN:
+ *  A0 - ptr to tilemap
+ *  D0 - word- vram offset of the tilemap
+ *  D1 - byte - tiles per row
+ * -----------------------------------------------------------------------------
+ */
 
 .global clear_tilemap
 clear_tilemap:

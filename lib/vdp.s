@@ -208,12 +208,20 @@ vdp_xy_pos:
  */
 .global vdp_vram_clear
 vdp_vram_clear:
+	lea VDP_DATA, a5
+	move.l #VRAM_WRITE, (VDP_CTRL)
 	moveq #0, d0
-	#lea VDP_DATA, a5
-	move.l #VRAM_WRITE, VDP_CTRL
-	move.l #0x3fff, d7
+	move.l #0xfff, d7
 1:move.l d0, (VDP_DATA)
+  move.l d0, (VDP_DATA)
+	move.l d0, (VDP_DATA)
+	move.l d0, (VDP_DATA)
 	dbra d7, 1b
+
+	# also clear vsram
+	# (this is for testing, should move to its own subroutine)
+	move.l #0x40000010, VDP_CTRL
+	move.l #0, (VDP_DATA)
   rts
 
 /*
@@ -250,7 +258,7 @@ vdp_wait_dma:
 vdp_load_regs:
 	lea VDP_CTRL, a5
 	move.w #VDP_REG00, d6
-	moveq #0x17, d7
+	moveq #0x11, d7
 1:move.b (a0)+, d6
 	move.w d6, (a5)
 	add.w #0x100, d6
@@ -263,7 +271,6 @@ d1 - value
 */
 .global vdp_load_reg
 vdp_load_reg:
-	lsl.w #8, d0
 	lsl.w #8, d0
 	add.w #VDP_REG00, d0
 	add.b d1, d0

@@ -16,6 +16,18 @@ z80_init_program:
 
 .section .text
 
+.global get_z80_bus
+get_z80_bus:
+  move.w #0x100, (Z80_BUSREQ)
+1:btst #0, (Z80_BUSREQ)
+  bne.s 1b
+	rts
+
+.global release_z80_bus
+release_z80_bus:
+  move.w #0, (Z80_BUSREQ)
+	rts
+
 .global load_z80_init_program
 load_z80_init_program:
 	lea z80_init_program, a0

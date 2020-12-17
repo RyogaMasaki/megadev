@@ -11,12 +11,13 @@
 #define IN_A 0b01000000
 #define IN_B 0b00010000
 #define IN_C 0b00100000
-
+/*
 #define VDP_CTRL_32 (*(volatile u32*)0xC00004)
 #define VDP_DATA_32 (*(volatile u32*)0xC00000)
 
 #define VDP_CTRL_16 (*(volatile u16*)0xC00004)
 #define VDP_DATA_16 (*(volatile u16*)0xC00000)
+*/
 
 extern u16 input_p1;
 extern u16 input_p2;
