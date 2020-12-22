@@ -3,11 +3,15 @@
 if [ -n "$1" ]
   then
 		in_dir="$1"
+	else
+		in_dir="."
 fi
 
 if [ -n "$2" ]
 	then
 		out_dir="$2"
+	else
+		out_dir="."
 fi
 
 # process resources
@@ -35,7 +39,7 @@ for resfile in $in_dir/*.res; do
 		echo "${thisres}_sz: .word . - ${thisres}" >> $res_sfile
 		echo ".align 2" >> $res_sfile
 		echo >> $res_sfile
-		echo "extern char const *${thisres};" >> $res_hfile
+		echo "extern u8 const ${thisres}[];" >> $res_hfile
 		echo "extern u16 const ${thisres}_sz;" >> $res_hfile
 		echo >> $res_hfile
 	done < $resfile

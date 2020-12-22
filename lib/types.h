@@ -10,6 +10,10 @@
 #define TRUE 1
 #define FALSE 0
 
+#define bool        _Bool
+#define true        TRUE
+#define false        FALSE
+
 /**
  *  \typedef s8
  *      8 bits signed integer (equivalent to char).

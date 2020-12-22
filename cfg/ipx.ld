@@ -2,7 +2,7 @@ OUTPUT_ARCH(m68k)
 
 MEMORY
 {
-	IP_AP (w): ORIGIN = 0xFF0000, LENGTH = 0xF700
+	IPX (w): ORIGIN = 0xFF0000, LENGTH = 0xF700
 }
 
 SECTIONS
@@ -16,16 +16,16 @@ SECTIONS
     *(.rodata*)
     MMD_AP_SIZE = (ABSOLUTE(.) - MMD_START) >> 2;
     
-  } > IP_AP
+  } > IPX
 
-  .data 0xFF8000:
+  .data 0xFF9000:
   AT ( 0xFF0000 + SIZEOF(.text) )
   {
 		*(.data*)
-  } > IP_AP
+  } > IPX
   
-  .bss 0xFF8000 + SIZEOF(.data):  AT ( 0xFF0000 + SIZEOF(.text) + SIZEOF(.data) )
+  .bss 0xFF9000 + SIZEOF(.data):  AT ( 0xFF0000 + SIZEOF(.text) + SIZEOF(.data) )
   {
     *(.bss)
-  } > IP_AP
+  } > IPX
 }

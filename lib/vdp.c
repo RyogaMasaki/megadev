@@ -16,5 +16,5 @@ void vdp_load_reg_c(u8 reg, u8 value) {
 void vdp_load_regs_c(u8 const* values) {
   register u8 const* a0_values asm("a0") = values;
 
-  asm("jsr vdp_load_regs" ::"a"(a0_values));
+  asm("jsr vdp_load_regs" ::"a"(a0_values) : "d6","d7","a5");
 }

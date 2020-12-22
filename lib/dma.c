@@ -29,7 +29,7 @@ void vdp_dma_fill(u8 value, u16 length, u32 vdpfmt_dest) {
       : "d3", "a5");
 };
 
-void dma_enqueue_c(u16 type, u8 const* source, u16 length, u32 vdpfmt_dest) {
+void dma_enqueue_c(u16 type, void const* source, u16 length, u32 vdpfmt_dest) {
   register u16 type_d0 asm("d0") = type;
   register u32 source_d1 asm("d1") = (u32)source;
   // TODO this is hardcoded for sega cd right now

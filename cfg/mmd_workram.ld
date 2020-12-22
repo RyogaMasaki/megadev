@@ -18,12 +18,12 @@ SECTIONS
     
   } > IP_AP
 
-  .data 0xFF9000: AT ( ADDR(.text) + SIZEOF(.text) )
+  .data 0xFFA000: AT ( ADDR(.text) + SIZEOF(.text) )
   {
 		*(.data*)
   } > IP_AP
   
-  .bss 0xFF9000 + SIZEOF(.data):  AT ( ADDR(.data) + SIZEOF(.data) )
+  .bss 0xFFA000 + SIZEOF(.data):  AT ( ADDR(.data) + SIZEOF(.data) )
   {
     *(.bss*)
   } > IP_AP

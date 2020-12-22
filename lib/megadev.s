@@ -14,3 +14,4 @@
 .include "exceptions.s"
 .include "md_system.s"
 .include "dma.s"
+.include "cd_bram.s"

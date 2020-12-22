@@ -3,7 +3,7 @@ OUTPUT_ARCH(m68k)
 MEMORY
 {
 	WORDRAM (w): ORIGIN = 0x200000, LENGTH = 0x200000
-	WORKRAM (w): ORIGIN = 0xFF0000, LENGTH = 0x10000
+	WORKRAM (w): ORIGIN = 0xFF0000, LENGTH = 0xef00
 }
 
 SECTIONS
@@ -18,12 +18,12 @@ SECTIONS
     
   } > WORDRAM
 
-  .data 0xFF9000 : AT ( ADDR (.text) + SIZEOF (.text) )
+  .data 0xFFA000 : AT ( ADDR (.text) + SIZEOF (.text) )
   {
 		*(.data*)
   } > WORKRAM
 
-  .bss 0xFF9000 + SIZEOF (.data) : AT ( ADDR(.data) + SIZEOF(.data) )
+  .bss 0xFFA000 + SIZEOF (.data) : AT ( ADDR(.data) + SIZEOF(.data) )
   {
     *(.bss*)
   } > WORKRAM
