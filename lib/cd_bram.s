@@ -29,11 +29,22 @@ bram_init:
   #         1 : Not Formatted
   #         2 : Other Format
   #   a1.l  pointer to display strings
-	bcc 2f
-	bra 3f
-2:move.w #4, d1
-3:rts
+	bcs 2f
+  move.w #3, d1
+2:rts
 
+# input:
+#   a0.l  pointer to parameter (file name) table
+#             file name = 11 ASCII chars [0~9 A~Z_]   0 terminated
+#
+# returns:
+#   cc    file name found
+#   cs    file name not found
+#   d0.w  number of blocks
+#   d1.b  MODE
+#         0 : normal
+#        -1 : data protected (with protect function)
+#   a0.l  backup ram start address for search
 .global bram_find_file
 bram_find_file:
 BIOS_BRMSERCH

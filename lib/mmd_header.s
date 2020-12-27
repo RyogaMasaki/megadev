@@ -20,8 +20,8 @@
 */
 
 .word 0
-.long MMD_AP_DEST
-.word MMD_AP_SIZE
+.long MMD_DEST
+.word MMD_TEXT_SZ
 .long main
 .long _HINT
 .long _VINT

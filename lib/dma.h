@@ -11,6 +11,10 @@
 ################################################################################
 */
 
+#define DMA_XFER 0
+#define DMA_FILL 1
+#define DMA_COPY 2
+
 void vdp_dma_transfer_vdpfmt(void const* source, u32 length, u32 vdpfmt_dest);
 
 void vdp_dma_transfer(void const* source, u32 length, u16 dest,

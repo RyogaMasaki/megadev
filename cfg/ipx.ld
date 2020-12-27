@@ -1,3 +1,5 @@
+INCLUDE memconfig.ld
+
 OUTPUT_ARCH(m68k)
 
 MEMORY
@@ -18,14 +20,10 @@ SECTIONS
     
   } > IPX
 
-  .data 0xFF9000:
-  AT ( 0xFF0000 + SIZEOF(.text) )
+  .data IPX_RAM_ORIGIN : AT ( 0xFF0000 + SIZEOF(.text) )
   {
 		*(.data*)
-  } > IPX
-  
-  .bss 0xFF9000 + SIZEOF(.data):  AT ( 0xFF0000 + SIZEOF(.text) + SIZEOF(.data) )
-  {
     *(.bss)
   } > IPX
+
 }

@@ -18,8 +18,8 @@ fi
 for resfile in $in_dir/*.res; do
 	echo "Processing $resfile..."
 	res_file=$(basename $resfile .res)
-  res_sfile=$out_dir/$res_file.s
-	res_hfile=$out_dir/$res_file.h
+  res_sfile=$out_dir/res_${res_file}.s
+	res_hfile=$out_dir/res_${res_file}.h
 	# asm source file
 	echo ".section .rodata" > $res_sfile
 	echo >> $res_sfile
@@ -35,9 +35,9 @@ for resfile in $in_dir/*.res; do
 	  echo ".global $thisres" >> $res_sfile
 		echo "$thisres:" >> $res_sfile
 		echo ".incbin \"$thisresfile\"" >> $res_sfile
+		echo ".align 2" >> $res_sfile
 		echo ".global ${thisres}_sz" >> $res_sfile
 		echo "${thisres}_sz: .word . - ${thisres}" >> $res_sfile
-		echo ".align 2" >> $res_sfile
 		echo >> $res_sfile
 		echo "extern u8 const ${thisres}[];" >> $res_hfile
 		echo "extern u16 const ${thisres}_sz;" >> $res_hfile

@@ -41,10 +41,10 @@ $(BUILD_PATH)/$(PROJECT_NAME).out: $(OBJS)
 	$(LD) $(LD_FLAGS) -I$(BUILD_PATH)/$(SRC_PATH) -T $(CFG_PATH)/md_rom.ld -nostdlib -o $@ $(OBJS)
 
 $(BUILD_PATH)/%.o: %.c
-	$(CC) $(CC_FLAGS) $(INC) -c $< -o $@
+	$(CC) $(CC_FLAGS) $(INC) -c $< -o$@
 
 $(BUILD_PATH)/%.o: %.s
-	$(AS) $(AS_FLAGS) $(INC) $< -o $@
+	$(AS) $(AS_FLAGS) $(INC) $< -o$@
 
 %.o80: %.s80
 	@$(ASM_Z80) $(DEF_FLAGS_Z80) --raw=$@ $<

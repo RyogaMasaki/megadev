@@ -15,11 +15,11 @@ OBJ := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SRC:.$(SRCEXT)=.o))
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(BINDIR)
-	$(CC) $^ -o $(TARGET)
+	$(CC) $^ -o$(TARGET)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INC) -c -o$@ $<
 
 clean:
 	$(RM) -r $(BUILDDIR)/* $(TARGET)

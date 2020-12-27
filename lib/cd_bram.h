@@ -25,7 +25,7 @@ extern BramInitInfo init_info;
 
 void bram_init_c();
 
-s16 bram_find_file_c(char const* filename);
+s16 bram_find_file_c(u8 const* filename);
 
 
 #endif

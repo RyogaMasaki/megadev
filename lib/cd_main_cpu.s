@@ -73,7 +73,7 @@
 .equ		GA_STOPWATCH,		MAIN_GA_BASE+0x000C 	/* CDC/gp timer 30.72us lsb */
 .equ		GA_COMFLAGS,		MAIN_GA_BASE+0x000E 	/* CPU to CPU commo bit flags */
 .global GA_COMCMD0
-.equ		GA_COMCMD0,		  MAIN_GA_BASE+0x0010 	/* 8 SUB->MAIN word registers */
+.equ		GA_COMCMD0,		  MAIN_GA_BASE+0x0010 	/* 8 MAIN->SUB word registers */
 .global GA_COMCMD1
 .equ		GA_COMCMD1,		  MAIN_GA_BASE+0x0012
 .equ		GA_COMCMD2,		  MAIN_GA_BASE+0x0014
@@ -83,7 +83,7 @@
 .equ		GA_COMCMD6,		  MAIN_GA_BASE+0x001C
 .equ		GA_COMCMD7,		  MAIN_GA_BASE+0x001E
 .global GA_COMSTAT0
-.equ		GA_COMSTAT0,		MAIN_GA_BASE+0x0020 	/* 8 MAIN->SUB word registers */
+.equ		GA_COMSTAT0,		MAIN_GA_BASE+0x0020 	/* 8 SUB->MAIN word registers */
 .global GA_COMSTAT1
 .equ		GA_COMSTAT1,		MAIN_GA_BASE+0x0022
 .equ		GA_COMSTAT2,		MAIN_GA_BASE+0x0024

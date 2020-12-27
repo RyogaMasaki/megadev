@@ -13,6 +13,6 @@ void bram_init_c() {
   init_info.status = d1_bram_status;
 }
 
-s16 bram_find_file_c(char const* filename) {
+s16 bram_find_file_c(u8 const* filename) {
   // TODO - BRMSERCH bios call
 }

@@ -130,15 +130,15 @@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o: $(LIB_PATH)/mmd_header.s
 	$(AS) $(AS_FLAGS) $(INC) $(LIB_PATH)/mmd_header.s -o$(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
 
 $(MMD_WORKRAM_OUT): $(MMD_WORKRAM_DEF) $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
-	$(LD) $(LD_FLAGS) -z muldefs  -T $(CFG_PATH)/mmd_workram.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORKRAM_DEF))))) $(addprefix -R,$(MAIN_REFERENCE))
+	$(LD) $(LD_FLAGS) -z muldefs  -T $(CFG_PATH)/mmd_workram.ld -o$@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORKRAM_DEF))))) $(addprefix -R,$(MAIN_REFERENCE))
 	$(NM) -n $@ > $(MMD_WORKRAM_OUT:.out=_symbols.txt)
 
 $(MMD_WORDRAM_OUT): $(MMD_WORDRAM_DEF) $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
-	$(LD) $(LD_FLAGS) -z muldefs  -T $(CFG_PATH)/mmd_wordram.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORDRAM_DEF))))) $(addprefix -R,$(MAIN_REFERENCE))
+	$(LD) $(LD_FLAGS) -z muldefs  -T $(CFG_PATH)/mmd_wordram.ld -o$@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_WORDRAM_DEF))))) $(addprefix -R,$(MAIN_REFERENCE))
 	$(NM) -n $@ > $(MMD_WORDRAM_OUT:.out=_symbols.txt)
 
 $(MMD_IPX_OUT): $(MMD_IPX_DEF) $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o
-	$(LD) $(LD_FLAGS) -R$(IP_OUT) -T $(CFG_PATH)/ipx.ld -o $@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_IPX_DEF)))))
+	$(LD) $(LD_FLAGS) -R$(IP_OUT) -T $(CFG_PATH)/ipx.ld -o$@ $(BUILD_PATH)/$(SRC_PATH)/mmd_header.o $(addprefix $(BUILD_PATH)/$(SRC_PATH)/,$(subst .s,.o,$(subst .c,.o,$(shell cat $(MMD_IPX_DEF)))))
 	$(NM) -n $@ > $(MMD_IPX_OUT:.out=_symbols.txt)
 
 $(IP_OUT): $(IP_OBJ)
@@ -159,11 +159,11 @@ $(BOOT_BIN): $(BOOT_OBJ)
 	$(OBJCPY) -O binary $< $@
 
 $(BUILD_PATH)/%.o: %.c
-	$(CC) $(CC_FLAGS) $(INC) $(CC_INC) -c $< -o $@
+	$(CC) $(CC_FLAGS) $(INC) $(CC_INC) -c $< -o$@
 
 $(BUILD_PATH)/%.o: %.s
-	$(AS) $(AS_FLAGS) $(INC) $< -o $@
-	#$(CC) $(CC_FLAGS) -Wa,--register-prefix-optional -Wa,--bitwise-or $(INC) $(CC_INC) -c $< -o $@
+	$(AS) $(AS_FLAGS) $(INC) $< -o$@
+#	$(CC) $(CC_FLAGS) -Wa,--register-prefix-optional -Wa,--bitwise-or $(INC) $(CC_INC) -c $< -o $@
 
 $(BUILD_PATH)/$(PROJECT).iso: $(BUILD_PATH)/$(BOOTBIN)
 	mkisofs -iso-level 1 -G $< -pad -V "$(PROJECT)" -o $@ $(DISC_DIR)
