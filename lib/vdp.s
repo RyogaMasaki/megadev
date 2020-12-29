@@ -1,8 +1,7 @@
 .ifndef MEGADEV__VDP_S
 .set MEGADEV__VDP_S, 1
-/*
-	Mega Drive Video Display Processor (VDP)
-*/
+
+/* Mega Drive Video Display Processor (VDP) */
 
 .section .text
 
@@ -17,7 +16,7 @@
 	VDP Registers
 	This is the register specificier formatted for use on the control port. The
 	value should be OR'ed against a value with the register data to write in the
-	lower hald of the word
+	lower half of the word
 */
 .equ VDP_REG00, 0x8000
 .equ VDP_REG01, 0x8100
@@ -240,15 +239,6 @@ vdp_cram_clear:
 	dbra d7, 1b
 	rts
 
-.global vdp_wait_dma
-vdp_wait_dma:
-1:move.w (VDP_CTRL), d6
-	and.w #DMA_IN_PROGRESS, d6
-	beq 2f
-	nop
-	bra 1b
-2:rts
-
 /*
 	a0 - ptr to regs (0x18 bytes)
 	BREAK:
@@ -281,6 +271,5 @@ vdp_load_reg:
 vdp_plane_size: .byte 0
 .align 2
 dma_trigger: .word 0
-
 
 .endif

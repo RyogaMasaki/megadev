@@ -1,4 +1,7 @@
 
+.ifndef MEGADEV__DMA_S
+.set MEGADEV__DMA_S, 1
+
 ################################################################################
 # VDP DMA TRANSFER
 # Macros and subroutines for doing DMA transfers
@@ -6,6 +9,16 @@
 # using the SVP chip. In short, the source address will be off by one, starting
 # the read 1 word before the actual address. The solution is to 
 ################################################################################
+
+.global dma_wait
+dma_wait:
+1:move.w (VDP_CTRL), d6
+	and.w #DMA_IN_PROGRESS, d6
+	beq 2f
+	nop
+	bra 1b
+2:rts
+
 
 /*
 --------------------------------------------------------------------------------
@@ -52,7 +65,7 @@ vdp_dma_fill_sub:
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
-	jsr vdp_wait_dma
+	jsr dma_wait
 
 	lea VDP_CTRL, a5
 
@@ -88,7 +101,7 @@ vdp_dma_fill_sub:
 	move.w d0, -(sp)
 	move.w (sp)+, (VDP_DATA)
 
-jsr vdp_wait_dma
+jsr dma_wait
 
 move.w #(VDP_REG0F|0x02), (a5)
 
@@ -119,7 +132,7 @@ vdp_dma_copy_sub:
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
-	jsr vdp_wait_dma
+	jsr dma_wait
 
 	lea VDP_CTRL, a5	
 
@@ -166,7 +179,7 @@ vdp_dma_copy_sub:
 	# disable dma
 	#move.w #0x8119, (a5)
 
-	jsr vdp_wait_dma
+	jsr dma_wait
 
 
 	Z80_BUSRELEASE
@@ -200,7 +213,7 @@ vdp_dma_transfer_sub:
 	# will be re-enabled by restoring SR (if it was enabled to start)
 	INTERRUPT_DISABLE
 
-	jsr vdp_wait_dma
+	jsr dma_wait
 
 	lea VDP_CTRL, a5
 	# a1 will be used at the end for the final read
@@ -330,3 +343,6 @@ dma_process_queue:
 dma_queue_write_idx: .word 0
 .global dma_queue
 dma_queue: .fill (20 * dma_queue_size)
+
+.endif
+

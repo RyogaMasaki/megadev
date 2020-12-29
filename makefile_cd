@@ -162,8 +162,8 @@ $(BUILD_PATH)/%.o: %.c
 	$(CC) $(CC_FLAGS) $(INC) $(CC_INC) -c $< -o$@
 
 $(BUILD_PATH)/%.o: %.s
-	$(AS) $(AS_FLAGS) $(INC) $< -o$@
-#	$(CC) $(CC_FLAGS) -Wa,--register-prefix-optional -Wa,--bitwise-or $(INC) $(CC_INC) -c $< -o $@
+#	$(AS) $(AS_FLAGS) $(INC) $< -o$@
+	$(CC) $(CC_FLAGS) -Wa,--register-prefix-optional -Wa,--bitwise-or $(INC) $(CC_INC) -c $< -o $@
 
 $(BUILD_PATH)/$(PROJECT).iso: $(BUILD_PATH)/$(BOOTBIN)
 	mkisofs -iso-level 1 -G $< -pad -V "$(PROJECT)" -o $@ $(DISC_DIR)

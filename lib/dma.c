@@ -1,5 +1,7 @@
 #include "dma.h"
 
+void dma_wait_c() { asm("jsr dma_wait" ::: "d6"); };
+
 void vdp_dma_transfer_vdpfmt(void const* source, u32 length, u32 vdpfmt_dest) {
   register u32 source_d0 asm("d0") = (u32)source;
   // TODO this is hardcoded for sega cd right now

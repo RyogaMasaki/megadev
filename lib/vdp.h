@@ -489,7 +489,7 @@ void vdp_vram_clear_c();
 /**
  * Wait for DMA operations to complete
  */
-void vdp_wait_dma_c();
+void dma_wait_c();
 
 /**
  * Set a single VDP register with a value
