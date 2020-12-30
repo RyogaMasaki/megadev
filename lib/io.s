@@ -1,37 +1,18 @@
+/**
+ * \file io.s
+ * I/O 
+ */
 
-/* IO Ports */
-.equ    IO_DATA1,		0xA10003
-.equ    IO_DATA2,		0xA10005
-.equ    IO_DATA3,		0xA10007
-.equ    IO_CTRL1,		0xA10009
-.equ    IO_CTRL2,		0xA1000B
-.equ    IO_CTRL3,		0xA1000D
-.equ    IO_TXDATA1,	0xA1000F
-.equ    IO_RXDATA1,	0xA10011
-.equ    IO_SCTRL1,	0xA10013
-.equ    IO_TXDATA2,	0xA10015
-.equ    IO_RXDATA2,	0xA10017
-.equ    IO_SCTRL2,	0xA10019
-.equ    IO_TXDATA3,	0xA1001B
-.equ    IO_RXDATA3,	0xA1001D
-.equ    IO_SCTRL3,	0xA1001F
+#ifndef MEGADEV__IO_S
+#define MEGADEV__IO_S
 
-
-
-/* Input bit mappings */
-.equ  IN_UP,        0b00000001
-.equ  IN_DOWN,      0b00000010
-.equ  IN_LEFT,      0b00000100
-.equ  IN_RIGHT,     0b00001000
-.equ  IN_START,     0b10000000
-.equ  IN_A,         0b01000000
-.equ  IN_B,         0b00010000
-.equ  IN_C,         0b00100000
+#include "macros.s"
+#include "io_def.h"
+#include "config.h"
 
 .section .text
 
-.global init_inputs
-init_inputs:
+FUNC init_inputs
 	INTERRUPT_DISABLE
 	move.w	#0x100, Z80_BUSREQ	/* Stop Z80  */
 1:btst	#0, Z80_BUSREQ	      /* Has the Z80 stopped? */
@@ -44,10 +25,9 @@ init_inputs:
 	INTERRUPT_ENABLE
 	rts
 
-.global update_inputs
-update_inputs:
+FUNC update_inputs
   lea	input_p1_hold, a0	/* Area where joypad states are written */
-	lea	0xA10003, a1	/* First joypad port */
+	lea	IO_DATA1, a1	/* First joypad port */
   moveq	#1, d7
 1:move.b	#0, (a1)	/* Assert /TH */
 	nop  /* wait for the controller device */
@@ -85,8 +65,7 @@ update_inputs:
 	OUTPUT:
 		d0 - byte value read from external device
 */
-.global init_ext
-init_ext:
+FUNC init_ext
 	INTERRUPT_DISABLE
 	move.w	#0x100, Z80_BUSREQ	/* stop Z80  */
 1:btst	#0, Z80_BUSREQ				/* wait for stop */
@@ -110,8 +89,7 @@ init_ext:
 		d0 - byte value received
 */
 /* TODO: How does RERR play into this? */
-.global ext_rx
-ext_rx:
+FUNC ext_rx
 	#movem.l d0-d7/a0-a6,-(sp)
 1:btst #1, (EXT_SCTRL)		/* check bit 1 (Rxd READY) first */
 	beq 1b
@@ -131,8 +109,7 @@ ext_rx:
 	OUTPUT:
 		d0 - byte value to transmit
 */
-.global ext_tx
-ext_tx:
+FUNC ext_tx
 #	movem.l d1, -(sp)
 1:btst #0, (EXT_SCTRL)		/* check bit 1 (Rxd READY) first */
 	bne 1b
@@ -164,3 +141,5 @@ input_p2_press:
 .byte 0
 	
 .align 2
+
+#endif

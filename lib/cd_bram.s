@@ -1,20 +1,14 @@
+/**
+ * \file cd_bram.s
+ * Backup RAM (BRAM) 
+ */
 
-.ifndef MEGADEV__CD_BRAM_S
-.set MEGADEV__CD_BRAM_S, 1
+#ifndef MEGADEV__CD_BRAM_S
+#define MEGADEV__CD_BRAM_S
+
+#include "cd_bios_macros.s"
 
 .section .text
-.include "cd_bios.s"
-.include "cd_bram_macros.s"
-
-.equ	BRMINIT,				0x0000
-.equ	BRMSTAT,				0x0001
-.equ	BRMSERCH,				0x0002
-.equ	BRMREAD,				0x0003
-.equ	BRMWRITE,				0x0004
-.equ	BRMDEL,					0x0005
-.equ	BRMFORMAT,			0x0006
-.equ	BRMDIR,					0x0007
-.equ	BRMVERIFY,			0x0008
 
 .global bram_init
 bram_init:
@@ -58,4 +52,4 @@ bram_string_buffer: .space 12
 bram_work_ram: .space 0x640
 
 
-.endif
+#endif

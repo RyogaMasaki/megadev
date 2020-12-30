@@ -1,15 +1,16 @@
 /**
------------------------------------------------------------------------
- cd_iso.s
- CD-ROM ISO File Access API
- 
- This code assumes all files are located within the root directory. As
- such, it does not support subdirectories.
------------------------------------------------------------------------
-*/
+ * \file cd_iso.s
+ * CD-ROM ISO File Access API
+ * Subdirectories are *not* supported. All files should be in the root.
+ */
+
+#ifndef MEGADEV__CD_ISO_S
+#define MEGADEV__CD_ISO_S
+
+#include "macros.s"
+#include "cd_bios_macros.s"
 
 .section .text
-.include "macros.s"
 
 /*
 -----------------------------------------------------------------------
@@ -606,3 +607,4 @@ file_list_cache:
 file_list_cache_buffer:
 	.space 0x800		/* size of a single sector */
 
+#endif

@@ -1,6 +1,6 @@
 /**
- * tilemap.h
- *
+ * \file tilemap.h
+ * Tilemap system
  */
 
 #ifndef MEGADEV__TILEMAP_H

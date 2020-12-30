@@ -1,3 +1,8 @@
+/**
+ * \file dma.h
+ * Direct Memory Access (DMA) functions
+ */
+
 #ifndef MEGADEV__DMA_H
 #define MEGADEV__DMA_H
 

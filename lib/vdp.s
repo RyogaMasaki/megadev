@@ -1,59 +1,14 @@
-.ifndef MEGADEV__VDP_S
-.set MEGADEV__VDP_S, 1
+/**
+ * \file vdp.s
+ * Mega Drive Video Display Processor (VDP)
+ */
 
-/* Mega Drive Video Display Processor (VDP) */
+#ifndef MEGADEV__VDP_S
+#define MEGADEV__VDP_S
+
+#include "vdp_def.h"
 
 .section .text
-
-/* Ports */
-.equ	VDP_DATA,			0xC00000  /* 16 bit r/w */
-.equ	VDP_CTRL,			0xC00004  /* 16 bit r/w */
-.equ	VDP_HVCOUNT,  0xC00008  /* 16 bit r */
-
-.equ	VDP_DEBUG,    0xC0001C
-
-/*
-	VDP Registers
-	This is the register specificier formatted for use on the control port. The
-	value should be OR'ed against a value with the register data to write in the
-	lower half of the word
-*/
-.equ VDP_REG00, 0x8000
-.equ VDP_REG01, 0x8100
-.equ VDP_REG02, 0x8200
-.equ VDP_REG03, 0x8300
-.equ VDP_REG04, 0x8400
-.equ VDP_REG05, 0x8500
-.equ VDP_REG06, 0x8600
-.equ VDP_REG07, 0x8700
-.equ VDP_REG08, 0x8800
-.equ VDP_REG09, 0x8900
-.equ VDP_REG0A, 0x8A00
-.equ VDP_REG0B, 0x8B00
-.equ VDP_REG0C, 0x8C00
-.equ VDP_REG0D, 0x8D00
-.equ VDP_REG0E, 0x8E00
-.equ VDP_REG0F, 0x8F00
-.equ VDP_REG10, 0x9000
-.equ VDP_REG11, 0x9100
-.equ VDP_REG12, 0x9200
-.equ VDP_REG13, 0x9300
-.equ VDP_REG14, 0x9400
-.equ VDP_REG15, 0x9500
-.equ VDP_REG16, 0x9600
-.equ VDP_REG17, 0x9700
-
-/* Status register bits */
-.equ PAL_HARDWARE, 0x0001
-.equ DMA_IN_PROGRESS, 0x0002
-.equ HBLANK_IN_PROGRESS, 0x0004
-.equ VBLANK_IN_PROGRESS, 0x0008
-.equ ODD_FRAME, 0x0010
-.equ SPR_COLLISION, 0x0020
-.equ SPR_LIMIT, 0x0040
-.equ VINT_TRIGGERED, 0x0080
-.equ FIFO_FULL, 0x0100
-.equ FIFO_EMPTY, 0x0200
 
 /*
 	CALC_VDP_CTRL_ADDR
@@ -150,8 +105,7 @@
 	.set vdp_addr, ((((\bus & \op) & 3) << 30) | ((\addr & 0x3FFF) << 16) | (((\bus & \op) & 0xFC) << 2) | ((\addr & 0xC000) >> 14))
 .endm
 
-.global get_tiles_per_row
-get_tiles_per_row:
+FUNC get_tiles_per_row
 	move.b vdp_plane_size, d2
 	and.w #3, d2
 	# find number of tiles per row
@@ -174,8 +128,7 @@ get_tiles_per_row:
 	BREAK:
 	 d2
 */
-.global vdp_xy_pos
-vdp_xy_pos:
+FUNC vdp_xy_pos
 	move.b vdp_plane_size, d2
 	and.w #3, d2
 	# find number of tiles per row
@@ -205,8 +158,7 @@ vdp_xy_pos:
  * BREAK:
  *  d0, d7, a5
  */
-.global vdp_vram_clear
-vdp_vram_clear:
+FUNC vdp_vram_clear
 	lea VDP_DATA, a5
 	move.l #VRAM_WRITE, (VDP_CTRL)
 	moveq #0, d0
@@ -229,8 +181,7 @@ vdp_vram_clear:
  * BREAK:
  *  d0, d7, a5
  */
-.global vdp_cram_clear
-vdp_cram_clear:
+FUNC vdp_cram_clear
 	moveq #0, d0
 	lea VDP_DATA, a5
 	move.l #CRAM_WRITE, VDP_CTRL
@@ -244,8 +195,7 @@ vdp_cram_clear:
 	BREAK:
 	d6, d7, a5
 */
-.global vdp_load_regs
-vdp_load_regs:
+FUNC vdp_load_regs
 	lea VDP_CTRL, a5
 	move.w #VDP_REG00, d6
 	moveq #0x11, d7
@@ -259,8 +209,7 @@ vdp_load_regs:
 d0 - register id
 d1 - value
 */
-.global vdp_load_reg
-vdp_load_reg:
+FUNC vdp_load_reg
 	lsl.w #8, d0
 	add.w #VDP_REG00, d0
 	add.b d1, d0
@@ -272,4 +221,4 @@ vdp_plane_size: .byte 0
 .align 2
 dma_trigger: .word 0
 
-.endif
+#endif

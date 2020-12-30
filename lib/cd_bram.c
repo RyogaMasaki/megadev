@@ -14,5 +14,5 @@ void bram_init_c() {
 }
 
 s16 bram_find_file_c(u8 const* filename) {
-  // TODO - BRMSERCH bios call
+  // TODO - BRMSERCH bios calltest_latest_latest_la
 }

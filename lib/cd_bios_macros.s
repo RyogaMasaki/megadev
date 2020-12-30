@@ -1,128 +1,13 @@
 /**
- * -----------------------------------------------------------------------------
- * cdbios.s
- * -----------------------------------------------------------------------------
- * This file defines the entry points and other essential information
- * needed to call BIOS functions
- * -----------------------------------------------------------------------------
+ * \file cd_bios_macros.h
+ * Mega CD BIOS call macros
+ * BIOS calls are made by the Sub CPU
  */
 
-.ifndef MEGADEV__CDBIOS_S
-.set MEGADEV__CDBIOS_S, 1
+#ifndef MEGADEV__CD_BIOS_MACROS_S
+#define MEGADEV__CD_BIOS_MACROS_S
 
-/**
- * -----------------------------------------------------------------------------
- * BIOS FUNCTION CODES
- * -----------------------------------------------------------------------------
- */
-.equ	MSCSTOP,				0x0002
-.equ	MSCPAUSEON,			0x0003
-.equ	MSCPAUSEOFF,		0x0004
-.equ	MSCSCANFF,			0x0005
-.equ	MSCSCANFR,			0x0006
-.equ	MSCSCANOFF,			0x0007
-.equ	ROMPAUSEON,			0x0008
-.equ	ROMPAUSEOFF,		0x0009
-.equ	DRVOPEN,				0x000A
-.equ	DRVINIT,				0x0010
-.equ	MSCPLAY,				0x0011
-.equ	MSCPLAY1,				0x0012
-.equ	MSCPLAYR,				0x0013
-.equ	MSCPLAYT,				0x0014
-.equ	MSCSEEK,				0x0015
-.equ	MSCSEEKT,				0x0016
-.equ	ROMREAD,				0x0017
-.equ	ROMSEEK,				0x0018
-.equ	MSCSEEK1,				0x0019
-.equ	TESTENTRY,			0x001E
-.equ	TESTENTRYLOOP,	0x001F
-.equ	ROMREADN,				0x0020
-.equ	ROMREADE,				0x0021
-.equ	CDBCHK,					0x0080
-.equ	CDBSTAT,				0x0081
-.equ	CDBTOCWRITE,		0x0082
-.equ	CDBTOCREAD,			0x0083
-.equ	CDBPAUSE,				0x0084
-.equ	FDRSET,					0x0085
-.equ	FDRCHG,					0x0086
-.equ	CDCSTART,				0x0087
-.equ	CDCSTARTP,			0x0088
-.equ	CDCSTOP,				0x0089
-.equ	CDCSTAT,				0x008A
-.equ	CDCREAD,				0x008B
-.equ	CDCTRN,					0x008C
-.equ	CDCACK,					0x008D
-.equ	SCDINIT,				0x008E
-.equ	SCDSTART,				0x008F
-.equ	SCDSTOP,				0x0090
-.equ	SCDSTAT,				0x0091
-.equ	SCDREAD,				0x0092
-.equ	SCDPQ,					0x0093
-.equ	SCDPQL,					0x0094
-.equ	LEDSET,					0x0095
-.equ	CDCSETMODE,			0x0096
-.equ	WONDERREQ,			0x0097
-.equ	WONDERCHK,			0x0098
-.equ	CBTINIT,				0x0000
-.equ	CBTINT,					0x0001
-.equ	CBTOPENDISC,		0x0002
-.equ	CBTOPENSTAT,		0x0003
-.equ	CBTCHKDISC,			0x0004
-.equ	CBTCHKSTAT,			0x0005
-.equ	CBTIPDISC,			0x0006
-.equ	CBTIPSTAT,			0x0007
-.equ	CBTSPDISC,			0x0008
-.equ	CBTSPSTAT,			0x0009
-
-/**
- * -----------------------------------------------------------------------------
- * BIOS ENTRY POINTS
- * -----------------------------------------------------------------------------
- */
-.equ	_ADRERR,		0x00005F40
-.equ	_BOOTSTAT,	0x00005EA0
-.equ	_BURAM,			0x00005F16
-.equ	_CDBIOS,		0x00005F22
-.equ	_CDBOOT,		0x00005F1C
-.equ	_CDSTAT,		0x00005E80
-.equ	_CHKERR,		0x00005F52
-.equ	_CODERR,		0x00005F46
-.equ	_DEVERR,		0x00005F4C
-.equ	_LEVEL1,		0x00005F76
-.equ	_LEVEL2,		0x00005F7C
-.equ	_LEVEL3,		0x00005F82 /*TIMER INTERRUPT*/
-.equ	_LEVEL4,		0x00005F88
-.equ	_LEVEL5,		0x00005F8E
-.equ	_LEVEL6,		0x00005F94
-.equ	_LEVEL7,		0x00005F9A
-.equ	_NOCOD0,		0x00005F6A
-.equ	_NOCOD1,		0x00005F70
-.equ	_SETJMPTBL,	0x00005F0A
-.equ	_SPVERR,		0x00005F5E
-.equ	_TRACE,			0x00005F64
-.equ	_TRAP00,		0x00005FA0
-.equ	_TRAP01,		0x00005FA6
-.equ	_TRAP02,		0x00005FAC
-.equ	_TRAP03,		0x00005FB2
-.equ	_TRAP04,		0x00005FB8
-.equ	_TRAP05,		0x00005FBE
-.equ	_TRAP06,		0x00005FC4
-.equ	_TRAP07,		0x00005FCA
-.equ	_TRAP08,		0x00005FD0
-.equ	_TRAP09,		0x00005FD6
-.equ	_TRAP10,		0x00005FDC
-.equ	_TRAP11,		0x00005FE2
-.equ	_TRAP12,		0x00005FE8
-.equ	_TRAP13,		0x00005FEE
-.equ	_TRAP14,		0x00005FF4
-.equ	_TRAP15,		0x00005FFA
-.equ	_TRPERR,		0x00005F58
-.equ	_USERCALL0,	0x00005F28 /* SP Init */
-.equ	_USERCALL1,	0x00005F2E /* SP Main */
-.equ	_USERCALL2,	0x00005F34 /* SP INT2 */
-.equ	_USERCALL3,	0x00005F3A /* SP User Interrupt */
-.equ	_USERMODE,	0x00005EA6
-.equ	_WAITVSYNC,	0x00005F10
+#include "cd_bios_def.h"
 
 /**
  * -----------------------------------------------------------------------------
@@ -136,7 +21,6 @@
 	move.w    \fcode,d0
   jsr       _CDBIOS
 .endm
-
 
 /**
  * -----------------------------------------------------------------------------
@@ -904,4 +788,188 @@
 	CDBIOS #LEDSET
 .endm
 
-.endif
+
+/*
+-----------------------------------------------------------------------
+ BURAM - Calls the Backup Ram with a specified function number.
+ Assumes that all preparatory and cleanup work is done externally.
+
+ IN:
+  fcode Backup Ram function code
+
+ OUT:
+  none
+-----------------------------------------------------------------------
+*/
+.macro BURAM fcode
+	move.w    \fcode,d0
+	jsr       _BURAM
+.endm
+
+
+#-----------------------------------------------------------------------
+# BIOS_BRMINIT - Prepares to write into and read from Back-Up Ram.
+#
+# input:
+#   a0.l  pointer to scratch ram (size 0x640 bytes).
+#
+#   a1.l  pointer to the buffer for display strings (size: 12 bytes)
+#
+# returns:
+#   cc    SEGA formatted RAM is present
+#   cs    Not formatted or no RAM
+#   d0.w  size of backup RAM  0x2(000) ~ 0x100(000)  bytes
+#   d1.w  0 : No RAM
+#         1 : Not Formatted
+#         2 : Other Format
+#   a1.l  pointer to display strings
+#-----------------------------------------------------------------------
+.macro BIOS_BRMINIT
+	BURAM #BRMINIT
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMSTAT - Returns how much Back-Up RAM has been used.
+#
+# input:
+#   a1.l  pointer to display string buffer (size: 12 bytes)
+#
+# returns:
+#   d0.w  number of blocks of free area
+#   d1.w  number of files in directory
+#-----------------------------------------------------------------------
+.macro BIOS_BRMSTAT
+	BURAM #BRMSTAT
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMSERCH - Searches for the desired file in Back-Up Ram.  The file
+#                  names are 11 ASCII characters terminated with a 0.
+#
+# input:
+#   a0.l  pointer to parameter (file name) table
+#             file name = 11 ASCII chars [0~9 A~Z_]   0 terminated
+#
+# returns:
+#   cc    file name found
+#   cs    file name not found
+#   d0.w  number of blocks
+#   d1.b  MODE
+#         0 : normal
+#        -1 : data protected (with protect function)
+#   a0.l  backup ram start address for search
+#-----------------------------------------------------------------------
+.macro BIOS_BRMSERCH
+	BURAM #BRMSERCH
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMREAD - reads data from Back-Up RAM.
+#
+# input:
+#   a0.l  pointer to parameter (file name) table
+#   a1.l  pointer to write buffer
+#
+# returns:
+#   cc    Read Okay
+#   cs    Error
+#   d0.w  number of blocks
+#   d1.b  MODE
+#         0 : normal
+#        -1 : data protected
+#-----------------------------------------------------------------------
+.macro BIOS_BRMREAD
+	BURAM #BRMREAD
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMWRITE - Writes data in Back-Up RAM.
+#
+# input:
+#   a0.l  pointer to parameter (file name) table
+#          flag.b       0x00: normal
+#                       0xFF: encoded (with protect function)
+#          block_size.w 0x00: 1 block = 0x40 bytes
+#                       0xFF: 1 block = 0x20 bytes
+#   a1.l  pointer to save data
+#
+# returns:
+#   cc    Okay, complete
+#   cs    Error, cannot write in the file
+#-----------------------------------------------------------------------
+.macro BIOS_BRMWRITE
+	BURAM #BRMWRITE
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMDEL - Deletes data on Back-Up Ram.
+#
+# input:
+#   a0.l  pointer to parameter (file name) table
+#
+# returns:
+#   cc    deleted
+#   cs    not found
+#-----------------------------------------------------------------------
+.macro BIOS_BRMDEL
+	BURAM #BRMDEL
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMFORMAT - First initializes the directory and then formats the
+#                   Back-Up RAM
+#
+#                  Call BIOS_BRMINIT before calling this function
+#
+# input:
+#   none
+#
+# returns:
+#   cc    Okay, formatted
+#   cs    Error, cannot format
+#-----------------------------------------------------------------------
+.macro BIOS_BRMFORMAT
+	BURAM #BRMFORMAT
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMDIR - Reads directory
+#
+# input:
+#   d1.l  H: number of files to skip when all files cannot be read in one try
+#         L: size of directory buffer (# of files that can be read in the
+#             directory buffer)
+#   a0.l  pointer to parameter (file name) table
+#   a1.l  pointer to directory buffer
+#
+# returns:
+#   cc    Okay, complete
+#   cs    Full, too much to read into directory buffer
+#-----------------------------------------------------------------------
+.macro BIOS_BRMDIR
+	BURAM #BRMDIR
+.endm
+
+#-----------------------------------------------------------------------
+# BIOS_BRMVERIFY - Checks data written on Back-Up Ram.
+#
+# input:
+#   a0.l  pointer to parameter (file name) table
+#          flag.b       0x00: normal
+#                       0xFF: encoded (with protect function)
+#          block_size.w 0x00: 1 block = 0x40 bytes
+#                       0xFF: 1 block = 0x20 bytes
+#   a1.l  pointer to save data
+#
+# returns:
+#   cc    Okay
+#   cs    Error
+#   d0.w  Error Number
+#        -1 : Data does not match
+#         0 : File not found
+#-----------------------------------------------------------------------
+.macro BIOS_BRMVERIFY
+	BURAM #BRMVERIFY
+.endm
+
+#endif

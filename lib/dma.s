@@ -1,7 +1,12 @@
+/**
+ * \file dma.s
+ * Direct Memory Access (DMA) functions
+ */
 
-.ifndef MEGADEV__DMA_S
-.set MEGADEV__DMA_S, 1
+#ifndef MEGADEV__DMA_H
+#define MEGADEV__DMA_H
 
+/*
 ################################################################################
 # VDP DMA TRANSFER
 # Macros and subroutines for doing DMA transfers
@@ -9,6 +14,7 @@
 # using the SVP chip. In short, the source address will be off by one, starting
 # the read 1 word before the actual address. The solution is to 
 ################################################################################
+*/
 
 .global dma_wait
 dma_wait:
@@ -344,5 +350,4 @@ dma_queue_write_idx: .word 0
 .global dma_queue
 dma_queue: .fill (20 * dma_queue_size)
 
-.endif
-
+#endif

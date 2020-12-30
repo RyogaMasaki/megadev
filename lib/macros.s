@@ -1,12 +1,19 @@
-/*
---------------------------------------------------------------------------------
- macros.s
- General purpose macros
---------------------------------------------------------------------------------
-*/
+/**
+ * \file macros.s
+ * General purpose asm macros
+ */
 
-.ifndef MACROS_S
-.set MACROS_S, 1
+#ifndef MACROS_S
+#define MACROS_S
+
+
+.macro FUNC name, align=2
+    .section .text.asm.\name
+    .globl  \name
+    .type   \name, @function
+    .align \align
+  \name:
+.endm
 
 .macro INTERRUPT_DISABLE
 	move	#0x2700, sr	
@@ -121,4 +128,4 @@ loop:
 	movem.l (sp)+, \registers
 .endm
 
-.endif
+#endif

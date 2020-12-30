@@ -1,3 +1,8 @@
+/**
+ * \file dma.c
+ * Direct Memory Access (DMA) functions
+ */
+
 #include "dma.h"
 
 void dma_wait_c() { asm("jsr dma_wait" ::: "d6"); };

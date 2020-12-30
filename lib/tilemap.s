@@ -1,11 +1,12 @@
 /**
- * -----------------------------------------------------------------------------
- * tilemap.s
- * -----------------------------------------------------------------------------
- * 
- * -----------------------------------------------------------------------------
+ * \file tilemap.s
+ * Tilemap system
  */
 
+#ifndef MEGADEV__TILEMAP_S
+#define MEGADEV__TILEMAP_S
+
+#include "macros.s"
 
 .section .text
 
@@ -22,8 +23,7 @@
  * -----------------------------------------------------------------------------
 */
 
-.global load_tilemap
-load_tilemap:
+FUNC load_tilemap
 	PUSHM d0-d7
 
 	# clear run counter
@@ -149,8 +149,7 @@ load_tilemap:
  * -----------------------------------------------------------------------------
  */
 
-.global clear_tilemap
-clear_tilemap:
+FUNC clear_tilemap
 	PUSHM d0-d7
 	
 	# clear run counter
@@ -259,3 +258,5 @@ tilemap_plane_ptr:
 .long 0
 
 .align 2
+
+#endif

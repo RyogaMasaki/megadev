@@ -1,13 +1,12 @@
-/*
------------------------------------------------------------------------
- maincpu_macros.s
------------------------------------------------------------------------
- Macros for Main CPU side Word RAM control (mostly)
------------------------------------------------------------------------
-*/
+/**
+ * \file cd_ga_main_macro.s
+ * Macros for Main CPU side GA functions
+ */
 
-.ifndef MAINMACROS_S
-.set MAINMACROS_S, 1
+#ifndef MAINMACROS_S
+#set MAINMACROS_S, 1
+
+#include "cd_ga_main_def.h"
 
 /*
 -----------------------------------------------------------------------
@@ -32,7 +31,7 @@
 -----------------------------------------------------------------------
 */
 .altmacro
-.macro CHECK_2M
+.macro WAIT_2M
 LOCAL loop
 
 loop:
@@ -56,5 +55,4 @@ loop:
 	beq			loop
 
 .endm
-
-.endif
+#endif

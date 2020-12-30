@@ -1,14 +1,16 @@
+#include "io_def.h"
+
 /* Project Settings */
 
 /* Initial environment settings */
 
 /* VDP SETTINGS */
 /* Default ddresses for name tables */
-.equ VDP_SCROLLA_NMTBL,  0xC000
-.equ VDP_WINDOW_NMTBL,   0xF000
-.equ VDP_SCROLLB_NMTBL,  0xE000
-.equ VDP_SPR_ATBL,      0xE000
-.equ VDP_HSCROLL,				0xD000
+#define VDP_SCROLLA_NMTBL  0xC000
+#define VDP_WINDOW_NMTBL   0xF000
+#define VDP_SCROLLB_NMTBL  0xE000
+#define VDP_SPR_ATBL       0xE000
+#define VDP_HSCROLL        0xD000
 
 /* IO SETTINGS */
 /* External device port */
@@ -22,10 +24,10 @@
 		2 - Player 2 port
 		3 - Rear EXT port
 */
-.equ EXT_CTRL, IO_CTRL3
-.equ EXT_SCTRL, IO_SCTRL3
-.equ EXT_RXDATA, IO_RXDATA3
-.equ EXT_TXDATA, IO_TXDATA3
+#define EXT_CTRL    IO_CTRL3
+#define EXT_SCTRL   IO_SCTRL3
+#define EXT_RXDATA  IO_RXDATA3
+#define EXT_TXDATA  IO_TXDATA3
 /* External port speed */
 /* Sets the transfer speed of the external device port */
 /*
@@ -34,4 +36,4 @@
 		1 - 2400 bps
 		0 - 4800 bps
 */
-.equ EXT_BAUD, 0
+#define EXT_BAUD  0
