@@ -91,12 +91,12 @@ void dma_wait_c();
 /**
  * Set a single VDP register with a value
  */
-void vdp_load_reg_c(u8 reg, u8 value);
+//void vdp_load_reg_c(u8 reg, u8 value);
 
 /**
  * Set all VDP registers from an array
  * Array should contain 24 elements
  */
-void vdp_load_regs_c(u8 const* values);
+//void vdp_load_regs_c(u8 const* values);
 
 #endif

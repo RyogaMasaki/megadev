@@ -6,12 +6,12 @@ _EXINT:
 rte
 
 /* HBLANK interrupt */
-.global _HINT
-_HINT:
+.global HINT
+HINT:
 rte
 
 /* VBLANK interrupt */
-.global _VINT
-_VINT:
+.global VINT
+VINT:
 jmp vblank_int
 

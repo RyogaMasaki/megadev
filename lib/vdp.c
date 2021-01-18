@@ -4,6 +4,7 @@ void vdp_cram_clear_c() { asm("jsr vdp_cram_clear" ::: "d0", "d7", "a5"); };
 
 void vdp_vram_clear_c() { asm("jsr vdp_vram_clear" ::: "d0", "d7", "a5"); };
 
+/*
 void vdp_load_reg_c(u8 reg, u8 value) {
   register u8 d0_reg asm("d0") = reg;
   register u8 d1_value asm("d1") = value;
@@ -16,3 +17,4 @@ void vdp_load_regs_c(u8 const* values) {
 
   asm("jsr vdp_load_regs" ::"a"(a0_values) : "d6","d7","a5");
 }
+*/

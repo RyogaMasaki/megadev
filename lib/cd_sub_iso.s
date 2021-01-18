@@ -4,11 +4,11 @@
  * Subdirectories are *not* supported. All files should be in the root.
  */
 
-#ifndef MEGADEV__CD_ISO_S
-#define MEGADEV__CD_ISO_S
+#ifndef MEGADEV__CD_SUB_ISO_S
+#define MEGADEV__CD_SUB_ISO_S
 
 #include "macros.s"
-#include "cd_bios_macros.s"
+#include "cd_sub_bios.s"
 
 .section .text
 

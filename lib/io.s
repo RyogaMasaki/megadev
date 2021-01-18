@@ -9,6 +9,8 @@
 #include "macros.s"
 #include "io_def.h"
 #include "config.h"
+//#include "cd_main_def.h"
+#include "cd_main_boot.s"
 
 .section .text
 
@@ -55,6 +57,7 @@ FUNC update_inputs
 	dbf	d7, 1b	/* Loop until all joypads are read */
 	rts
  
+ #endif
 
 /*
 	init_ext
@@ -120,6 +123,22 @@ FUNC ext_tx
 #	movem.l (sp)+, d1
 	rts
 
+#ifdef TARGET_CD
+.global input_p1
+.equ input_p1, INPUT_P1
+.global input_p1_hold
+.equ input_p1_hold, INPUT_P1_HOLD
+.global input_p1_press
+.equ input_p1_press, INPUT_P1_PRESS
+
+.global input_p2
+.equ input_p2, INPUT_P2
+.global input_p2_hold
+.equ input_p2_hold, INPUT_P2_HOLD
+.global input_p2_press
+.equ input_p2_press, INPUT_P2_PRESS
+
+#else
 
 .section .bss
 .global input_p1
@@ -139,7 +158,6 @@ input_p2_hold:
 .global input_p2_press
 input_p2_press:
 .byte 0
-	
 .align 2
 
 #endif

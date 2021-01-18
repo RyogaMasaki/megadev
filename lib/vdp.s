@@ -195,6 +195,7 @@ FUNC vdp_cram_clear
 	BREAK:
 	d6, d7, a5
 */
+/*
 FUNC vdp_load_regs
 	lea VDP_CTRL, a5
 	move.w #VDP_REG00, d6
@@ -204,17 +205,20 @@ FUNC vdp_load_regs
 	add.w #0x100, d6
 	dbf d7, 1b
   rts
+*/
 
 /*
 d0 - register id
 d1 - value
 */
+/*
 FUNC vdp_load_reg
 	lsl.w #8, d0
 	add.w #VDP_REG00, d0
 	add.b d1, d0
 	move.w d0, (VDP_CTRL)
   rts
+*/
 
 .section .bss
 vdp_plane_size: .byte 0

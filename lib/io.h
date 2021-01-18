@@ -15,6 +15,8 @@ extern u16 input_p2;
 extern u8 input_p1_hold;
 extern u8 input_p1_press;
 
+
+
 void update_inputs_c();
 
 void put_ext(u8 value);

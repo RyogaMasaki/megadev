@@ -9,7 +9,7 @@
 
 .macro FUNC name, align=2
     .section .text.asm.\name
-    .globl  \name
+    .global  \name
     .type   \name, @function
     .align \align
   \name:

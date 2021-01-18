@@ -17,8 +17,8 @@ SECTIONS
 		LONG(MMD_DEST)
 		SHORT(MMD_TEXT_SZ)
 		LONG(main)
-		LONG(_HINT)
-		LONG(_VINT)
+		LONG(HINT)
+		LONG(VINT)
 		. = 0x100;
 	} > MMD_TEXT
 
@@ -31,7 +31,7 @@ SECTIONS
     MMD_TEXT_SZ = (ABSOLUTE(.) - MMD_START) >> 2;
   } > MMD_TEXT
 
-  .data : AT ( ADDR(.header) + SIZEOF(.header) + SIZEOF(.text) )
+  .data MMD_DATA_ORIGIN : AT ( ADDR(.header) + SIZEOF(.header) + SIZEOF(.text) )
   {
 		*(.data*)
   } > MMD_DATA

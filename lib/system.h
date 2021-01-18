@@ -3,8 +3,10 @@
 
 extern void md_standard_init();
 
-inline void disable_interrupts() { asm("move #0x2700, sr	"); }
+// TODO: add "safe" version that pushes/pops SR to preserve values
 
-inline void enable_interrupts() { asm("move	#0x2000, sr	"); }
+inline void disable_interrupts() { asm("ori #0x700,sr"); }
+
+inline void enable_interrupts() { asm("andi #0xF8FF,sr"); }
 
 #endif
