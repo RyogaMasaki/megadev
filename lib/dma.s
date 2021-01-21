@@ -6,6 +6,8 @@
 #ifndef MEGADEV__DMA_H
 #define MEGADEV__DMA_H
 
+#include "macros.s"
+
 /*
 ################################################################################
 # VDP DMA TRANSFER
@@ -99,7 +101,7 @@ vdp_dma_fill_sub:
 	and.l #0x7fffffff, d2
 	move.l d2, (a5)
 
-	Z80_BUSREQ
+	Z80_BUSREQUEST
 
 	# setup fill value and trigger dma write
 	# move fill value to upper half of word
@@ -172,7 +174,7 @@ vdp_dma_copy_sub:
 	# set auto inc to 1 for internal VDP memory work...?
 	# TODO - Should we do this with DMA fill as well?
 	move.w #(VDP_REG0F|0x01), (a5)
-	Z80_BUSREQ
+	Z80_BUSREQUEST
 
 	# set address and trigger dma write
 	#move.l d2, (a5)
@@ -257,7 +259,7 @@ vdp_dma_transfer_sub:
 	move.b d0, d3
 	move.w d3, (a5)
 
-	Z80_BUSREQ
+	Z80_BUSREQUEST
 
 	# set address and trigger dma write
 	# put trigger on stack so it comes from RAM (per documentation)

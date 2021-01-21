@@ -31,6 +31,8 @@
 
 #define GFX_REFRESH (*(volatile u8*)_GFX_REFRESH)
 
+#define PLANE_WIDTH (*(u8*)_PLANE_WIDTH)
+
 /**
  * Decompress graphics data in the "Nemesis" format to VRAM
  * You must set the destination on the VDP control port before calling
@@ -53,7 +55,19 @@ extern void vdp_disable_display();
 
 extern void vint_wait();
 
-extern void vdp_pal_fadeout(u8 index, u8 length);
+extern void vint_wait_ex(u8 flags);
+
+extern bool vdp_pal_fadeout(u8 index, u8 length);
+
+extern void vdp_clear_vram();
+
+extern void vdp_clear_nmtbl();
+
+extern void vdp_dma_xfer(u32 vdpaddr_dest, u8* source, u16 length);
+
+extern void vdp_dma_wordram_xfer(u32 vdpaddr_dest, u8* source, u16 length);
+
+extern void vdp_copy_sprlist();
 
 #define PAD_P1_HOLD (*(volatile u8*)_INPUT_P1_HOLD)
 #define PAD_P1_PRESS (*(volatile u8*)_INPUT_P1_PRESS)

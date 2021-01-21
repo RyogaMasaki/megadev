@@ -1,8 +1,6 @@
 
-/* Z80 Control */
-.equ    Z80_RAM,   0xA00000
-.equ		Z80_BUSREQ, 0xA11100
-.equ		Z80_RESET,	0xA11200
+#include "macros.s"
+#include "z80_def.h"
 
 .section .rodata
 
@@ -31,33 +29,33 @@ release_z80_bus:
 .global load_z80_init_program
 load_z80_init_program:
 	lea z80_init_program, a0
-	movea #0, a1
-	move.l z80_init_program_len, d1
+	move.l z80_init_program_len, d0
 
 /*
 	load_z80_data
-	Interrupts should be disabled before calling this subroutine
 
 	IN:
 		a0 - ptr to data
-		a1 - Z80 RAM offset
 		d0 - data size
+	BREAK: a1
 */
-load_z80_data:
-	move.w  #0x100, Z80_BUSREQ
-	move.w  #0x100, Z80_RESET
-1:btst	#0,  Z80_BUSREQ
-	bne.s	1b
+FUNC load_z80_data
+	move sr, -(sp)
+  ori #0x700, sr
 
-	adda.l Z80_RAM, a1
+  Z80_DO_RESET
+	Z80_BUSREQUEST
+
+	lea Z80_RAM, a1
+
 	subq #1, d0
-1:move.b  (a0)+, (a1)+
-	dbf	d0, 1b
+2:move.b  (a0)+, (a1)+
+	dbf	d0, 2b
 
-	move.w  #0, Z80_RESET
-	nop
-	nop
-	nop
-	nop
-	move.w  #0x100, Z80_RESET
+  Z80_DO_RESET
+	Z80_BUSRELEASE
+	
+
+	move (sp)+, sr
+
 	rts

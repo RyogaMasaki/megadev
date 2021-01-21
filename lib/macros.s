@@ -6,6 +6,7 @@
 #ifndef MACROS_S
 #define MACROS_S
 
+#include "z80_def.h"
 
 .macro FUNC name, align=2
     .section .text.asm.\name
@@ -24,7 +25,7 @@
 .endm
 
 .altmacro
-.macro Z80_BUSREQ
+.macro Z80_BUSREQUEST
 LOCAL loop
 	move.w #0x100, Z80_BUSREQ
 loop:
@@ -35,6 +36,27 @@ loop:
 .macro Z80_BUSRELEASE
 	move.w  #0, Z80_BUSREQ
 .endm
+
+.macro Z80_DO_RESET
+    move.w  #0x000, (Z80_RESET)        // Assert reset line
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop                           // ...
+    move.w  #0x100, (Z80_RESET)        // Release reset line
+.endm                            // End of
 
 /*
 -----------------------------------------------------------------------

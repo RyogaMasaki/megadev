@@ -37,7 +37,7 @@
  * Cached value of the plane width as defined in VDP reg. 0x10. 
  * This needs to be manually updated each time the register is changed!!
  */
-#define PLANE_WIDTH   0xFFFE2E
+#define _PLANE_WIDTH   0xFFFE2E
 
 /**
  * This is used by the Boot ROM VINT/VINT_WAIT routines for graphics updates
@@ -137,8 +137,8 @@
 #define _UNKNOWN07     0x00029C
 
 
-#define _VDP_CLR_RAM   0x0002A0
-#define _VDP_CLR_LISTS 0x0002A4
+#define _VDP_CLR_VRAM  0x0002A0
+#define _VDP_CLR_NMTBL 0x0002A4
 #define _VDP_CLR_VSRAM 0x0002A8
 #define _VDP_REG_INIT  0x0002AC
 
@@ -158,6 +158,32 @@
 #define _VDP_LOAD_MAP  0x0002C4
 #define _VDP_LOAD_MAP2 0x0002C8
 #define _VDP_LOAD_MAP4 0x0002CC
+
+/**
+ * Performs a Main CPU -> VRAM DMA transfer
+ * 
+ * IN:
+ *  d0 - vram dest
+ *  d1 - source
+ *  d2 - length
+ * 
+ * BREAK: d3, a6
+ */
+#define _VDP_DMA_XFER  0x0002d0
+
+/**
+ * Identical to normal DMA transfer, but includes a standard data port write
+ * at the end to account for the issue of doing DMA from Word RAM.
+ * 
+ * 
+ * IN:
+ *  d0 - vram dest
+ *  d1 - source
+ *  d2 - length
+ * 
+ * BREAK: d3, a6
+ */
+#define _VDP_DMA_WORDRAM_XFER  0x0002d4
 
 /**
  * Enable VDP display.
@@ -190,6 +216,7 @@
 
 #define _VINT_WAIT          0x00304
 #define _VINT_WAIT_DEFAULT  0x000308
+#define _COPY_SPRLIST       0x00030C
 #define _CLEAR_COMMREGS     0x000340
 #define _PAL_FADEOUT        0x000388
 /*

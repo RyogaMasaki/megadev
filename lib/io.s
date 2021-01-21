@@ -14,6 +14,7 @@
 
 .section .text
 
+
 FUNC init_inputs
 	INTERRUPT_DISABLE
 	move.w	#0x100, Z80_BUSREQ	/* Stop Z80  */

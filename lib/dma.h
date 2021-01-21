@@ -27,7 +27,7 @@ void vdp_dma_transfer(void const* source, u32 length, u16 dest,
 
 void vdp_dma_fill(u8 value, u16 length, u32 vdpfmt_dest);
 
-void dma_enqueue_c(u16 type, void const* source, u16 length, u32 vdpfmt_dest);
+void dma_enqueue_c(u16 const type, u8 const* source, u16 const length, u32 const vdpfmt_dest);
 
 void dma_process_queue_c();
 

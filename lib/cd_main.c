@@ -36,30 +36,3 @@ TODO: move this note to documentation
 */
 
 #include "cd_main.h"
-
-inline void wait_2m() {
-	asm(R"(
-1:btst %0, %p1
-  beq 1b
-)"::"i"(MEMORYMODE_RET_BIT),"i"(GA_MEMORYMODE+1));
-}
-
-inline void grant_2m() {
-	asm(R"(
-1:bset #1, %p0
-  btst #1, %p0
-	beq 1b
-)"::"i"(GA_MEMORYMODE+1));
-}
-
-inline void clear_comm_regs() {
-	asm(R"(
-  lea %p0, a0
-  moveq #0, d0
-  move.b d0, -2(a0) /* upper byte of comm flags */
-  move.l d0, (a0)+
-  move.l d0, (a0)+
-  move.l d0, (a0)+
-  move.l d0, (a0)+
-)"::"i"(GA_COMCMD0));
-}

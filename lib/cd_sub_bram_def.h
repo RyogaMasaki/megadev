@@ -1,6 +1,6 @@
 /**
  * \file cd_sub_bram_def.h
- * Internal Backup RAM (BRAM) defines
+ * Internal Backup RAM (BRAM) definitions
  */
 
 #ifndef MEGADEV__CD_SUB_BRAM_DEF_H
