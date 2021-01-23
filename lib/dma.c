@@ -18,7 +18,7 @@ void vdp_dma_transfer_vdpfmt(void const* source, u32 length, u32 vdpfmt_dest) {
 
   asm("jsr vdp_dma_transfer_sub" ::"d"(source_d0), "d"(length_d1),
       "d"(vdpfmt_dest_d2)
-      : "a5");
+      : "d6","a5");
 };
 
 void vdp_dma_transfer(void const* source, u32 length, u16 dest,
@@ -33,7 +33,7 @@ void vdp_dma_fill(u8 value, u16 length, u32 vdpfmt_dest) {
 
   asm("jsr vdp_dma_fill_sub" ::"d"(value_d0), "d"(length_d1),
       "d"(vdpfmt_dest_d2)
-      : "d3", "a5");
+      : "d3", "d6", "a5");
 };
 
 void dma_enqueue_c(u16 const type, u8 const* source, u16 const length, u32 const vdpfmt_dest) {

@@ -197,6 +197,10 @@
  */
 #define _VDP_DISP_DISA 0x0002DC
 
+#define _PAL_LOAD_NO_UPDATE 0x0002e0
+
+#define _PAL_LOAD      0x0002e4
+
 /**
  * Decompress graphics data in the "Nemesis" format to VRAM
  * You must set the destination on the VDP control port before calling
@@ -213,6 +217,8 @@
  * Decompress graphics data in the "Nemesis" format to RAM
  */
 #define _DECMP_RAM     0x0002f0
+
+#define _CLEAR_REGION  0x0002f8
 
 #define _VINT_WAIT          0x00304
 #define _VINT_WAIT_DEFAULT  0x000308

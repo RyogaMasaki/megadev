@@ -210,7 +210,7 @@ vdp_dma_copy_sub:
 	 d1 - length
 	 d2 - dest addr (VDP_ADDR formatted)
 	BREAK:
-	 a5
+	 d6,a5
 */
 .global vdp_dma_transfer_sub
 vdp_dma_transfer_sub:
@@ -293,7 +293,7 @@ vdp_dma_transfer_sub:
 	d2 - length
 	d3 - dest (vdp formatted)
 	break:
-	d4
+	d4, a5
 */
 .global dma_enqueue
 dma_enqueue:
@@ -316,7 +316,7 @@ dma_enqueue:
 */
 .global dma_process_queue
 dma_process_queue:
-	PUSHM d0-d4/d7/a5
+	PUSHM d0-d4/d6-d7/a5
 	INTERRUPT_DISABLE
 	move.w (dma_queue_write_idx), d7
 	beq 5f
@@ -341,7 +341,7 @@ dma_process_queue:
 4:dbf d7, 1b
 	move.l #0, (dma_queue_write_idx)
 	INTERRUPT_ENABLE
-5:POPM d0-d4/d7/a5
+5:POPM d0-d4/d6-d7/a5
   rts
 
 .equ dma_queue_size, 0x10
