@@ -169,7 +169,7 @@
  * 
  * BREAK: d3, a6
  */
-#define _VDP_DMA_XFER  0x0002d0
+#define _VDP_DMA_XFER  0x0002D0
 
 /**
  * Identical to normal DMA transfer, but includes a standard data port write
@@ -183,7 +183,7 @@
  * 
  * BREAK: d3, a6
  */
-#define _VDP_DMA_WORDRAM_XFER  0x0002d4
+#define _VDP_DMA_WORDRAM_XFER  0x0002D4
 
 /**
  * Enable VDP display.
@@ -197,9 +197,9 @@
  */
 #define _VDP_DISP_DISA 0x0002DC
 
-#define _PAL_LOAD_NO_UPDATE 0x0002e0
+#define _PAL_LOAD_NO_UPDATE 0x0002E0
 
-#define _PAL_LOAD      0x0002e4
+#define _PAL_LOAD      0x0002E4
 
 /**
  * Decompress graphics data in the "Nemesis" format to VRAM
@@ -211,14 +211,14 @@
  * BREAK:
  *  None
  */
-#define _DECMP_VRAM    0x0002ec
+#define _DECMP_VRAM    0x0002EC
 
 /**
  * Decompress graphics data in the "Nemesis" format to RAM
  */
-#define _DECMP_RAM     0x0002f0
+#define _DECMP_RAM     0x0002F0
 
-#define _CLEAR_REGION  0x0002f8
+#define _CLEAR_REGION  0x0002F8
 
 #define _VINT_WAIT          0x00304
 #define _VINT_WAIT_DEFAULT  0x000308
