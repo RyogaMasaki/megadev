@@ -38,7 +38,9 @@
  */
 #define GFX_REFRESH (*(volatile u8*)_GFX_REFRESH)
 
-#define PLANE_WIDTH (*(u8*)_PLANE_WIDTH)
+#define PLANE_WIDTH (*(u16*)_PLANE_WIDTH)
+
+#define TILE_BASE (*(u16*)_TILE_BASE)
 
 /**
  * P1 Controller input (hold)
@@ -108,6 +110,18 @@ inline void vint_wait_ex(u8 flags) {
 }
 
 extern bool vdp_pal_fadeout(u8 index, u8 length);
+
+inline void load_internal_font() {
+	asm(R"(jsr %p0)" :: "i"(_LOAD_FONT_INTERN_DEFAULTS) : "d0", "d1", "d2", "d3", "d4", "a1", "a5");
+};
+
+inline void print_text(u8 const * string, u32 vdpaddr_pos) {
+	register u32 a1_string asm("a1") = (u32)string;
+	register u32 d0_vdpaddr_pos asm("d0") = vdpaddr_pos;
+
+	asm(R"(jsr %p0)" :: "i"(_PRINT_TEXT), "a"(a1_string), "d"(d0_vdpaddr_pos));
+
+};
 
 inline void vdp_clear_vram() {
 	asm(R"(

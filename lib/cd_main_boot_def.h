@@ -39,6 +39,8 @@
  */
 #define _PLANE_WIDTH   0xFFFE2E
 
+#define _TILE_BASE 0xfffe2c
+
 /**
  * This is used by the Boot ROM VINT/VINT_WAIT routines for graphics updates
  * during vblank.
@@ -223,6 +225,10 @@
 #define _VINT_WAIT          0x00304
 #define _VINT_WAIT_DEFAULT  0x000308
 #define _COPY_SPRLIST       0x00030C
+#define _PRINT_TEXT         0x00031C
+#define _LOAD_1BPP_CHR      0x000320
+#define _LOAD_FONT_INTERN   0x000324
+#define _LOAD_FONT_INTERN_DEFAULTS 0x000328
 #define _CLEAR_COMMREGS     0x000340
 #define _PAL_FADEOUT        0x000388
 /*
