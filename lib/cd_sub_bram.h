@@ -2,7 +2,7 @@
 #define MEGADEV__BRAM_H
 
 #include "types.h"
-#include "cd_bios_def.h"
+#include "cd_sub_bios_def.h"
 
 enum BramStatus {
 	SegaFormatted = 4,

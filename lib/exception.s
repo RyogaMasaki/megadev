@@ -245,7 +245,7 @@ str_addr: .ascii "ADDR=\xff"
 str_op:  .ascii "  OP=\xff"
 .align 2
 
-.section .data
+.section .bss
 err_str_ptr: .long 0
 addr_val: .long 0
 op_val: .word 0

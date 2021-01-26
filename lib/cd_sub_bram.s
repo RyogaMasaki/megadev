@@ -7,7 +7,7 @@
 #define MEGADEV__CD_SUB_BRAM_S
 
 #include "macros.s"
-#include "cd_sub_bram_def.h"
+#include "cd_sub_bios_def.h"
 
 /*
 -----------------------------------------------------------------------

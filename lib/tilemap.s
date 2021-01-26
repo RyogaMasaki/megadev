@@ -11,8 +11,6 @@
 .section .text
 
 /**
- * -----------------------------------------------------------------------------
- * load_tilemap
  * Load a tilemap to a nametable
  *
  * IN:
@@ -20,9 +18,7 @@
  *  D0 - word- vram offset to place the tilemap
  *  D1 - byte - tiles per row
  *  D2 - long (split) - upper: base tile, lower: priority/palette settings (upper three bits of word, should be prepared!)
- * -----------------------------------------------------------------------------
 */
-
 FUNC load_tilemap
 	PUSHM d0-d7
 
@@ -136,19 +132,14 @@ FUNC load_tilemap
 2:POPM d0-d7
 	rts
 
-
 /**
- * -----------------------------------------------------------------------------
- * clear_tilemap
  * Clears a tilemap that was loaded to a nametable
  * 
  * IN:
  *  A0 - ptr to tilemap
  *  D0 - word- vram offset of the tilemap
  *  D1 - byte - tiles per row
- * -----------------------------------------------------------------------------
  */
-
 FUNC clear_tilemap
 	PUSHM d0-d7
 	
@@ -245,18 +236,5 @@ FUNC clear_tilemap
 	bra 3b
 2:POPM d0-d7
 	rts
-
-.section .bss
-
-tilemap_pos_x:
-.word 0
-tilemap_pos_y:
-.word 0
-tilemap_width:
-.word 0
-tilemap_plane_ptr:
-.long 0
-
-.align 2
 
 #endif

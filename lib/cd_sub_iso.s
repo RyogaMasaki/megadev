@@ -541,8 +541,6 @@ break_for_int2:
 	POP			cdacc_loop_jump_ptr
 	rts
 
-.section .data
-
 .section .bss
 cdacc_loop_jump_ptr:
 	.long 0

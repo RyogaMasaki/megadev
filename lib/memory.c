@@ -1,11 +1,25 @@
+/**
+ * Implementations mostly copied from GCC
+ */
+
 #include "memory.h"
 
-void memcpy(void* dest, void* src, unsigned int n) {
-  char* csrc = (char*)src;
-  char* cdest = (char*)dest;
-  for (unsigned int iter = 0; iter < n; ++iter) {
-    csrc[iter] = cdest[iter];
-  }
+/*
+void* memcpy (void *dest, void const* src, unsigned long len)
+{
+  char *c_dest = dest;
+  const char *c_src = src;
+  while (len--)
+    *c_dest++ = *c_src++;
+  return c_dest;
+}
+
+void* memset (void *dest, int val, unsigned long len)
+{
+  unsigned char *ptr = dest;
+  while (len-- > 0)
+    *ptr++ = val;
+  return dest;
 }
 
 char* strcpy(char* dest, char const* src) {
@@ -18,7 +32,10 @@ char* strcpy(char* dest, char const* src) {
 
   return dest;
 }
+*/
 
+// TODO: move this into its own file
+// or better yet, find a way to make this unnecessary
 unsigned int __mulsi3(unsigned int a, unsigned int b) {
   unsigned int r = 0;
   while (a) {
