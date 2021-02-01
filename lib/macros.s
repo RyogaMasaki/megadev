@@ -16,6 +16,11 @@
   \name:
 .endm
 
+.macro GLOBAL name, value
+  .global \name
+  .equ \name, \value
+.endm
+
 .macro INTERRUPT_DISABLE
 	move	#0x2700, sr	
 .endm

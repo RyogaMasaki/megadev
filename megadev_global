@@ -1,0 +1,150 @@
+
+################################################################################
+# You shouldn't need to configure anything further
+# for your project below this line
+################################################################################
+
+# fancy colors cause we're fancy
+CLEAR=\033[0m
+BOLD=\033[1m
+CYAN=\033[1;36m
+RED=\033[1;31m
+YELLOW=\033[1;33m
+GREEN=\033[1;32m
+
+# MEGADEV SDK paths
+
+# library (this includes C headers)
+LIB_PATH:=$(MEGADEV_PATH)/lib
+
+# build time tools
+TOOLS_PATH:=$(MEGADEV_PATH)/tools
+
+# linker scripts
+CFG_PATH:=$(MEGADEV_PATH)/cfg
+
+# specify your M68k GNU toolchain prefix
+M68K_PREFIX?=m68k-elf-
+
+# NOTE: we assume all commands appear somewhere in PATH.
+# If you've manually configured/built some of these
+# tools and their directories are not listed in PATH
+# you will need to specify the full path of each command
+
+# m68k toolset
+CC:=$(M68K_PREFIX)gcc
+OBJCPY:=$(M68K_PREFIX)objcopy
+NM:=$(M68K_PREFIX)nm
+LD:=$(M68K_PREFIX)ld
+AS:=$(M68K_PREFIX)as
+
+# z80 toolset
+ASM_Z80:=sjasmplus
+
+# set the actual build work path to be a "mirror" of the src folder structure
+BUILD_PATH:=$(OUT_PATH)/$(SRC_PATH)
+
+# setup includes
+INC:=-I$(LIB_PATH) -I$(RES_PATH) -I$(BUILD_PATH) 
+# We have to manually pass the includes to the assembler
+# Each entry here should match each entry in INC, with a prefix of "-Wa,"
+AS_INC:=-Wa,-I$(LIB_PATH) -Wa,-I$(RES_PATH) -Wa,-I$(BUILD_PATH) 
+
+# build flags
+# Note: we include "-Wa,--register-prefix-optional" as a default C option
+# because it is useful for inline asm. However, "-Wa,--bitwise-or" will
+# cause issues with the GCC created asm, so we split that off and only use it
+# with asm source files
+CC_FLAGS:=-m68000 -O1 -ffunction-sections -fno-builtin -fno-unit-at-a-time -fomit-frame-pointer -fno-gcse -Wall -Wextra -Wno-shift-negative-value -Wno-main -Wa,--register-prefix-optional
+AS_FLAGS:=-Wa,--bitwise-or
+
+LD_FLAGS:=-nostdlib 
+
+CC_FLAGS+=$(OPT_FLAGS) -DREGION=$(REGION)
+
+# debug/final build flags
+ifeq ($(DEBUG), 1)
+  CC_FLAGS+=-ggdb -DDEBUG 
+endif
+
+
+# SETUP OUTPUT GOALS
+# all code objects
+OBJ:=$(addprefix $(OUT_PATH)/,$(addsuffix .o,$(basename $(wildcard $(SRC_PATH)/*.[cs]))))
+
+# memory resident MMDs (i.e. MMDs that should be built first)
+MMD_MR:=$(addprefix $(DISC_PATH)/,$(addsuffix .mmd,$(MMD_MR)))
+
+# program modules (MMDs)
+MMD:=$(addprefix $(DISC_PATH)/,$(addsuffix .mmd,$(basename $(notdir $(wildcard $(SRC_PATH)/*.def)))))
+
+default: disc
+
+.PHONY: clean
+
+# TODO: need to get secondary working to preserve MMD elfs
+# this should be done by reworking the target variables above
+# to create a target for the elfs, and use that as secondary
+# (along the same lines, need a target for the MMD intermediary files
+# so they can be used in clean properly)
+.SECONDARY: $(BUILD_PATH)/*.elf
+
+clean: clean_disc
+	@echo -e "${BOLD}${RED}Cleaning all build artifacts...${CLEAR}"
+	@rm -rf $(BUILD_PATH)/* $(MMD)
+
+clean_boot:
+	@echo -e "${BOLD}${RED}Cleaning boot build files...${CLEAR}"
+	@rm -rf $(BUILD_PATH)/ip.* $(BUILD_PATH)/sp.* $(BUILD_PATH)/boot.*
+
+clean_disc:
+	@echo -e "${BOLD}${RED}Cleaning ISO...${CLEAR}"
+	@rm -rf $(BUILD_PATH)/$(PROJECT_NAME).iso
+
+boot: $(BUILD_PATH)/boot.bin
+
+mmd: $(OBJ) $(MMD_MR) $(MMD)
+
+disc: boot mmd $(OUT_PATH)/$(PROJECT_NAME).iso
+
+init:
+	@mkdir -p $(BUILD_PATH) $(DISC_PATH)
+
+$(BUILD_PATH)/ip.elf: $(BUILD_PATH)/ip.o
+	@echo -e "${BOLD}${CYAN}Linking IP $@...${CLEAR}"
+	@$(LD) $(LD_FLAGS) -T$(CFG_PATH)/ip.ld -o$@ $<
+	@$(NM) -n $@ > $(BUILD_PATH)/ip.sym
+
+$(BUILD_PATH)/sp.elf: $(BUILD_PATH)/sp.o
+	@echo -e "${BOLD}${CYAN}Linking SP $@...${CLEAR}"
+	@$(LD) $(LD_FLAGS) -T$(CFG_PATH)/sp.ld -o$@ $<
+	@$(NM) -n $@ > $(BUILD_PATH)/sp.sym
+
+$(BUILD_PATH)/boot.bin: $(BUILD_PATH)/boot.o
+	@echo -e "${BOLD}${CYAN}Generating boot sector $@...${CLEAR}"
+	@$(OBJCPY) -O binary $(BUILD_PATH)/boot.o $@
+
+$(BUILD_PATH)/boot.o: $(SRC_PATH)/boot.s $(BUILD_PATH)/ip.bin $(BUILD_PATH)/sp.bin
+	@echo -e "${BOLD}${CYAN}Building ASM source $@...${CLEAR}"
+	@$(CC) $(CC_FLAGS) $(AS_FLAGS) $(INC) $(AS_INC) -x assembler-with-cpp -c $< -o$@
+
+$(BUILD_PATH)/%.bin $(DISC_PATH)/%.mmd: $(BUILD_PATH)/%.elf
+	@echo -e "${BOLD}${CYAN}Generating binary $@...${CLEAR}"
+	@$(OBJCPY) -O binary $< $@
+
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c
+	@echo -e "${BOLD}${CYAN}Building C source $@...${CLEAR}"
+	@$(CC) $(CC_FLAGS) $(INC) $(AS_INC) -c $< -o$@
+
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.s
+	@echo -e "${BOLD}${CYAN}Building ASM source $@...${CLEAR}"
+	@$(CC) $(CC_FLAGS) $(AS_FLAGS) $(INC) $(AS_INC) -x assembler-with-cpp -c $< -o$@
+
+$(BUILD_PATH)/%.elf: $(SRC_PATH)/%.def
+	@echo -e "${BOLD}${CYAN}Linking $@...${CLEAR}"
+	@$(LD) $(LD_FLAGS) -z muldefs -L$(shell pwd)/$(SRC_PATH) -T$(CFG_PATH)/main.ld -o$@ $(addprefix $(BUILD_PATH)/,$(addsuffix .o, $(basename $(filter-out :%,$(shell cat $<))))) $(addprefix -R$(BUILD_PATH)/,$(addsuffix .elf, $(basename $(subst :,,$(filter :%,$(shell cat $<)))))) 
+	@$(NM) -n $@ > $(@:.elf=.sym)
+
+$(OUT_PATH)/$(PROJECT_NAME).iso: $(BUILD_PATH)/boot.bin
+	@echo -e "${BOLD}${CYAN}Generating ISO... ${CLEAR}"
+	@mkisofs -quiet -iso-level 1 -G $< -pad -V "$(PROJECT_NAME)" -o $@ $(DISC_PATH)
