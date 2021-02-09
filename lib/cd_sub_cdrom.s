@@ -1,51 +1,17 @@
 /**
- * \file cd_iso.s
- * CD-ROM ISO File Access API
+ * \file cd_sub_cdrom.s
+ * CD-ROM File Access API
  * Subdirectories are *not* supported. All files should be in the root.
  */
 
-#ifndef MEGADEV__CD_SUB_ISO_S
-#define MEGADEV__CD_SUB_ISO_S
+#ifndef MEGADEV__CD_SUB_CDROM_S
+#define MEGADEV__CD_SUB_CDROM_S
 
 #include "macros.s"
 #include "cd_sub_bios.s"
+#include "cd_sub_cdrom_def.h"
 
 .section .text
-
-/*
------------------------------------------------------------------------
- CD-ROM Access Result
- The values here are the ones used in Sonic CD
------------------------------------------------------------------------
-*/
-# Result OK
-.equ  RESULT_OK,    0x64
-# Error in core load_data_sub subroutine
-.equ  RESULT_LOAD_FAIL,  0xff9c
-# Error occurred when trying to load file list from directory
-.equ  RESULT_DIR_FAIL,  0xffff
-# File not found when trying to load file
-.equ  RESULT_NOT_FOUND,  0xfffe
-# Error in load_data_sub while trying to load a file
-.equ  ACCRES_LOAD_FILE_ERR, 0xfffd
-
-/*
------------------------------------------------------------------------
- CD-ROM Access Status
- The current task being performed by the access loop
------------------------------------------------------------------------
-*/
-/**
- * Access Loop operations
- * Place this value in `access_op` to trigger the process
- */
-.equ  ACC_OP_IDLE,           0
-.equ  ACC_OP_LOAD_DIR,       1
-.equ  ACC_OP_LOAD_DMA_WORD,  2
-.equ  ACC_OP_LOAD_SUB,       3
-.equ  ACC_OP_LOAD_DMA_PRG,   4
-.equ  ACC_OP_LOAD_DMA_PCM,   5
-
 
 /*
   Compare strings at a1 and a2
@@ -76,15 +42,15 @@ END:
   a0 - Pointer to filename string (zero terminated)
   a1 - Pointer to destination data buffer
 */
-load_file:
-  move.w  #ACC_OP_LOAD_DMA_WORD, access_op
+load_file_sub:
+  move.w  #ACC_OP_LOAD_SUB, access_op
   move.l  a0, filename_ptr
-  move.l  a1, file_buffer_ptr
+  move.l  a1, file_dest_ptr
 0:jbsr    _WAITVSYNC
   jbsr get_acc_op_result
   bcs      0b              /*wait for completion*/
   cmpi.w  #RESULT_OK, d0  /*check status*/
-  bne      load_file        /*try again if bad status*/
+  bne      load_file_sub        /*try again if bad status*/
   rts
 
 /**
@@ -182,7 +148,7 @@ get_file_info:
 get_acc_op_result:
   cmpi.w   #ACC_OP_IDLE, access_op    //if status is anything but idle*/
   bne      2f                         // then jump down*/
-  move.w   cdrom_access_result, d0
+  move.w   access_op_result, d0
   cmpi.w   #RESULT_OK, d0            /*check for good status*/
   bne      0f                        /*not good, jump down*/
   move.l   cdrom_record_size, d1      /*status ok, get size of the last read record*/
@@ -221,35 +187,32 @@ op_jmptbl:
  * Load a file to Word RAM via DMA
  */ 
 access_op_load_dma_word:
-  move.b  #CDC_WRAMDMA, cdc_dev_dest
-  move.w #0, (GA_DMAADDR)
-  move.l #load_data_dma, (load_method_ptr)
-  jbra load_process
+  move.b   #CDC_WRAMDMA, cdc_dev_dest
+  move.l   #load_data_dma, (load_method_ptr)
+  jbra     load_process
 
 /**
  * Load a file to a Sub CPU address space
  */
 access_op_load_sub:
-  move.b  #CDC_SUBREAD, cdc_dev_dest
-  move.l #load_data_sub, (load_method_ptr)
-  jbra load_process
+  move.b   #CDC_SUBREAD, cdc_dev_dest
+  move.l   #load_data_sub, (load_method_ptr)
+  jbra     load_process
 
 /**
  * Load a file to PRG RAM via DMA
  */
 access_op_load_dma_prg:
-  move.b  #CDC_WRAMDMA, cdc_dev_dest
-  move.w #0, (GA_DMAADDR)
-  move.l #load_data_dma, (load_method_ptr)
-  jbra load_process
+  move.b   #CDC_WRAMDMA, cdc_dev_dest
+  move.l   #load_data_dma, (load_method_ptr)
+  jbra     load_process
 
 /**
  * Load a file to PCM Wave Data memory via DMA
  */
 access_op_load_dma_pcm:
-  move.b #CDC_PCMDMA, cdc_dev_dest
-  move.w #0, (GA_DMAADDR)
-  move.l #load_data_dma, (load_method_ptr)
+  move.b   #CDC_PCMDMA, cdc_dev_dest
+  move.l   #load_data_dma, (load_method_ptr)
 
 /**
  * Shared code for the file load operations
@@ -275,11 +238,11 @@ test_label:
 3:move.w   #ACC_OP_IDLE, access_op   // set the acc loop back to idle
   bra      access_op_idle            // and jump back into the loop
 load_proc_notfound:
-  /* we set the not found result here as opposed to the find_file subroutine
-   * so we don't tamper with the load process results, in case find_file is
+  /* we set the not found result here as opposed to the get_file_info subroutine
+   * so we don't tamper with the load process results, in case get_file_info is
    * called elsewhere
   */
-  move.w   #RESULT_NOT_FOUND, cdrom_access_result
+  move.w   #RESULT_NOT_FOUND, access_op_result
   bra      3b
 
 /**
@@ -292,9 +255,9 @@ access_op_load_dir:
   move.l   #0x10, cdread_sector_start  // primary VD is at sector 0x10
   move.l   #1, cdread_sector_count     // read one frame (sector)
   lea      sector_buffer, a0           // temporary data buffer in a0
-  move.l   a0, file_buffer_ptr         // make it the data destination
+  move.l   a0, file_dest_ptr         // make it the data destination
   bsr      load_data_sub               // actually get data
-  cmpi.w   #RESULT_LOAD_FAIL, cdrom_access_result  // check for problems
+  cmpi.w   #RESULT_LOAD_FAIL, access_op_result  // check for problems
   beq      cdacc_loop_loaddir_err      // read failed, jump down
   lea      sector_buffer, a1           // PVD is in the buffer now
   move.l   0xa2(a1), cdread_sector_start  // start sector of root dir record
@@ -313,9 +276,9 @@ access_op_load_dir:
   clr      dir_entry_count
 1:move.l   #1, cdread_sector_count  // read one sector
   lea      sector_buffer, a1
-  move.l   a1, file_buffer_ptr      // setup destination
+  move.l   a1, file_dest_ptr      // setup destination
   bsr      load_data_sub            // actually get data
-  cmpi     #RESULT_LOAD_FAIL, cdrom_access_result  // any issues?
+  cmpi     #RESULT_LOAD_FAIL, access_op_result  // any issues?
   beq      cdacc_loop_loaddir_err   // if so, jump down
   lea      dir_cache, a0    
   move.w   dir_entry_count, d0      // this will be 0 on the sector
@@ -345,13 +308,13 @@ access_op_load_dir:
   adda.l   #0x20, a0   // move to next entry in the file list
   bra      2b          // and do it all again
 7:subq.w   #1, record_size  // any more sectors left in the dir record?
-  bne      1b      /*yes, jump back and do it all again*/
-  move.w   #RESULT_OK, cdrom_access_result  /*we're good here*/
+  bne      1b          // yes, jump back and do it all again
+  move.w   #RESULT_OK, access_op_result  // we're good here
 load_file_list_end:
-  move.w   #ACC_OP_IDLE, access_op  /*free and return to access loop*/
+  move.w   #ACC_OP_IDLE, access_op  // free and return to access loop
   bra      access_op_idle
 cdacc_loop_loaddir_err:
-  move.w   #RESULT_DIR_FAIL, cdrom_access_result  /*indicate bad result*/
+  move.w   #RESULT_DIR_FAIL, access_op_result  // indicate bad result
   bra      load_file_list_end
 
 
@@ -414,7 +377,7 @@ load_data_begin:
   bra      load_data_failure
 6:cmpi.b  #2, cdc_dev_dest  /*is this a main CPU read?*/
   beq      load_data_maincpudest    /*if so, jump down; main cpu can't use CDCTRN*/
-  movea.l  (file_buffer_ptr), a0  /*setup CDCTRN pointers*/
+  movea.l  (file_dest_ptr), a0  /*setup CDCTRN pointers*/
   lea      cdc_read_timecode, a1
   BIOS_CDCTRN            /*transfer data from CDC to RAM*/
   bcs      7f
@@ -436,18 +399,18 @@ load_data_begin:
 9:BIOS_CDCACK        /*send ack to CDC*/
   move.w  #6, read_timeout    /*reset error counters*/
   move.w  #0x1e, read_retry_count
-  addi.l  #0x800, file_buffer_ptr  /*move the dest buffer up a sector*/
+  addi.l  #0x800, file_dest_ptr  /*move the dest buffer up a sector*/
   addq.w  #1, sectors_read_count    /*add to the sectors read count*/
   addq.l  #1, cdread_sector_start  /*move to the next frame*/
   subq.l  #1, cdread_sector_count  /*countdown frames to be read*/
   bgt      2b          /*and loop back if there are still frames pending*/
-  move.w  #RESULT_OK, cdrom_access_result  /*indicate we completed successfully*/
+  move.w  #RESULT_OK, access_op_result  /*indicate we completed successfully*/
 load_data_end:
   move.b  cdc_dev_dest, GA_CDCMODE
   movea.l  return_ptr, a0  /*return to the original call site*/
   jmp      (a0)
 load_data_failure:
-  move.w  #RESULT_LOAD_FAIL, cdrom_access_result
+  move.w  #RESULT_LOAD_FAIL, access_op_result
   bra      load_data_end
   # not entirely certain how this works with Main CPU being the destination,
   # since I'm not 100% clear on the effect of CDC mode
@@ -540,13 +503,13 @@ load_data_dma_begin:
   addq.w   #1, sectors_read_count    // add to the sectors loaded count
   subq.l   #1, cdread_sector_count   // decrement remaining sector count
   bgt       2b                 // loop back if there are still frames pending
-  move.w   #RESULT_OK, cdrom_access_result  // all data loaded!
+  move.w   #RESULT_OK, access_op_result  // all data loaded!
 load_data_dma_return:
   move.b  cdc_dev_dest, GA_CDCMODE // write the dest. again to reset DMA
   movea.l  return_ptr, a0          // return to the original call site
   jmp      (a0)
 load_data_dma_failure:
-  move.w   #RESULT_LOAD_FAIL, cdrom_access_result
+  move.w   #RESULT_LOAD_FAIL, access_op_result
   bra      load_data_dma_return
 
 /*
@@ -575,14 +538,15 @@ cdread_sector_count: .long 0
 .global filename_ptr
 filename_ptr: .long 0
 
-.global file_buffer_ptr
-file_buffer_ptr: .long 0
+.global file_dest_ptr
+file_dest_ptr: .long 0
 
 cdrom_record_size: .long 0
 
+.global access_op
 access_op: .word 0
 
-cdrom_access_result: .word 0
+access_op_result: .word 0
 
 
 
@@ -623,9 +587,7 @@ record_size:    /* in sectors*/
 /**
  * Cache for the file info entries
  * 0x20 bytes per entry * 128 files = 4K buffer
- * This can be adjusted as necessary (though if you have
- * *more* than 128 files, you may want to rethink your
- * architecture...)
+ * This can be adjusted as necessary
  */
 dir_cache: .space 0x1000
 

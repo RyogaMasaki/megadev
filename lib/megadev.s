@@ -7,7 +7,6 @@
 .include "macros.s"
 .include "io.s"
 .include "vdp.s"
-.include "tilemap.s"
 .include "print.s"
 .include "z80.s"
 .include "interrupts.s"
