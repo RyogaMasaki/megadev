@@ -71,32 +71,4 @@ enum VDPADDR_OP { READ = 0b00001100, WRITE = 0b00000111, DMA = 0b00100111 };
   ((((bus & op) & 3) << 30) | ((addr & 0x3FFF) << 16) | \
    (((bus & op) & 0xFC) << 2) | ((addr & 0xC000) >> 14))
 
-/**
- * Clear all CRAM
- * Sends data via data port; does not use DMA
- */
-void vdp_cram_clear_c();
-
-/**
- * Clear all VRAM
- * Sends data via data port; does not use DMA
- */
-void vdp_vram_clear_c();
-
-/**
- * Wait for DMA operations to complete
- */
-void dma_wait_c();
-
-/**
- * Set a single VDP register with a value
- */
-//void vdp_load_reg_c(u8 reg, u8 value);
-
-/**
- * Set all VDP registers from an array
- * Array should contain 24 elements
- */
-//void vdp_load_regs_c(u8 const* values);
-
 #endif
