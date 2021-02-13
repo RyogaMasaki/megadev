@@ -13,7 +13,7 @@ SECTIONS
 	{
 		SHORT(0)
 		LONG(MMD_DEST)
-		SHORT(MMD_TEXT_SZ)
+		SHORT(_mod_text_len >> 2)
 		LONG(main)
 		LONG(HINT)
 		LONG(VINT)
@@ -23,21 +23,26 @@ SECTIONS
   .text MODULE_ROM_ORIGIN : AT ( ADDR(.header) + SIZEOF(.header) )
   {
 		/* MMD header */
-    MMD_START = ABSOLUTE(.);
+    _mod_text_org = .;
 		*(.main*)
     *(.text*)
     *(.rodata*)
-    MMD_TEXT_SZ = (ABSOLUTE(.) - MMD_START) >> 2;
+    _mod_text_len = ABSOLUTE(. - _mod_text_org);
   } > MODULE_ROM
 
   .data MODULE_RAM_ORIGIN : AT ( ADDR(.header) + SIZEOF(.header) + SIZEOF(.text) )
   {
+		_mod_data_org = .;
 		*(.data*)
+		_mod_data_len = ABSOLUTE(. - _mod_data_org);
   } > MODULE_RAM
 
 	.bss :
 	{
+		_mod_bss_org = .;
 		*(.bss*)
+		_mod_bss_len = ABSOLUTE(. - _mod_bss_org);
 	} > MODULE_RAM
+
 
 }

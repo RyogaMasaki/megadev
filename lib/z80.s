@@ -3,15 +3,6 @@
 #include "z80_def.h"
 
 .section .rodata
-
-# TODO - externalize this into a sysres
-z80_init_program:
-	.long    0xAF01D91F, 0x11270021, 0x2600F977 
-	.long    0xEDB0DDE1, 0xFDE1ED47, 0xED4FD1E1
-	.long    0xF108D9C1, 0xD1E1F1F9, 0xF3ED5636
-	.word    0xE9E9
-.equ z80_init_program_len, .-z80_init_program
-
 .section .text
 
 .global get_z80_bus
@@ -25,11 +16,6 @@ get_z80_bus:
 release_z80_bus:
   move.w #0, (Z80_BUSREQ)
 	rts
-
-.global load_z80_init_program
-load_z80_init_program:
-	lea z80_init_program, a0
-	move.l z80_init_program_len, d0
 
 /*
 	load_z80_data

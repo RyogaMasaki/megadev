@@ -96,7 +96,6 @@ void echo_set_flags(u8 flags) {
 	asm("jsr Echo_SetFlags" ::"d"(d0_flags));
 };
 
-
 void echo_clear_flags(u8 clear_mask) {
 	register u8 d0_clear_mask asm("d0") = clear_mask;
 	asm("jsr Echo_ClearFlags" ::"d"(d0_clear_mask));
@@ -106,4 +105,5 @@ void echo_convert_list(u8 data[]) {
 	  register u32 a0_data asm("a0") = (u32)data;
   asm("jsr echo_convert_inst_list" :: "a"(a0_data));
 };
+
 #endif

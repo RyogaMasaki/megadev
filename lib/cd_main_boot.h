@@ -17,8 +17,8 @@
 
 /**
  * Array of VDP registers cached in RAM. This must be updated manually unless
- * you use load_vdp_regs. Contains 19 entries, one for each register except
- * for the DMA regs.
+ * you use load_vdp_regs. Contains 19 entries, one for each register (except
+ * for the DMA regs).
  */
 #define VDP_REGS ((volatile u16*)_VDP_REGS)
 

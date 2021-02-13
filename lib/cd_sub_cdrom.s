@@ -8,8 +8,8 @@
 #define MEGADEV__CD_SUB_CDROM_S
 
 #include "macros.s"
-#include "cd_sub_bios.s"
 #include "cd_sub_cdrom_def.h"
+#include "cd_sub_bios_macros.s"
 
 .section .text
 

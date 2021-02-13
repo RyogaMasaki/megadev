@@ -124,9 +124,9 @@ $(BUILD_PATH)/boot.bin: $(BUILD_PATH)/boot.o
 	@echo -e "${BOLD}${CYAN}Generating boot sector $@...${CLEAR}"
 	@$(OBJCPY) -O binary $(BUILD_PATH)/boot.o $@
 
-$(BUILD_PATH)/boot.o: $(SRC_PATH)/boot.s $(BUILD_PATH)/ip.bin $(BUILD_PATH)/sp.bin
+$(BUILD_PATH)/boot.o: $(LIB_PATH)/boot.s $(BUILD_PATH)/ip.bin $(BUILD_PATH)/sp.bin
 	@echo -e "${BOLD}${CYAN}Building ASM source $@...${CLEAR}"
-	@$(CC) $(CC_FLAGS) $(AS_FLAGS) $(INC) $(AS_INC) -x assembler-with-cpp -c $< -o$@
+	@$(CC) $(CC_FLAGS) $(AS_FLAGS) $(INC) -I$(SRC_PATH) $(AS_INC) -x assembler-with-cpp -c $< -o$@
 
 $(BUILD_PATH)/%.bin $(DISC_PATH)/%.mmd: $(BUILD_PATH)/%.elf
 	@echo -e "${BOLD}${CYAN}Generating binary $@...${CLEAR}"
@@ -142,7 +142,7 @@ $(BUILD_PATH)/%.o: $(SRC_PATH)/%.s
 
 $(BUILD_PATH)/%.elf: $(SRC_PATH)/%.def
 	@echo -e "${BOLD}${CYAN}Linking $@...${CLEAR}"
-	@$(LD) $(LD_FLAGS) -z muldefs -L$(shell pwd)/$(SRC_PATH) -T$(CFG_PATH)/main.ld -o$@ $(addprefix $(BUILD_PATH)/,$(addsuffix .o, $(basename $(filter-out :%,$(shell cat $<))))) $(addprefix -R$(BUILD_PATH)/,$(addsuffix .elf, $(basename $(subst :,,$(filter :%,$(shell cat $<)))))) 
+	@$(LD) $(LD_FLAGS) -z muldefs -L$(shell pwd)/$(SRC_PATH) -T$(CFG_PATH)/module_mmd.ld -o$@ $(addprefix $(BUILD_PATH)/,$(addsuffix .o, $(basename $(filter-out :%,$(shell cat $<))))) $(addprefix -R$(BUILD_PATH)/,$(addsuffix .elf, $(basename $(subst :,,$(filter :%,$(shell cat $<)))))) 
 	@$(NM) -n $@ > $(@:.elf=.sym)
 
 $(OUT_PATH)/$(PROJECT_NAME).iso: $(BUILD_PATH)/boot.bin

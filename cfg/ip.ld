@@ -10,21 +10,24 @@ SECTIONS
 {
   .text 0xFF0000:
   {
-    _TEXT_IP_INIT_START = .;
+    _ip_text_org = .;
     *(.text*)
     *(.rodata*)
-    _TEXT_IP_INIT_END = .;
-    _TEXT_IP_INIT_SIZE = ABSOLUTE(_TEXT_IP_INIT_END - _TEXT_IP_INIT_START);
+    _ip_text_len = ABSOLUTE(. - _ip_text_org);
   } > WORK_RAM
 
-  .data 0xFF8000: AT ( ADDR(.text) + SIZEOF(.text) )
+  .data 0xFF8000 : AT ( ADDR(.text) + SIZEOF(.text) )
   {
+    _ip_data_org = .;
     *(.data*)
+    _ip_data_len = ABSOLUTE(. - _ip_data_org);
   } > RAM
 
-  .bss 0xFF8000 + SIZEOF(.data): AT ( ADDR(.data) + SIZEOF(.data) )
+  .bss 0xFF8000 + SIZEOF(.data) :
   {
+    _ip_bss_org = .;
     *(.bss*)
+    _ip_bss_len = ABSOLUTE(. - _ip_bss_org);
   } > RAM
 
 

@@ -9,21 +9,24 @@ SECTIONS
 {
   .text 0x006000 :
   {
+    _sp_text_org = .;
     *(.text*)
     *(.rodata*)
+    _sp_text_len = ABSOLUTE(. - _sp_text_org);
   } > PRG_RAM
-  _stext = . ;
 
   .data :
   {
-    . = ALIGN(0x10);
+    _sp_data_org = .;
     *(.data*)
-  }
-  _sdata = . - _stext;
+    _sp_data_len = ABSOLUTE(. - _sp_data_org);
+  } > PRG_RAM
 
   .bss :
   {
+    _sp_bss_org = .;
     *(.bss*)
-  }
-  _sbss = . - _sdata;
+    _sp_bss_len = ABSOLUTE(. - _sp_bss_org);
+  } > PRG_RAM
+  _sp_ram_len = _sp_data_len + _sp_bss_len;
 }

@@ -1,5 +1,5 @@
 /**
- * \file cd_bram.s
+ * \file cd_sub_bram_macros.s
  * Internal Backup RAM (BRAM)
  */
 

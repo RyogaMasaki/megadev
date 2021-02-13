@@ -1,6 +1,6 @@
 /**
  * \file cd_main_boot_def.h
- * Boot ROM system call vector definitions & memory addresses
+ * Boot ROM system call vector & memory definitions
  */
 
 #ifndef MEGADEV__CD_MAIN_BOOT_DEF_H

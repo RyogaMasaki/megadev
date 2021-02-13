@@ -47,6 +47,13 @@ If you have not already done so, you'll definitely want to familiarize yourself 
 ## Building
 `make`
 
+## Including files
+Be sure to add `$(megadev_path)/lib` to the include path of your IDE or project configuration.
+
+Within the `lib` directory are the definitions, wrappers and source code for Megadev. In general, code is "assembly first" with C wrappers around asm calls. In order to facilitate the mixture of C/asm in projects, all memory addresses, registers, and other compile-time constants use C-style `#define` macros. Any files in the lib directory ending in `_def` contains such definitions and can be `#include`d in either C or asm source.
+
+For asm source, files ending in `_macros` contain macros, as the name suggests. Because these and `_def` files do not contain immediate code, they can be `#include`d at the top of your source file without issue.
+
 ## Modules
 At a high level, you can think of modules as very small "ROMs" that are loaded from the CD and run. This is how most Mega CD games work: the title screen is a module, the options screen is a module, each stage is a module, and so on. It is one self-contained piece of the game as a whole.
 
