@@ -63,12 +63,11 @@ ex_group1_stack_copy:
 	move.w #0, (op_val)
 	move.w (sp)+, (sr_val)
 	move.l (sp)+, (pc_val)
-	jbra handle_exception
-
+//	jbra handle_exception
 
 FUNC handle_exception
 	ori #0x700,sr
-	jbsr _VDP_CLR_NMTBL
+	jbsr _VDP_CLEAR_NMTBL
 	jbsr _LOAD_FONT_INTERN_DEFAULTS
 	move.w #0, (_TILE_BASE)
 

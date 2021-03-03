@@ -23,12 +23,3 @@ bool vdp_pal_fadeout(u8 index, u8 length) {
 
 	return is_complete;
 };
-
-
-
-
-
-
-
-
-

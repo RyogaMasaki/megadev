@@ -108,7 +108,7 @@ mmd: $(OBJ) $(MMD_MR) $(MMD)
 disc: boot mmd $(OUT_PATH)/$(PROJECT_NAME).iso
 
 init:
-	@mkdir -p $(BUILD_PATH) $(DISC_PATH)
+	@mkdir -p $(BUILD_PATH) $(DISC_PATH) $(SRC_PATH)
 
 $(BUILD_PATH)/ip.elf: $(BUILD_PATH)/ip.o
 	@echo -e "${BOLD}${CYAN}Linking IP $@...${CLEAR}"

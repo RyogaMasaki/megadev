@@ -89,7 +89,7 @@ inline void load_vdp_regs(u16 const * reg_data) {
  * (Controls the setting in VDP Reg. #1)
  */
 inline void vdp_enable_display() {
-	asm("jsr %p0" :: "i"(_VDP_DISP_ENAB));
+	asm("jsr %p0" :: "i"(_VDP_DISP_ENABLE));
 }
 
 /**
@@ -97,7 +97,7 @@ inline void vdp_enable_display() {
  * (Controls the setting in VDP Reg. #1)
  */
 inline void vdp_disable_display() {
-	asm("jsr %p0" :: "i"(_VDP_DISP_DISA));
+	asm("jsr %p0" :: "i"(_VDP_DISP_DISABLE));
 }
 
 inline void vint_wait() {
@@ -128,7 +128,7 @@ inline void vdp_clear_vram() {
   move.l a6, -(sp)
 	jsr %p0
 	move.l (sp)+, a6
-)" :: "i"(_VDP_CLR_VRAM) : "d0","d1","d2","d3");
+)" :: "i"(_VDP_CLEAR_VRAM) : "d0","d1","d2","d3");
 };
 
 inline void vdp_clear_nmtbl() {
@@ -136,7 +136,7 @@ inline void vdp_clear_nmtbl() {
 	move.l a6, -(sp)
 	jsr %p0
 	move.l (sp)+, a6
-)" :: "i"(_VDP_CLR_NMTBL) : "d0","d1","d2","d3");
+)" :: "i"(_VDP_CLEAR_NMTBL) : "d0","d1","d2","d3");
 };
 
 
@@ -164,6 +164,29 @@ inline void vdp_dma_wordram_xfer(u32 vdpaddr_dest, u8 const * source, u16 length
 )"::"i"(_VDP_DMA_WORDRAM_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
 };
 
+inline void vdp_dma_fill_new(u32 vdpaddr, u16 length, u8 value) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_length asm("d1") = length;
+	register u8 d2_value asm("d2") = value;
+
+	asm(R"(
+  move.l a6, -(sp)
+  jsr %p0
+  move.l (sp)+, a6
+)" :: "i"(_VDP_DMA_FILL), "d"(d0_vdpaddr), "d"(d1_length), "d"(d2_value) : "d3");
+};
+
+inline void vdp_dma_copy(u32 vdpaddr, u16 source, u16 length) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_source asm("d1") = source;
+	register u16 d2_length asm("d2") = length;
+
+	asm(R"(
+  move.l a6, -(sp)
+  jsr %p0
+  move.l (sp)+, a6
+)" :: "i"(_VDP_DMA_COPY), "d"(d0_vdpaddr), "d"(d1_source), "d"(d2_length) : "d3");
+};
 
 inline void vdp_copy_sprlist(){
 	asm("jsr %p0" :: "i"(_COPY_SPRLIST) : "d4", "a4");
@@ -202,5 +225,6 @@ inline void palette_load(u8* pal_data) {
 
 	asm(R"(jsr %p0)" :: "i"(_PAL_LOAD), "a"(a1_pal_data) : "d0");
 };
+
 
 #endif

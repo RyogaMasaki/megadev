@@ -45,7 +45,7 @@
 #define _monkerr  0xfffd78    /* -onk */
 // the redundant addresses here seem to be intentional
 // This frees up an extra jump slot at the end, which looks to be
-// jump table code for the Backup RAM cart
+// the jump table code for the Backup RAM cart
 #define _madrerr  0xfffd7e    /* -address error */
 #define _mcoderr  0xfffd7e    /* -undefined code */
 #define _mdiverr  0xfffd84    /* -divide error */
@@ -58,12 +58,97 @@
 #define mburam    0xfffdae
 
 /**
- * Main CPU Gate Array registers
+ * \var GA_RESET
+ * \brief Sub CPU Reset / Bus Request
+ * \details
+ * | F| E| D| C| B| A| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|
+ * |IEN2| ||||||IFL2| ||||||SBRQ|SRES|
+ * 
+ * \param SRES Sub CPU reset
+ * \details 0 = Run / 1 = Reset
+ * \param SBRQ Sub CPU bus access request
+ * \details W: 0 = Cancel / 1 = Request \n R: 0 = Sub CPU running / 1 = Acknowledge
+ * \param IFL2 Send INT2 to Sub CPU
+ * \details Write: 0 = Not used / 1 = Send INT 2 to Sub CPU \n Read: 0 = INT 2 in progress / 1 = INT 2 not occurred yet
+ * \param IEN2 Mask state of INT2 on Sub CPU
+ * \details 0 = Masked / 1 = Enabled
  */
-#define GA_RESET        0xA12000 	/* peripheral reset */
-#define GA_MEMORYMODE 0xA12002 	/* memory mode/write protect */
-#define GA_CDCMODE      0xA12004 	/* CDC mode/device dest */
-#define GA_HINTVECT     0xA12006 	/* H-INT address */
+#define GA_RESET        0xA12000
+
+/**
+ * \var GA_MEMORYMODE
+ * \brief Word RAM Memory Mode / Sub CPU RAM Write Protect
+ * \details
+ * | F| E| D| C| B| A| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|
+ * |WP7|WP6|WP5|WP4|WP3|WP2|WP1|WP0|BK1|BK0| |||MODE|DMNA|RET|
+ * 
+ * \param WP Write protect Sub CPU RAM
+ * \param BK PRG-RAM bank select
+ * \param MODE Word RAM layout
+ * \param DMNA Main CPU will not access Word RAM
+ * \param RET Give Word RAM control to Main CPU
+ *
+ * WP Write protect an area of Sub CPU RAM from 0 to 0x1FE00 in increments
+ * of 0x200
+ * BK|PRG-RAM bank select for Main CPU access
+ * (4M PRG-RAM divided into 1M banks)
+ * MODE|Word RAM Mode
+ *     |  Read Only: 0 = 2M / 1 = 1M/1M
+ * DMNA|"Declaration of Main CPU No Access" on Word RAM
+ *     |  Effect depends on MODE bit:
+ * 
+ * 
+ *       MODE = 0 (2M):
+ *        Write: 0 = N/A / 1 = Return Word RAM to Sub CPU
+ *        Read: 0 = Return Word RAM to Sub CPU In Progress
+ *              1 = Return Word RAM to Sub CPU Completed
+ *       MODE = 1 (1M/1M):
+ *        Write: 0 = N/A / 1 = Request 1M bank swap
+ *        Read: 0 = Bank swap In Progress
+ *              1 = Bank swap Completed
+ * RET|Return Word RAM to Main CPU
+ *      Effect depends on MODE bit:
+ *			MODE = 0 (2M):
+ *			 Read Only: 0 = Return Word RAM to Main CPU In Progress
+ *			            1 = Return Word RAM to Main CPU Completed
+ *       MODE = 1 (1M/1M):
+ *        Read Only: 0 = Word RAM Bank 0 attached to Main CPU, Bank 1 to Sub CPU
+ *                   1 = Word RAM Bank 0 attached to Sub CPU, Bank 1 to Main CPU
+ */
+#define GA_MEMORYMODE   0xA12002
+
+/**
+ * \def GA_HINTVECT
+ * \brief HINT Vector
+ * \details
+ * | F| E| D| C| B| A| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|
+ * |HIBF|HIBE|HIBD|HIBC|HIBB|HIBA|HIB9|HIB8|HIB7|HIB6|HIB5|HIB4|HIB3|HIB2|HIB1|HIB0|
+ *
+ * HIB: Specifies the lower word of the HINT (Level 4) interrupt vector
+ *      The upper word is specied at the standard location (0x70), the value
+ *      of which is 0x00FF by the Boot ROM.
+ */
+#define GA_HINTVECT     0xA12006
+
+/**
+ * \def GA_CDCMODE
+ * \brief CDC Mode
+ * \details
+ * | F| E| D| C| B| A| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|-:|
+ * |EDT|DSR| |||DD2|DD1|DD0| ||||||||
+ *
+ * EDT: 1 = All data has been transferred from CDC
+ * DSR: 1 = Data from CDC is present in GA_CDCHOSTDATA register
+ * DD: Set the destination bus for the CDC data. Refer to the manual for the
+ *     allowed values.
+ */
+#define GA_CDCMODE      0xA12004
+
+
 #define GA_CDCHOSTDATA  0xA12008 	/* 16-bit CDC host data */
 #define GA_STOPWATCH    0xA1200C 	/* CDC/gp timer 30.72us lsb */
 #define GA_COMFLAGS     0xA1200E 	/* CPU to CPU commo bit flags */

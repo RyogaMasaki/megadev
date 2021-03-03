@@ -1,0 +1,14 @@
+# Doxyfile 1.8.13
+DOXYFILE_ENCODING	= UTF-8
+PROJECT_NAME			= megadev
+PROJECT_NUMBER		= 1
+PROJECT_BRIEF			= "A Sega Mega CD development framework"
+OUTPUT_DIRECTORY	= docs
+TAB_SIZE					= 2
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_LATEX		= NO
+GENERATE_HTML			= YES
+
+INPUT							= READNE.md lib
+FILE_PATTERNS			= *.c *.h *.s
+ALIASES += "break=\warning \b CLOBBER: " 

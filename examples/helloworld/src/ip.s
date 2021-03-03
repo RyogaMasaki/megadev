@@ -31,10 +31,10 @@ ip_entry:
 
   // We'll also use the Boot ROM VDP defaults
   // (these defaults include disabling the display)
-  jbsr _VDP_REG_INIT
+  jbsr _VDP_REG_LOAD_DEFAULTS
   
   // Clear all of VRAM to give a fresh start
-  jbsr _VDP_CLR_VRAM
+  jbsr _VDP_CLEAR_VRAM
 
   /*
     Now we'll load the internal Boot ROM font into the VDP with the default
@@ -54,7 +54,7 @@ ip_entry:
   jbsr _PRINT_TEXT
 
   // And finally enable the display
-  jbsr _VDP_DISP_ENAB
+  jbsr _VDP_DISP_ENABLE
 
 test_label:
   // and restore interrupts

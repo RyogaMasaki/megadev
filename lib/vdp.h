@@ -34,8 +34,6 @@
 #define VDP_DATA_16 (*(volatile u16*)VDP_DATA)
 
 
-enum PlaneWidth { Width32 = 5, Width64 = 6, Width128 = 7 };
-
 /**
  * Generates the nametable data offset for a tile at pos x/y
  * @param x horizontal position in the tilemap
@@ -54,15 +52,21 @@ enum PlaneWidth { Width32 = 5, Width64 = 6, Width128 = 7 };
 ################################################################################
 */
 
-// bus
-//#define VRAM 0b00100001
-//#define CRAM 0b00101011
-//#define VSRAM 0b00100101
+inline u32 make_vdpaddr(u16 addr) {
+  u32 vdpaddr = (u32)addr;
+  u32 work;
 
-// command
-//#define READ 0b00001100
-//#define WRITE 0b00000111
-//#define DMA 0b00100111
+  asm(R"(
+  swap %0
+  move.l %0, %1
+  rol.l #2, %0
+  and.l #3, %0
+  or.l %1, %0
+  and.l #0x3fff0003, %0
+  )" : "+d" (vdpaddr) : "d" (work));
+
+  return vdpaddr;
+}
 
 enum VDPADDR_BUS { VRAM = 0b00100001, CRAM = 0b00101011, VSRAM = 0b00100101 };
 enum VDPADDR_OP { READ = 0b00001100, WRITE = 0b00000111, DMA = 0b00100111 };
