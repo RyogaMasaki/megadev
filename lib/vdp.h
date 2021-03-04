@@ -1,6 +1,6 @@
 /**
  * \file vdp.h
- * Mega Drive Video Display Processor (VDP)
+ * \brief Mega Drive Video Display Processor (VDP)
  */
 
 #ifndef MEGADEV__VDP_H

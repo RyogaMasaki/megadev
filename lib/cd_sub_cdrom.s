@@ -36,16 +36,16 @@ END:
 .endm
 
 
-/*
-  Convenience sub to get a file loaded
-   IN:
-  a0 - Pointer to filename string (zero terminated)
-  a1 - Pointer to destination data buffer
-*/
+/**
+ * \fn load_file_sub
+ * \brief Convenience sub to get a file loaded
+ * \param[in] A0.l Pointer to filename string (zero terminated)
+ * \param[in] A1.l Pointer to destination buffer
+ */
 load_file_sub:
   move.w  #ACC_OP_LOAD_SUB, access_op
-  move.l  a0, filename_ptr
-  move.l  a1, file_dest_ptr
+  move.l  a0, filename
+  move.l  a1, file_buff
 0:jbsr    _WAITVSYNC
   jbsr get_acc_op_result
   bcs      0b              /*wait for completion*/
@@ -70,7 +70,7 @@ loop:
 .endm
 
 /**
- * MUST be called every VINT in order to keep the access loop going
+ * MUST be called every INT2 in order to keep the access loop going
  * BREAK: a0
  */
 .macro PROCESS_ACC_LOOP
@@ -88,15 +88,13 @@ loop:
 .endm
 
 /**
- * Get a pointer to the cached file info entry
- * 
- * IN:
- *  a0 - ptr to file name
- * OUT:
- *  CS - File not found
- *  CC - File found
- *  a0 - (if found) ptr to file list entry
- * BREAK: d0-d1/a1-a2
+ * \fn get_file_info
+ * \brief Get a pointer to the cached file info entry
+ * \param[in] A0.l Pointer to file name
+ * \param[out] CS File not found
+ * \param[out] CC File found
+ * \param[out] A0.l Pointer to file list entry (if found)
+ * \break d0-d1/a1-a2
  */
 get_file_info:
   // part 1 - get filename length
@@ -133,17 +131,14 @@ get_file_info:
 
 
 /**
- * Check if an access operation is still in process
- * If it has completed, returns the last result code
- * IN:
- *  none
- * OUT:
- *  CS - Access op in progress
- *  CC - Access op complete (access loop is idle)
- *  If op complete:
- *  d0 - Result code
- *  d1 - If result is OK: contains size of file in bytes
- *       If result is file load fail: number of sectors read
+ * \fn get_acc_op_result
+ * \brief Check if an access operation is still in proces. If  completed,
+ * returns the last result code
+ * \param[out] CS Access op in progress
+ * \param[out] CC Access op complete (access loop is idle)
+ * \param[out] D0.w Result code (if op is complete)
+ * \param[out] D1.w Size of file in bytes (if result is OK); number of sectors
+ * read (if result not OK)
  */
 get_acc_op_result:
   cmpi.w   #ACC_OP_IDLE, access_op    //if status is anything but idle*/
@@ -153,7 +148,7 @@ get_acc_op_result:
   bne      0f                        /*not good, jump down*/
   move.l   cdrom_record_size, d1      /*status ok, get size of the last read record*/
   bra      1f
-0:cmpi.w   #ACCRES_LOAD_FILE_ERR, d0    /*check for load file subroutine failure*/
+0:cmpi.w   #RESULT_LOAD_FAIL, d0    /*check for load file subroutine failure*/
   bne      1f
   move.w   sectors_read_count, d1      /*if so, return number of sectors read*/
 1:move     #0, ccr        /*access loop completed*/
@@ -162,9 +157,10 @@ get_acc_op_result:
   rts
 
 /**
- * CD-ROM access operation switch
- * The operation should be requested by setting the access_op value rather
- * than calling any of these functions on their own.
+ * \fn access_op_idle
+ * \brief CD-ROM access operation switch
+ * \warning The operation should be requested by setting the access_op value rather
+ * than calling any of these functions directly
  */
 access_op_idle:
   jbsr      accloop_break
@@ -184,7 +180,8 @@ op_jmptbl:
   .word    access_op_load_dma_pcm - op_jmptbl
 
 /**
- * Load a file to Word RAM via DMA
+ * \fn access_op_load_dma_word
+ * \brief Load a file to Word RAM via DMA
  */ 
 access_op_load_dma_word:
   move.b   #CDC_WRAMDMA, cdc_dev_dest
@@ -192,7 +189,8 @@ access_op_load_dma_word:
   jbra     load_process
 
 /**
- * Load a file to a Sub CPU address space
+ * \fn access_op_load_sub
+ * \brief Load a file to a Sub CPU address space
  */
 access_op_load_sub:
   move.b   #CDC_SUBREAD, cdc_dev_dest
@@ -200,7 +198,8 @@ access_op_load_sub:
   jbra     load_process
 
 /**
- * Load a file to PRG RAM via DMA
+ * \fn access_op_load_dma_prg
+ * \brief Load a file to PRG RAM via DMA
  */
 access_op_load_dma_prg:
   move.b   #CDC_WRAMDMA, cdc_dev_dest
@@ -208,17 +207,19 @@ access_op_load_dma_prg:
   jbra     load_process
 
 /**
- * Load a file to PCM Wave Data memory via DMA
+ * \fn access_op_load_dma_pcm
+ * \brief Load a file to PCM Wave Data memory via DMA
  */
 access_op_load_dma_pcm:
   move.b   #CDC_PCMDMA, cdc_dev_dest
   move.l   #load_data_dma, (load_method_ptr)
 
 /**
- * Shared code for the file load operations
+ * \fn load_process
+ * \brief Shared code for the file load operations
  */
 load_process:
-  movea.l  (filename_ptr), a0
+  movea.l  (filename), a0
   jbsr     get_file_info       // get file info from dir cache
   bcs      load_proc_notfound  // jump down if file not found
   move.l   0x18(a0), cdread_sector_start  // get start sector
@@ -246,7 +247,8 @@ load_proc_notfound:
   bra      3b
 
 /**
- * Load and cache the root directory entries (filename, offset, size)
+ * \fn access_op_load_dir
+ * \brief Load and cache the root directory entries (filename, offset, size)
  */
 access_op_load_dir:
   move.b  #3, cdc_dev_dest            // set CDC data destination
@@ -255,7 +257,7 @@ access_op_load_dir:
   move.l   #0x10, cdread_sector_start  // primary VD is at sector 0x10
   move.l   #1, cdread_sector_count     // read one frame (sector)
   lea      sector_buffer, a0           // temporary data buffer in a0
-  move.l   a0, file_dest_ptr         // make it the data destination
+  move.l   a0, file_buff         // make it the data destination
   bsr      load_data_sub               // actually get data
   cmpi.w   #RESULT_LOAD_FAIL, access_op_result  // check for problems
   beq      cdacc_loop_loaddir_err      // read failed, jump down
@@ -276,7 +278,7 @@ access_op_load_dir:
   clr      dir_entry_count
 1:move.l   #1, cdread_sector_count  // read one sector
   lea      sector_buffer, a1
-  move.l   a1, file_dest_ptr      // setup destination
+  move.l   a1, file_buff      // setup destination
   bsr      load_data_sub            // actually get data
   cmpi     #RESULT_LOAD_FAIL, access_op_result  // any issues?
   beq      cdacc_loop_loaddir_err   // if so, jump down
@@ -319,7 +321,8 @@ cdacc_loop_loaddir_err:
 
 
 /**
- * Load data using CDCTRN (only available for Sub CPU Read)
+ * \fn load_data_sub
+ * \brief Load data using CDCTRN (only available for Sub CPU Read)
  */
 load_data_sub:
   // we want to save the call site in order to properly return, since we'll
@@ -377,7 +380,7 @@ load_data_begin:
   bra      load_data_failure
 6:cmpi.b  #2, cdc_dev_dest  /*is this a main CPU read?*/
   beq      load_data_maincpudest    /*if so, jump down; main cpu can't use CDCTRN*/
-  movea.l  (file_dest_ptr), a0  /*setup CDCTRN pointers*/
+  movea.l  (file_buff), a0  /*setup CDCTRN pointers*/
   lea      cdc_read_timecode, a1
   BIOS_CDCTRN            /*transfer data from CDC to RAM*/
   bcs      7f
@@ -399,7 +402,7 @@ load_data_begin:
 9:BIOS_CDCACK        /*send ack to CDC*/
   move.w  #6, read_timeout    /*reset error counters*/
   move.w  #0x1e, read_retry_count
-  addi.l  #0x800, file_dest_ptr  /*move the dest buffer up a sector*/
+  addi.l  #0x800, file_buff  /*move the dest buffer up a sector*/
   addq.w  #1, sectors_read_count    /*add to the sectors read count*/
   addq.l  #1, cdread_sector_start  /*move to the next frame*/
   subq.l  #1, cdread_sector_count  /*countdown frames to be read*/
@@ -427,7 +430,8 @@ load_data_maincpudest:
 
 
 /**
- * Load data without CDCTRN (for DMA processes)
+ * \fn load_data_dma
+ * \brief Load data without CDCTRN (for DMA processes)
  */
 load_data_dma:
   // we want to save the call site in order to properly return, since we'll
@@ -535,11 +539,11 @@ load_method_ptr: .long 0
 cdread_sector_start: .long 0
 cdread_sector_count: .long 0
 
-.global filename_ptr
-filename_ptr: .long 0
+.global filename
+filename: .long 0
 
-.global file_dest_ptr
-file_dest_ptr: .long 0
+.global file_buff
+file_buff: .long 0
 
 cdrom_record_size: .long 0
 

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wait_5f2m_208',['wait_2m',['../cd__main_8h.html#a8267f2147953da8c7bc1e22fae44a6d3',1,'cd_main.h']]]
+  ['update_5finputs_196',['update_inputs',['../cd__main__boot_8h.html#a2858564ef4db1577d80997465b53d471',1,'cd_main_boot.h']]]
 ];

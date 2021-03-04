@@ -9,44 +9,48 @@
 // VDP ports
 
 /**
- * VDP control port
- * 16 bit wide - a 32 bit write is equivalent to two consecutive 16 bit writes
+ * \var VDP_CTRL
+ * \brief VDP control port
+ * \details 16 bit wide - a 32 bit write is equivalent to two consecutive
+ * 16 bit writes
  */
 #define VDP_CTRL 0xC00004
 
 /**
- * VDP data port
- * 16 bit wide - a 32 bit write is equivalent to two consecutive 16 bit writes
+ * \var VDP_DATA
+ * \brief VDP data port
+ * \details 16 bit wide - a 32 bit write is equivalent to two consecutive
+ * 16 bit writes
  */
 #define VDP_DATA 0xC00000
 
 /**
- * HV Counter
+ * \var VDP_HVCOUNT
+ * \brief HV Counter
  */
 #define VDP_HVCOUNT 0xC00008
 
 /**
- * VDP debug port
+ * \var VDP_DEBUG
+ * \brief VDP debug port
  */
 #define VDP_DEBUG 0xC0001C
 
 
 // All VDP registers
 /**
- * \def VDP_REG00
+ * \var VDP_REG00
  * \brief Mode Register 1
  * \details
- * |  7|  6|  5|    4|  3|   2|   1|   0|
- * |---+---+---+-----+---+----+----+----|
- * | 0 | 0 | L | IE1 | 0 | CM | M3 | DE |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||L|IE1| |CM|M3|DE|
  *
- * L: 1 = leftmost 8 pixels are blanked to background color
- * IE1: 1 = enable horizontal interrupts
- * CM: 1 = normal 9-bit color mode (512 colour)
- *     0 = low 3-bit color mode (8 colors)
- * M3: 1 = freeze H/V counter on level 2 interrupt
- *     0 = enable H/V counter
- * DE: 1 = disable display
+ * \param L Blank leftmost 8 pixels to background color
+ * \param IE1 Enable horizontal interrupts
+ * \param CM 1 = normal 9-bit color mode (512 colour); 0 = low 3-bit color mode (8 colors)
+ * \param M3 1 = freeze H/V counter on level 2 interrupt; 0 = enable H/V counter
+ * \param DE 0 = enable display; 1 = disable display
  */
 #define VDP_REG00 0x8000
 
@@ -54,21 +58,16 @@
  * \def VDP_REG01
  * \brief Mode Register 2
  * \details
- * |   7|   6|    5|   4|   3|   2|  1|  0|
- * |----+----+-----+----+----+----+---+---|
- * | VR | DE | IE0 | M1 | M2 | M5 | 0 | 0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |VR|DE|IE0|M1|M2|M5| ||
  *
- * VR: 1 = use 128kB of VRAM; not compatible with standard consoles with
- *         64kB VRAM
- * DE: 1 = enable display
- *     0 = fill display with background colour
- * IE0: 1 = enable vertical interrupts
- * M1: 1 = enable DMA operations
- *     0 = ignore DMA operations
- * M2: 1 = 240 pixel (30 cell) PAL mode
- *     0 = 224 pixel (28 cell) NTSC mode
- * M5: 1 = Mega Drive (mode 5) display
- *     0 = Master System (mode 4) display
+ * \param VR Enable 128kB of VRAM (incompatible with standard consoles)
+ * \param DE 1 = enable display; 0 = fill display with background colour
+ * \param IE0 Enable vertical interrupts (VINT)
+ * \param M1 1 = enable DMA operations; 0 = ignore DMA operations
+ * \param M2 1 = 240 pixel (30 cell) PAL mode; 0 = 224 pixel (28 cell) NTSC mode
+ * \param M5 1 = Mega Drive (mode 5) display; 0 = Master System (mode 4) display
  */
 #define VDP_REG01 0x8100
  
@@ -76,13 +75,15 @@
  * \def VDP_REG02
  * \brief Plane A Name Table VRAM Address
  * \details
- * |  7|    6|    5|    4|    3|  2|  1|  0|
- * |---+-----+-----+-----+-----+---+---+---|
- * | 0 | PA6 | PA5 | PA4 | PA3 | 0 | 0 | 0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | |PA6*|PA5|PA4|PA3| |||
  *
- * PA5-PA3: Bits 15-13 of Plane A nametable address in VRAM; effectively the
- *          address (which must be a multiple of 0x2000) divided by 0x400
- * PA6: Used for 128k VRAM only
+ * \param PA Bits 15-13 (PA5 to PA3) of Plane A nametable address in VRAM
+  * 
+ * /details The Plane A register address is effectively the full address (which
+ * must be a multiple of 0x2000) divided by 0x400
+ * /note PA6 is used with 12k VRAM only
  */
 #define VDP_REG02 0x8200
 
@@ -90,14 +91,18 @@
  * \def VDP_REG03
  * \brief Window Name Table VRAM Address
  * \details
- * |  7|   6|   5|   4|   3|   2|   1|  0|
- * |---+----+----+----+----+----+----+---|
- * | 0 | W6 | W5 | W4 | W3 | W2 | W1 | 0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | |W6|W5|W4|W3|W2|W1| |
  *
- * W5-W1: Bits 15-11 of window nametable address in VRAM; effectively the
- *        address (which must be a multiple of 0x800) divided by 0x400
- * W1: Ignored in 40 cell mode, limiting the address to a multiple of 0x1000
- * W6: Used for 128k VRAM only
+ * \param W Bits 15-11 (W5 to W1) of window nametable address in VRAM
+ * 
+ * \note The Window register address is effectively the full address (which
+ * must be a multiple of 0x800) divided by 0x400
+ * 
+ * \note W1 is ignored in 40 cell mode, limiting the address to a multiple of
+ * 0x1000
+ * \note W6 is used with 128k VRAM only
  */
 #define VDP_REG03 0x8300
 
@@ -105,13 +110,15 @@
  * \def VDP_REG04
  * \brief Plane B Name Table VRAM Address
  * \details
- * |  7|  6|  5|  4|    3|    2|    1|    0|
- * |---+---+---+---+-----+-----+-----+-----|
- * | 0 | 0 | 0 | 0 | PB3 | PB2 | PB1 | PB0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||||PB3|PB2|PB1|PB0|
  *
- * PB2-PB0: Bits 15-13 of Plane B nametable address in VRAM; effectively the
- *          address (which must be a multiple of $2000) divided by $2000
- * PB3: Used for 128k VRAM only
+ * \param PB Bits 15-13 (PB2 to PB0) of Plane B nametable address in VRAM
+ * 
+ * \note The Plane B register address is effectively the full address (which
+ * must be a multiple of $2000) divided by $2000
+ * \note PB3 is used with 128k VRAM only
  */
 #define VDP_REG04 0x8400
 
@@ -119,14 +126,17 @@
  * \def VDP_REG05
  * \brief Sprite Table VRAM Address
  * \details
- * |    7|    6|    5|    4|    3|    2|    1|    0|
- * |-----+-----+-----+-----+-----+-----+-----+-----|
- * | ST7 | ST6 | ST5 | ST4 | ST3 | ST2 | ST1 | ST0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |ST7|ST6|ST5|ST4|ST3|ST2|ST1|ST0|
  *
- * ST6-ST0: Bits 15-9 of sprite table address in VRAM; effectively the address
+ * \param ST Bits 15-9 (ST6 to ST0) of sprite table address in VRAM
+ * 
+ * \note The Sprite Table register address is effectively the full address
  *          (which must be a multiple of $200) divided by $200
- * ST0: Ignored in 40 cell mode, limiting the address to a multiple of $400
- * ST7: Used for 128k VRAM only
+ * \note ST0 is ignored in 40 cell mode, limiting the address to a multiple
+ * of $400
+ * \note ST7 is used with 128k VRAM only
  */
 #define VDP_REG05 0x8500
 
@@ -134,11 +144,13 @@
  * \def VDP_REG06
  * \brief Sprite Table VRAM Address (128k VRAM)
  * \details
- * |  7|  6|    5|  4|  3|  2|  1|  0|
- * |---+---+-----+---+---+---+---+---|
- * | 0 | 0 | SP5 | 0 | 0 | 0 | 0 | 0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||SP5||||||
  *
- * SP5: Bit 16 of sprite table address, for 128k VRAM only
+ * \param SP5 Bit 16 of Sprite Table address
+ * 
+ * \note SP5 is used with 128k VRAM only
  */
 #define VDP_REG06 0x8600
 
@@ -146,28 +158,26 @@
  * \def VDP_REG07
  * \brief Background Color
  * \details
- * |  7|  6|    5|    4|   3|   2|   1|   0|
- * |---+---+-----+-----+----+----+----+----|
- * | 0 | 0 | PL1 | PL0 | C3 | C2 | C1 | C0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||PL1|PL0|C3|C2|C1|C0|
  *
- * PL1-PL0: Palette line
- * C3-C0: Color
+ * \param PL Palette line
+ * \param C Palette index (color)
  */
 #define VDP_REG07 0x8700
 
 /**
  * \def VDP_REG08
  * \brief Unused
- * \details
- * Master System horizontal scroll register
+ * \details Master System horizontal scroll register
  */
 #define VDP_REG08 0x8800
 
 /**
  * \def VDP_REG09
  * \brief Unused
- * \details
- * Master System vertical scroll register
+ * \details Master System vertical scroll register
  */
 #define VDP_REG09 0x8900
 
@@ -175,11 +185,11 @@
  * \def VDP_REG0A
  * \brief Horizontal Interrupt Counter
  * \details
- * |   7|   6|   5|   4|   3|   2|   1|   0|
- * |----+----+----+----+----+----+----+----|
- * | H7 | H6 | H5 | H4 | H3 | H2 | H1 | H0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |H7|H6|H5|H4|H3|H2|H1|H0|
  *
- * H7-H0: Number of scanlines between horizontal interrupts
+ * \param H Number of scanlines between horizontal interrupts
  */
 #define VDP_REG0A 0x8A00
 
@@ -187,19 +197,21 @@
  * \def VDP_REG0B
  * \brief Mode Register 3
  * \details
- * |  7|  6|  5|  4|    3|   2|    1|    0|
- * |---+---+---+---+-----+----+-----+-----|
- * | 0 | 0 | 0 | 0 | IE2 | VS | HS1 | HS2 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||||IE2|VS|HS1|HS2|
  *
- * IE2: 1 = enable external interrupts
- * VS: Vertical scrolling mode
- *     1 = 16 pixel columns (1 word per column in VSRAM)
- *     0 = full screen (1 longword only in VSRAM).
- * HS1-HS2: Horizontal scrolling mode
- *          00 = full screen
- *          01 = invalid
- *          10 = 8 pixel rows
- *          11 = single pixel rows.
+ * \param IE2 Enable external interrupts
+ * \n 1: Enable
+ * \n 0: Disable
+ * \param VS Vertical scrolling mode
+ * \n 1: 16 pixel columns (1 word per column in VSRAM)
+ * \n 0: Full screen (1 long only in VSRAM)
+ * \param HS Horizontal scrolling mode
+ * \n 00: Full screen
+ * \n 01: (Invalid)
+ * \n 10: 8 pixel rows
+ * \n 11: Single pixel rows
  */
 #define VDP_REG0B 0x8B00
 
@@ -207,22 +219,23 @@
  * \def VDP_REG0C
  * \brief Mode Register 4
  * \details
- * |    7|    6|    5|   4|   3|    2|    1|    0|
- * |-----+-----+-----+----+----+-----+-----+-----|
- * | RS1 | VSY | HSY | EP | SH | LS1 | LS0 | RS0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |RS1|VSY|HSY|EP|SH|LS1|LS0|RS0|
  *
- * RS1/RS0: 1 = 40 cell mode (320 pixel width)
- *          0 = 32 cell mode (256 pixel width)
- *          Both bits must be the same
- * VSY: Replace vertical sync signal with pixel bus clock
- * HSY:
- * EP: 1 = enable external pixel bus
- * SH: 1 = enable shadow/highlight mode
- * LS1-LS0: Interlace mode
- *          00 = no interlace
- *          01 = interlace normal resolution
- *          10 = no interlace
- *          11 = interlace double resolution.
+ * \param RS Screen width
+ * \n 1: 40 cell mode (320 pixels)
+ * \n 0: 32 cell mode (256 pixel width)
+ * \n \em (Both RS0 and RS1 must be the same value.)
+ * \param VSY Replace vertical sync signal with pixel bus clock
+ * \param HSY (No documentation.)
+ * \param EP Enable external pixel bus
+ * \param SH Enable shadow/highlight mode
+ * \param LS Interlace mode
+ * \n 00: No interlace
+ * \n 01: Interlace normal resolution
+ * \n 10: No interlace
+ * \n 11: Interlace double resolution
  */
 #define VDP_REG0C 0x8C00
 
@@ -230,13 +243,15 @@
  * \def VDP_REG0D
  * \brief Horizontal Scroll Data VRAM Address
  * \details
- * |  7|    6|    5|    4|    3|    2|    1|    0|
- * |---+-----+-----+-----+-----+-----+-----+-----|
- * | 0 | HS6 | HS5 | HS4 | HS3 | HS2 | HS1 | HS0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | |HS6|HS5|HS4|HS3|HS2|HS1|HS0|
  *
- * HS5-HS0: Bits 15-10 of horizontal scroll data address in VRAM; effectively
- * the address (which must be a multiple of $400) divided by $400
- * HS6: Used for 128k VRAM only
+ * \param HS Bits 15-10 (HS5 to HS0) of horizontal scroll data address in VRAM
+ * 
+ * \note The Horiz Scroll Data register address is effectively the full address
+ * (which must be a multiple of $400) divided by $400
+ * \note HS6 is used with 128k VRAM only
  *
  */
 #define VDP_REG0D 0x8D00
@@ -245,12 +260,14 @@
  * \def VDP_REG0E
  * \brief Plane A/B Name Table VRAM Address (128k VRAM)
  * \details
- * |  7|  6|  5|    4|  3|  2|  1|    0|
- * |---+---+---+-----+---+---+---+-----|
- * | 0 | 0 | 0 | PB4 | 0 | 0 | 0 | PA0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | |||PB4| |||PA0|
  *
- * PB4: Bit 16 of Plane B nametable address in 128k VRAM
- * PA0: Bit 16 of Plane A nametable address in 128k VRAM
+ * \param PB4 Bit 16 of Plane B nametable address
+ * \param PA0 Bit 16 of Plane A nametable address
+ * 
+ * \note Both PB4 and PA0 are used with 128k VRAM only
  */
 #define VDP_REG0E 0x8E00
 
@@ -258,12 +275,15 @@
  * \def VDP_REG0F
  * \brief Auto-Increment Value
  * \details
- * |     7|     6|     5|     4|     3|     2|     1|     0|
- * |------+------+------+------+------+------+------+------|
- * | INC7 | INC6 | INC5 | INC4 | INC3 | INC2 | INC1 | INC0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |INC7|INC6|INC5|INC4|INC3|INC2|INC1|INC0|
  *
- * INC7-INC0: Value to be added to the VDP address register after each
- * read/write to the data port; 2 is most common value
+ * \param INC Value to be added to the VDP address register after each
+ * read/write to the data port
+ * 
+ * \note 2 is most common value in this register and many VDP related functions
+ * assume that is the value in this register.
  */
 #define VDP_REG0F 0x8F00
 
@@ -271,51 +291,55 @@
  * \def VDP_REG10
  * \brief Plane Dimensions
  * \details
- * |  7|  6|   5|   4|  3|  2|   1|   0|
- * |---+---+----+----+---+---+----+----|
- * | 0 | 0 | H1 | H0 | 0 | 0 | W1 | W0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * | ||H1|H0| ||W1|W0|
  *
- * H1-H0: Height setting for planes A & B
- *        00 = 32 cells (256 pixels)
- *        01 = 64 cells (512 pixels)
- *        10 = invalid
- *        11 = 128 cells (1024 pixels)
- * W1-W0: Width setting for planes A & B)
- *        (Same settings as height)
- * Height/width settings of 64x128 or 128x128 cells are invalid due to a
+ * \param H Height setting for planes A & B
+ * \n 00: 32 cells (256 pixels)
+ * \n 01: 64 cells (512 pixels)
+ * \n 10: (Invalid)
+ * \n 11: 128 cells (1024 pixels)
+ * \param W Width setting for planes A & B
+ * \n 00: 32 cells (256 pixels)
+ * \n 01: 64 cells (512 pixels)
+ * \n 10: (Invalid)
+ * \n 11: 128 cells (1024 pixels)
+ * 
+ * \note Height/width settings of 64x128 or 128x128 cells are invalid due to a
  * maximum plane size of $2000 bytes
  */
 #define VDP_REG10 0x9000
 
 /**
  * \def VDP_REG11
- * \brief Window Plane Horizontal Posizion
+ * \brief Window Plane Horizontal Position
  * \details
- * |  7|  6|  5|    4|    3|    2|    1|    0|
- * |---+---+---+-----+-----+-----+-----+-----|
- * | R | 0 | 0 | HP4 | HP3 | HP2 | HP1 | HP0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |R| ||HP4|HP3|HP2|HP1|HP0|
  *
- * R: Edge selection
- *    1 = draw window from HP to right edge of screen
- *    0 = draw window from HP to left edge of screen.
- * HP4-HP0: Horizontal position on screen to start drawing the
- *          window plane (in units of 8 pixels)
+ * \param R Window edge selection
+ * \n 1: Draw window from HP to right edge of screen
+ * \n 0: Draw window from HP to left edge of screen
+ * \param HP Horizontal position on screen to start drawing the
+ * window plane (in cells)
  */
 #define VDP_REG11 0x9100
 
 /**
  * \def VDP_REG12
- * \brief Window Plane Verticalzion
+ * \brief Window Plane Vertical Position
  * \details
- * |  7|  6|  5|    4|    3|    2|    1|    0|
- * |---+---+---+-----+-----+-----+-----+-----|
- * | D | 0 | 0 | VP4 | VP3 | VP2 | VP1 | VP0 |
+ * | 7| 6| 5| 4| 3| 2| 1| 0|
+ * |-:|-:|-:|-:|-:|-:|-:|-:|
+ * |D| ||VP4|VP3|VP2|VP1|VP0|
  *
- * D: Edge selection
- *    1 = draw window from VP to bottom edge of screen
- *    0 = draw window from VP to top edge of screen.
- * VP4-VP0: Vertical position on screen to start drawing the
- *          window plane (in units of 8 pixels)
+ * \param D Window edge selection
+ * \n 1: Draw window from VP to bottom edge of screen
+ * \n 0: Draw window from VP to top edge of screen
+ * \param VP Vertical position on screen to start drawing the
+ * window plane (in cells)
  */
 #define VDP_REG12 0x9200
 

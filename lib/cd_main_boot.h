@@ -1,5 +1,5 @@
 /**
- * \file cd_main_boot.c
+ * \file cd_main_boot.h
  * Boot ROM (Main CPU) system calls
  */
 
@@ -25,7 +25,6 @@
 /**
  * CRAM (palette) RAM cache 
  */
-
 #define PALETTE ((u16*)_PALETTE)
 
 /**
@@ -61,6 +60,129 @@
  * P2 Controller input (single press)
  */
 #define PAD_P2_PRESS (*(volatile u8*)_INPUT_P2_PRESS)
+
+/**
+ * \brief Wrapper for \ref _BOOT_VINT
+ */
+inline void boot_vint() {
+	asm("jsr %p0" :: "i"(_BOOT_VINT));
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_SET_HINT_DEFAULT
+ * \todo Look into properly making the pointer 16 bit
+ */
+inline void boot_set_hint_default(void* hint_routine) {
+	register u16 a1_ptr asm("a1") = (u16)hint_routine;
+	asm("jsr %p0" :: "i"(_BOOT_SET_HINT_DEFAULT), "a"(a1_data));
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_UPDATE_INPUT
+ */
+inline void boot_update_input() {
+	asm(R"(
+  move.l a6, -(sp)
+	jsr %p0
+	move.l (sp)+, a6)" :: "i"(_BOOT_UPDATE_INPUT) : "d6", "d7", "a5");
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_CLEAR_VRAM
+ */
+inline void boot_clear_vram() {
+	asm(R"(
+  move.l a6, -(sp)
+	jsr %p0
+	move.l (sp)+, a6)" :: "i"(_BOOT_CLEAR_VRAM) : "d0", "d1", "d2", "d3");
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_CLEAR_NMTBL
+ */
+inline boot_clear_nmtbl() {
+	asm(R"(
+  move.l a6, -(sp)
+	jsr %p0
+	move.l (sp)+, a6)" :: "i"(_BOOT_CLEAR_NMTBL) : "d0", "d1", "d2", "d3");
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_CLEAR_VSRAM
+ */
+inline void boot_clear_vsram() {
+	asm("jsr %p0" :: "i"(_BOOT_CLEAR_VSRAM) : "d0", "d1", "d2");
+}
+
+/**
+ * Wrapper for \ref _BOOT_LOAD_VDPREGS_DEFAULT
+ */
+inline void boot_load_vdpregs_default() {
+	asm("jsr %p0" :: "i"(_BOOT_LOAD_VDPREGS_DEFAULT) : "d0", "d1", "a1", "a2");
+}
+
+/**
+ * \brief Wrapper for \ref _BOOT_LOAD_VDPREGS
+ */
+inline void boot_load_vdpregs(void* hint_routine) {
+	register u32 a1_vdpregs asm("a1") = (u32)hint_routine;
+	asm("jsr %p0" :: "i"(_BOOT_LOAD_VDPREGS), "a"(a1_vdpregs) : "d0", "d1", "a2");
+}
+
+/**
+ * Wrapper for \ref _BOOT_VDP_FILL
+ */
+inline boot_vdp_fill(u32 vdpaddr, u16 length, u16 value) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_length asm("d1") = length;
+	register u16 d2_value asm("d2") = value;
+	asm("jsr %p0" :: "i"(_BOOT_VDP_FILL), "d"(d0_vdpaddr), "d"(d1_length), "d"(d2_value));
+}
+
+/**
+ * Wrapper for \ref _BOOT_VDP_FILL_CLEAR
+ */
+inline boot_vdp_fill_clear(u32 vdpaddr, u16 length) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_length asm("d1") = length;
+	asm("jsr %p0" :: "i"(_BOOT_VDP_FILL_CLEAR), "d"(d0_vdpaddr), "d"(d1_length) : "d2");
+}
+
+/**
+ * Wrapper for \ref _BOOT_DMA_FILL_CLEAR
+ */
+inline boot_dma_fill_clear(u32 vdpaddr, u16 length) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_length asm("d1") = length;
+	asm(R"(
+  move.l a6, -(sp)
+	jsr %p0
+	move.l (sp)+, a6)" :: "i"(_BOOT_DMA_FILL_CLEAR), "d"(d0_vdpaddr), "d"(d1_length) : "d2", "d3");	
+}
+
+/**
+ * Wrapper for \ref _BOOT_DMA_FILL
+ */
+inline boot_dma_fill(u32 vdpaddr, u16 length, u16 value) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_length asm("d1") = length;
+	register u16 d2_value asm("d2") = value;
+	asm(R"(
+  move.l a6, -(sp)
+	jsr %p0
+	move.l (sp)+, a6)" :: "i"(_BOOT_DMA_FILL), "d"(d0_vdpaddr), "d"(d1_length), "d"(d2_value) : "d3");
+}
+
+/**
+ * Wrapper for \ref _BOOT_LOAD_MAP
+ */
+inline boot_load_map(u32 vdpaddr, u16 width, u16 height, void* map) {
+	register u32 d0_vdpaddr asm("d0") = vdpaddr;
+	register u16 d1_width asm("d1") = width;
+	register u16 d2_height asm("d2") = height;
+	register u32 a1_map asm("a1") = (u32)map;
+	asm("jsr %p0" :: "i"(_BOOT_LOAD_MAP), "d"(d0_vdpaddr), "d"(d1_width), "d"(d2_height), "a"(a1_map) : "d3", "a5");
+}
 
 /**
  * Decompress graphics data in the "Nemesis" format to VRAM

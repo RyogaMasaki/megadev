@@ -1,3 +1,8 @@
+/**
+ * \file exceptions.s
+ * \brief Simple exception handler
+ */
+
 #ifndef MEGADEV__EXCEPTION_S
 #define MEGADEV__EXCEPTION_S
 
@@ -67,6 +72,7 @@ ex_group1_stack_copy:
 
 FUNC handle_exception
 	ori #0x700,sr
+	// todo: should probably reset VDP first
 	jbsr _VDP_CLEAR_NMTBL
 	jbsr _LOAD_FONT_INTERN_DEFAULTS
 	move.w #0, (_TILE_BASE)

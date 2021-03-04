@@ -144,13 +144,14 @@
 
 
 /**
- * \fn _VINT
+ * \fn _BOOT_VINT
+ * \brief Vertical Blank interrupt handler
  * 
- * Vertical Blank interrupt handler. Copies GA comm registers to the RAM
+ * \details Copies GA comm registers to the RAM
  * mirrors, sends INT2 (VINT ocurred) to Sub CPU, updates VDP palette from
  * RAM, calls VINT_EX, updates IO (controllers).
  */
-#define _VINT          0x000290
+#define _BOOT_VINT 0x000290
 
 /*
  * There are two functions for setting the HINT vector. Both are almost
@@ -161,13 +162,14 @@
  */
 
 /**
- * \fn _SET_HINT1
- * \brief Sets the HINT vector
+ * \fn _BOOT_SET_HINT_DEFAULT
+ * \brief Sets the default HINT vector
  * \param[in] A1.w HINT vector
  * 
  * Sets the HINT vector in the jump table and the Gate Array register
- * and enables the interrupt on the VDP. The VDP register buffer (_VDP_REGS) is
- * updated.
+ * and enables the interrupt on the VDP.
+ * 
+ * \note The VDP register buffer will be updated
  * 
  * IN:
  *  a1.w - HINT vector
@@ -176,17 +178,17 @@
  * BREAK:
  *  None
  */
-#define _SET_HINT1      0x000294
+#define _BOOT_SET_HINT_DEFAULT 0x000294
 
 /**
- * \fn _UPDATE_INPUT
+ * \fn _BOOT_UPDATE_INPUT
  * \brief Update state of P1/P2 controllers
  * \param[out] _INPUT_P1
  * \param[out] _INPUT_P2
  * 
  * \break d6-d7/a5-a6
  */
-#define _UPDATE_INPUT  0x000298
+#define _BOOT_UPDATE_INPUT 0x000298
 
 /*
 Still unsure exactly what this does. Reads inputs and filters for D-pad, then
@@ -195,49 +197,51 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _UNKNOWN_07
 
 /**
- * \fn _VDP_CLEAR_VRAM
+ * \fn _BOOT_CLEAR_VRAM
  * \brief Clear all of VRAM and VSRAM
  * \break d0-d3/a6
  * 
  * \note This does not clear CRAM.
  */
-#define _VDP_CLEAR_VRAM  0x0002A0
+#define _BOOT_CLEAR_VRAM 0x0002A0
 
 /**
- * \fn _VDP_CLEAR_NMTBL
+ * \fn _BOOT_CLEAR_NMTBL
  * \brief Clear nametables and sprite list
  * \break d0-d3/a6
  * \note This works only with the Boot ROM default VRAM layout
  */
-#define _VDP_CLEAR_NMTBL 0x0002A4
+#define _BOOT_CLEAR_NMTBL 0x0002A4
 
 /**
- * \fn _VDP_CLEAR_VSRAM
+ * \fn _BOOT_CLEAR_VSRAM
  * \brief Clear VSRAM
  * \break d0-d2
  */
-#define _VDP_CLEAR_VSRAM 0x0002A8
+#define _BOOT_CLEAR_VSRAM 0x0002A8
 
 /**
- * \fn _VDP_REG_LOAD_DEFAULTS
+ * \fn _BOOT_LOAD_VDPREGS_DEFAULT
  * \brief Loads the Boot ROM default VDP register defaults
+ * \break d0-d1/a1-a2
  */
-#define _VDP_REG_LOAD_DEFAULTS  0x0002AC
+#define _BOOT_LOAD_VDPREGS_DEFAULT 0x0002AC
 
 /**
- * \fn _VDP_REG_LOAD
+ * \fn _BOOT_LOAD_VDPREGS
  * \brief Load values into multiple VDP registers
  * \param[in] A1.l Pointer to register data
+ * \break d0-d1/a2
  *  
  * \details Register data is an array of word sized values,
  * where the upper byte is the register ID
  * (e.g. 80, 81, etc) and the lower byte is
  * the value, with the list terminated by 0.
  */
-#define _VDP_REG_LOAD  0x0002B0
+#define _BOOT_LOAD_VDPREGS 0x0002B0
 
 /**
- * \fn _VDP_FILL
+ * \fn _BOOT_VDP_FILL
  * \brief Fill a region of VDP memory with a value
  * \param[in] D0.l Address (vdpaddr format)
  * \param[in] D1.w Length (in words)
@@ -247,10 +251,10 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * \details This is a simple data transfer via the VDP data port rather than
  * DMA.
  */
-#define _VDP_FILL  0x0002B4
+#define _BOOT_VDP_FILL  0x0002B4
 
 /**
- * \fn _VDP_FILL_CLEAR
+ * \fn _BOOT_VDP_FILL_CLEAR
  * \brief Fill a region of VDP memory with 0
  * \param[in] D0.l Address (vdpaddr)
  * \param[in] D1.w Length (in words)
@@ -258,29 +262,29 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * 
  * \details This is a simple data transfer via the VDP data port rather than DMA.
  */
-#define _VDP_FILL_CLEAR  0x0002B8
+#define _BOOT_VDP_FILL_CLEAR  0x0002B8
 
 /**
- * \fn _VDP_DMA_FILL_CLEAR
+ * \fn _BOOT_DMA_FILL_CLEAR
  * \brief Fill a region of VDP memory with zero
  * \param[in] D0.l Address (vdpaddr format)
  * \param[in] D1.w Length (in words)
  * \break d0-d3/a6
  */
-#define _VDP_DMA_FILL_CLEAR  0x0002BC
+#define _BOOT_DMA_FILL_CLEAR  0x0002BC
 
 /**
- * \fn _VDP_DMA_FILL
+ * \fn _BOOT_DMA_FILL
  * \brief Fill a region of VDP memory with a value
  * \param[in] D0.l Address (vdpaddr format)
  * \param[in] D1.w Length (in words)
  * \param[in] D2.w Value
  * \break d0-d3/a6
  */
-#define _VDP_DMA_FILL  0x0002C0
+#define _BOOT_DMA_FILL  0x0002C0
 
 /**
- * \fn _VDP_LOAD_MAP
+ * \fn _BOOT_LOAD_MAP
  * \brief Fill a region of a nametable with map data
  * \param[in] D0.l VRAM Address (vdpaddr format)
  * \param[in] D1.w Map width
@@ -291,15 +295,15 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * \details The map data should be an array of word values in the standard
  * nametable entry format.
  */
-#define _VDP_LOAD_MAP  0x0002C4
+#define _BOOT_LOAD_MAP  0x0002C4
 
 /**
- * \fn _VDP_LOAD_MAP_TEMPLATE
+ * \fn _BOOT_LOAD_MAP_TEMPLATE
  * \brief Fill a region of a nametable with map data
  * \param[in] D0.l VRAM address (vdpaddr format)
  * \param[in] D1.w Map width
  * \param[in] D2.w Map height
- * \param[in] d3.w Template
+ * \param[in] D3.w Template
  * \param[in] A1.l Pointer to map data
  * \break d0-d3/a1/a5
  * 
@@ -309,7 +313,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * beforehand, the upper byte of the word can be set before calling, making it
  * a "template" that applies to each tile.
  */
-#define _VDP_LOAD_MAP_TEMPLATE  0x0002C8
+#define _BOOT_LOAD_MAP_TEMPLATE  0x0002C8
 
 /**
  * \fn _VDP_LOAD_MAP_CONST

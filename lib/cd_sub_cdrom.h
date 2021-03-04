@@ -10,21 +10,24 @@
 #include "types.h"
 
 /**
- * Pointer to the buffer to store the output file
- * This is only used with the Sub CPU Direct Load operation!
+ * \var file_buff
+ * \brief Pointer to the buffer to store the output file
+ * \note This is only used with the Sub CPU Direct Load operation!
  * For the DMA operations, use the GA_DMAADDR register
  */
-extern u8 const* file_dest_ptr;
+extern u8 const* file_buff;
 
 /**
- * Pointer to the filename string
- * The filename is in 8.3 format, made up of ISO9660
- * d characters, and include the version suffix
+ * \var filename
+ * \brief Pointer to the filename string
+ * \details The filename is in 8.3 format, made up of ISO9660 d characters, and
+ * includes the version suffix
  */
-extern u8 const* filename_ptr;
+extern u8 const* filename;
 
 /**
- * Place an access operation value in this variable to begin
+ * \var access_op
+ * \brief Place an access operation value in this variable to begin
  * a load process
  */
 extern u16 access_op;

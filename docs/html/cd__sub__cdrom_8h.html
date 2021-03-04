@@ -80,18 +80,22 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a5675f3990210c27df2228a7e53230ccb"><td class="memItemLeft" align="right" valign="top">u8 const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#a5675f3990210c27df2228a7e53230ccb">file_dest_ptr</a></td></tr>
-<tr class="separator:a5675f3990210c27df2228a7e53230ccb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad24de2dcdd17128606264ba8870180fb"><td class="memItemLeft" align="right" valign="top">u8 const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#ad24de2dcdd17128606264ba8870180fb">filename_ptr</a></td></tr>
-<tr class="separator:ad24de2dcdd17128606264ba8870180fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a989110150ca8ba9ec2d76dada83a31e1"><td class="memItemLeft" align="right" valign="top">u16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#a989110150ca8ba9ec2d76dada83a31e1">access_op</a></td></tr>
-<tr class="separator:a989110150ca8ba9ec2d76dada83a31e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98d73dd74762dfd7253829adb439e178"><td class="memItemLeft" align="right" valign="top">u8 const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#a98d73dd74762dfd7253829adb439e178">file_buff</a></td></tr>
+<tr class="memdesc:a98d73dd74762dfd7253829adb439e178"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to the buffer to store the output file.  <a href="cd__sub__cdrom_8h.html#a98d73dd74762dfd7253829adb439e178">More...</a><br /></td></tr>
+<tr class="separator:a98d73dd74762dfd7253829adb439e178"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ff994e16bf9521154de4cf659a3b689"><td class="memItemLeft" align="right" valign="top">u8 const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#a2ff994e16bf9521154de4cf659a3b689">filename</a></td></tr>
+<tr class="memdesc:a2ff994e16bf9521154de4cf659a3b689"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to the filename string.  <a href="cd__sub__cdrom_8h.html#a2ff994e16bf9521154de4cf659a3b689">More...</a><br /></td></tr>
+<tr class="separator:a2ff994e16bf9521154de4cf659a3b689"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af65099ffdae24edc5d467f25eb615178"><td class="memItemLeft" align="right" valign="top"><a id="af65099ffdae24edc5d467f25eb615178"></a>
+u16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cd__sub__cdrom_8h.html#af65099ffdae24edc5d467f25eb615178">access_op</a></td></tr>
+<tr class="memdesc:af65099ffdae24edc5d467f25eb615178"><td class="mdescLeft">&#160;</td><td class="mdescRight">Place an access operation value in this variable to begin a load process. <br /></td></tr>
+<tr class="separator:af65099ffdae24edc5d467f25eb615178"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>CD-ROM File Access API </p>
 </div><h2 class="groupheader">Variable Documentation</h2>
-<a id="a989110150ca8ba9ec2d76dada83a31e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a989110150ca8ba9ec2d76dada83a31e1">&#9670;&nbsp;</a></span>access_op</h2>
+<a id="a98d73dd74762dfd7253829adb439e178"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98d73dd74762dfd7253829adb439e178">&#9670;&nbsp;</a></span>file_buff</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -100,7 +104,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">u16 access_op</td>
+          <td class="memname">file_buff</td>
         </tr>
       </table>
   </td>
@@ -109,12 +113,14 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Place an access operation value in this variable to begin a load process </p>
+
+<p>Pointer to the buffer to store the output file. </p>
+<dl class="section note"><dt>Note</dt><dd>This is only used with the Sub CPU Direct Load operation! For the DMA operations, use the GA_DMAADDR register </dd></dl>
 
 </div>
 </div>
-<a id="a5675f3990210c27df2228a7e53230ccb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5675f3990210c27df2228a7e53230ccb">&#9670;&nbsp;</a></span>file_dest_ptr</h2>
+<a id="a2ff994e16bf9521154de4cf659a3b689"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ff994e16bf9521154de4cf659a3b689">&#9670;&nbsp;</a></span>filename</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -123,7 +129,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">u8 const* file_dest_ptr</td>
+          <td class="memname">filename</td>
         </tr>
       </table>
   </td>
@@ -132,30 +138,9 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Pointer to the buffer to store the output file This is only used with the Sub CPU Direct Load operation! For the DMA operations, use the GA_DMAADDR register </p>
 
-</div>
-</div>
-<a id="ad24de2dcdd17128606264ba8870180fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad24de2dcdd17128606264ba8870180fb">&#9670;&nbsp;</a></span>filename_ptr</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">u8 const* filename_ptr</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Pointer to the filename string The filename is in 8.3 format, made up of ISO9660 d characters, and include the version suffix </p>
+<p>Pointer to the filename string. </p>
+<p>The filename is in 8.3 format, made up of ISO9660 d characters, and includes the version suffix </p>
 
 </div>
 </div>

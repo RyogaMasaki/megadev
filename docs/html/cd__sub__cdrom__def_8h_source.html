@@ -81,24 +81,20 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"> The values here are the ones used in Sonic CD</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">-----------------------------------------------------------------------</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">*/</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">// Result OK</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#define RESULT_OK 0x64</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">// Error in core load_data_sub subroutine</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#define RESULT_LOAD_FAIL 0xff9c</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">// Error occurred when trying to load file list from directory</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#define RESULT_DIR_FAIL 0xffff</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">// File not found when trying to load file</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#define RESULT_NOT_FOUND 0xfffe</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">// Error in load_data_sub while trying to load a file</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#define ACCRES_LOAD_FILE_ERR 0xfffd</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#a86f2070c39d2418098f36b1aedf37e2b">   30</a></span>&#160;<span class="preprocessor">#define ACC_OP_IDLE 0</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DIR 1</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_WORD 2</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_SUB 3</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_PRG 4</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_PCM 5</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#a2618c097a9f7213a8b01afbcf0d3936e">   20</a></span>&#160;<span class="preprocessor">#define RESULT_OK 0x64</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#a7cd2be69d4070c83a75c6736571473d5">   26</a></span>&#160;<span class="preprocessor">#define RESULT_LOAD_FAIL 0xff9c</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#a1fe1b5e33189a44c6c680a179836695a">   31</a></span>&#160;<span class="preprocessor">#define RESULT_DIR_FAIL 0xffff</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#aca04e23b2609f4dc55e44f7b70243ef7">   36</a></span>&#160;<span class="preprocessor">#define RESULT_NOT_FOUND 0xfffe</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="cd__sub__cdrom__def_8h.html#a86f2070c39d2418098f36b1aedf37e2b">   42</a></span>&#160;<span class="preprocessor">#define ACC_OP_IDLE 0</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DIR 1</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_WORD 2</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_SUB 3</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_PRG 4</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#define ACC_OP_LOAD_DMA_PCM 5</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

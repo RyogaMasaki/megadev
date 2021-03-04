@@ -30,7 +30,7 @@
 .endm
 
 .altmacro
-.macro Z80_BUSREQUEST
+.macro Z80_DO_BUSREQ
 LOCAL loop
 	move.w #0x100, Z80_BUSREQ
 loop:
@@ -38,7 +38,7 @@ loop:
 	bne.s	loop
 .endm
 
-.macro Z80_BUSRELEASE
+.macro Z80_DO_BUSRELEASE
 	move.w  #0, Z80_BUSREQ
 .endm
 

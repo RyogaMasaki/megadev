@@ -1,7 +1,8 @@
 /**
- * echo.s
- * Echo sound driver control
- * Converted to GNU as format 
+ * \file echo.s
+ * \brief Echo sound driver control
+ * 
+ * Converted for use with GAS
  */
 
 #ifndef MEGADEV__ECHO_S
@@ -13,15 +14,15 @@
 .section .text
 
 /**
- * Initialize driver with default settings and load instrument list
- * IN:
- *  a0 - ptr to instrument list
+ * \fn echo_init
+ * \brief Initialize driver with default settings and load instrument list
+ * \param[in] A0.l Pointer to instrument list
  */
 FUNC echo_init
     movem.l d0-d1, -(sp)
 
     Z80_DO_RESET
-    Z80_BUSREQUEST
+    Z80_DO_BUSREQ
 
     move.b  #0x01, (0xA01FFF)         // Command: load pointer list
     move.b  #0x00, (0xA01FFB)         // No other command yet
@@ -64,7 +65,7 @@ FUNC echo_init
     move.b  #0x00, (0xA01F80)
 
     Z80_DO_RESET
-    Z80_BUSRELEASE
+    Z80_DO_BUSRELEASE
 
     movem.l (sp)+, d0-d1
     rts
@@ -92,17 +93,14 @@ FUNC echo_convert_inst_list
     movem.l (sp)+, d0-d1/a1
     rts
 
-
-//****************************************************************************
-// Echo_SendCommand
-// Sends an Echo command (no address parameter)
-//
-// input d0.b ... Echo command
-//****************************************************************************
-
+/**
+ * \fn Echo_SendCommand
+ * \brief Send command to Echo driver
+ * \param[in] D0.b Command
+ */
 FUNC Echo_SendCommand
     movem.l d1/a1, -(sp)            // Save registers
-1:  Z80_BUSREQUEST                 // We need the Z80 bus
+1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
     lea     (0xA01FFF), a1           // First try the 1st slot
     tst.b   (a1)                    // Is 1st slot available?
@@ -111,28 +109,26 @@ FUNC Echo_SendCommand
 
     tst.b   (a1)                    // Check if 2nd slot is ready
     beq.s   3f                  // Too busy?
-    Z80_BUSRELEASE                   // Let Echo continue
+    Z80_DO_BUSRELEASE                   // Let Echo continue
 2:  move.w  #0x1FF, d1                 // Give it some time
     dbf     d1, 2b                       // ...
     bra.s   1b                      // Try again
 
 3:  move.b  d0, (a1)                // Write command ID
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
+    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
 
     movem.l (sp)+, d1/a1            // Restore registers
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_SendCommandEx
-// Sends an Echo command (with address parameter)
-//
-// input d0.b ... Echo command
-// input a0.l ... Address parameter
-//****************************************************************************
-
+/**
+ * \fn Echo_SendCommandEx
+ * \brief Send a command to Echo driver with address parameter
+ * \param[in] D0.b Command
+ * \param[in] A0.l Address
+ */
 FUNC Echo_SendCommandEx
     movem.l d0-d1/a1, -(sp)         // Save registers
-1:  Z80_BUSREQUEST                 // We need the Z80 bus
+1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
     lea     (0xA01FFF), a1           // First try the 1st slot
     tst.b   (a1)                    // Is 1st slot available?
@@ -141,7 +137,7 @@ FUNC Echo_SendCommandEx
 
     tst.b   (a1)                    // Check if 2nd slot is ready
     beq.s   3f                  // Too busy?
-    Z80_BUSRELEASE                   // Let Echo continue
+    Z80_DO_BUSRELEASE                   // Let Echo continue
 2:  move.w  #0xFF, d1                 // Give it some time
     dbf     d1, 2b                       // ...
     bra.s   1b                      // Try again
@@ -163,23 +159,21 @@ FUNC Echo_SendCommandEx
     or.b    d1, d0                    // Put everything together
     move.b  d0, -3(a1)              // Store bank byte
 
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
+    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
 
     movem.l (sp)+, d0-d1/a1         // Restore registers
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_SendCommandByte
-// Sends an Echo command (with a byte parameter)
-//
-// input d0.b ... Echo command
-// input d1.b ... Byte parameter
-//****************************************************************************
-
+/**
+ * \fn Echo_SendCommandEx
+ * \brief Send a command to Echo driver with byte parameter
+ * \param[in] D0.b Command
+ * \param[in] D1.b Parameter
+ */
 FUNC Echo_SendCommandByte
     movem.l d1-d2/a1, -(sp)         // Save registers
 
-1:  Z80_BUSREQUEST                 // We need the Z80 bus
+1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
     lea     (0xA01FFF), a1           // First try the 1st slot
     tst.b   (a1)                    // Is 1st slot available?
@@ -188,25 +182,23 @@ FUNC Echo_SendCommandByte
 
     tst.b   (a1)                    // Check if 2nd slot is ready
     beq.s   3f                  // Too busy?
-    Z80_BUSRELEASE                   // Let Echo continue
+    Z80_DO_BUSRELEASE                   // Let Echo continue
 2:  move.w  #0xFF, d2                 // Give it some time
     dbf     d2, 2b                       // ...
     bra.s   1b                     // Try again
 
 3:  move.b  d0, (a1)                // Write command ID
     move.b  d1, -3(a1)              // Write parameter
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
+    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
 
     movem.l (sp)+, d1-d2/a1         // Restore registers
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_PlaySFX
-// Plays a SFX
-//
-// input a0.l ... Pointer to SFX data
-//****************************************************************************
-
+/**
+ * \fn Echo_PlaySFX
+ * \brief Play a sound effect
+ * param[in] A0.l Pointer to SFX data
+ */
 FUNC Echo_PlaySFX
     move.w  d0, -(sp)               // Save register
     move.b  #0x02, d0                // Command 0x02 = play SFX
@@ -215,11 +207,10 @@ FUNC Echo_PlaySFX
     
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_StopSFX
-// Stops SFX playback
-//****************************************************************************
-
+/**
+ * \fn Echo_StopSFX
+ * \brief Stop currently playing sound effect
+ */
 FUNC Echo_StopSFX
     move.w  d0, -(sp)               // Save register
     move.b  #0x03, d0                // Command 0x03 = stop SFX
@@ -228,13 +219,11 @@ FUNC Echo_StopSFX
     
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_PlayBGM
-// Plays a BGM
-//
-// input a0.l ... Pointer to BGM data
-//****************************************************************************
-
+/**
+ * \fn Echo_PlayBGM
+ * \brief Play background music
+ * \param[in] A0.l Pointer to BGM data
+ */
 FUNC Echo_PlayBGM
     move.w  d0, -(sp)               // Save register
     move.b  #0x04, d0                // Command 0x04 = play BGM
@@ -243,24 +232,21 @@ FUNC Echo_PlayBGM
     
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_StopBGM
-// Stops BGM playback
-//****************************************************************************
-
+/**
+ * \fn Echo_StopBGM
+ * \brief Stop currently playing background music
+ */
 FUNC Echo_StopBGM
     move.w  d0, -(sp)               // Save register
     move.b  #0x05, d0                // Command 0x05 = stop BGM
     bsr     Echo_SendCommand        // Send command to Echo
     move.w  (sp)+, d0               // Restore register
-    
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_PauseBGM
-// Pauses BGM playback
-//****************************************************************************
-
+/**
+ * \fn Echo_PauseBGM
+ * \brief Pause background music playback
+ */
 FUNC Echo_PauseBGM
     move.w  d0, -(sp)               // Save register
     move.b  #0x08, d0                // Command 0x08 = pause BGM
@@ -268,11 +254,10 @@ FUNC Echo_PauseBGM
     move.w  (sp)+, d0               // Restore register
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_ResumeBGM
-// Resumes BGM playback
-//****************************************************************************
-
+/**
+ * \fn Echo_ResumeBGM
+ * \brief Resume background music playback
+ */
 FUNC Echo_ResumeBGM
     move.w  d0, -(sp)               // Save register
     move.b  #0x06, d0                // Command 0x06 = resume BGM
@@ -280,57 +265,54 @@ FUNC Echo_ResumeBGM
     move.w  (sp)+, d0               // Restore register
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_PlayDirect
-// Injects events into the BGM stream for the next tick.
-//
-// input a0.l ... Pointer to stream data
-//****************************************************************************
-
+/**
+ * \fn Echo_PlayDirect
+ * \brief Injects events into the BGM stream for the next tick.
+ * \param[in] A0.l Pointer to stream data
+ */
 FUNC Echo_PlayDirect
-    Z80_BUSREQUEST                 // We need the Z80 bus
-    movem.l d0-d1/a0-a2, -(sp)      // Save registers
+    Z80_DO_BUSREQ              // We need the Z80 bus
+    movem.l d0-d1/a0-a2, -(sp)  // Save registers
 
-1:  moveq   #0, d0                  // Retrieve direct stream length
+1:  moveq   #0, d0      // Retrieve direct stream length
     move.b  (0xA01F80), d0
-    bpl.s   3f               // Is it valid?
+    bpl.s   3f          // Is it valid?
 
-2:  Z80_BUSRELEASE                 // If not, let the Z80 run until it's
-7:  move.w  #0x1FF, d0                 // done processing the direct stream
-    dbf     d0, 7b                     // ...
-    Z80_BUSREQUEST                 // Take over Z80 bus again
-    bra.s   1b                 // Retry
+2:  Z80_DO_BUSRELEASE      // If not, let the Z80 run until it's
+7:  move.w  #0x1FF, d0  // done processing the direct stream
+    dbf     d0, 7b      // ...
+    Z80_DO_BUSREQ      // Take over Z80 bus again
+    bra.s   1b          // Retry
 
-3:  lea     (0xA01F00), a1           // Get pointer to last event in the
-    lea     (a1,d0.w), a1           // direct stream
+3:  lea     (0xA01F00), a1    // Get pointer to last event in the
+    lea     (a1,d0.w), a1     // direct stream
 
-    lea     ArgTable(pc), a2       // Copy stream into the direct buffer
+    lea     ArgTable(pc), a2  // Copy stream into the direct buffer
 
-4:  move.b  (a0)+, d0                 // Get byte from source stream...
-    move.b  d0, (a1)+                 // ...and store it into direct stream
-    cmp.b   #0xFF, d0                  // Was it the STOP event?
-    beq.s   6f                    // If so, we're done
-    moveq   #0, d0                    // Check how many argument bytes it has
+4:  move.b  (a0)+, d0         // Get byte from source stream...
+    move.b  d0, (a1)+         // ...and store it into direct stream
+    cmp.b   #0xFF, d0         // Was it the STOP event?
+    beq.s   6f                // If so, we're done
+    moveq   #0, d0            // Check how many argument bytes it has
     move.b  (a2,d0.w), d0
-    subq.w  #1, d0                      // Adjust for DBF
-    bmi.s   4b                   // No arguments?
+    subq.w  #1, d0            // Adjust for DBF
+    bmi.s   4b                // No arguments?
 
-5:  move.b  (a0)+, (a1)+              // Copy the arguments
+5:  move.b  (a0)+, (a1)+      // Copy the arguments
     dbf     d0, 5b
-    bra.s   4b                 // Keep copying
+    bra.s   4b                // Keep copying
 
-6:  move.w  a1, d0                  // Update stream length
+6:  move.w  a1, d0            // Update stream length
     subq.b  #1, d0
     move.b  d0, (0xA01F80)
 
-    movem.l (sp)+, d0-d1/a0-a2      // Restore registers
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
-    rts                             // End of subroutine
+    movem.l (sp)+, d0-d1/a0-a2  // Restore registers
+    Z80_DO_BUSRELEASE              // We're done with the Z80 bus
+    rts
 
-//----------------------------------------------------------------------------
-// Look-up table used to know how many bytes each event has as argument
-//----------------------------------------------------------------------------
-
+/**
+ * \brief Look-up table used to know how many bytes each event has as argument
+ */
 ArgTable:
     .byte    1,1,1,0, 1,1,1,0, 1,1,1,1, 1,0,0,0      // 0x00-0x0F (key on)
     .byte    0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0      // 0x10-0x1F (key off)
@@ -349,13 +331,11 @@ ArgTable:
     .byte    0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0      // 0xE0-0xEF (lock channel)
     .byte    1,1,1,0, 1,1,1,0, 2,2,1,1, 0,0,1,0      // 0xF0-0xFF (miscellaneous)
 
-//****************************************************************************
-// Echo_SetPCMRate
-// Sets the playback rate of PCM
-//
-// input d0.b ... New rate (timer A value)
-//****************************************************************************
-
+/**
+ * \fn Echo_SetPCMRate
+ * \brief Sets the playback rate of PCM
+ * \param[in] D0.b New rate (timer A value)
+ */
 FUNC Echo_SetPCMRate
     movem.l d0-d1, -(sp)            // Save registers
     move.b  d0, d1                  // Put parameter in place
@@ -371,6 +351,13 @@ FUNC Echo_SetPCMRate
 // input d0.b ... 0 to disable, otherwise to enable
 //****************************************************************************
 
+/**
+ * \fn Echo_SetStereo
+ * \brief Enable/disable stereo output
+ * \param[in] D0.b Stereo output
+ * \n 0: Disable
+ * \n 1: Enable
+ */
 FUNC Echo_SetStereo
     movem.l d0-d1, -(sp)            // Save registers
     tst.b   d0                      // Check what we want to do
@@ -380,15 +367,14 @@ FUNC Echo_SetStereo
     movem.l (sp)+, d0-d1            // Restore registers
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_SetVolume
-// Changes the global volume for every channel.
-//
-// input d0.b ... New volume (0 = quietest, 255 = loudest)
-//****************************************************************************
-
+/**
+ * \fn Echo_SetVolume
+ * \brief Changes the global volume for every channel
+ * \param[in] D0.b New volume
+ * \n (0: quiet, 255: loud)
+ */
 FUNC Echo_SetVolume
-    Z80_BUSREQUEST                 // We need the Z80 bus
+    Z80_DO_BUSREQ                 // We need the Z80 bus
     movem.l d0-d1/a0-a1, -(sp)      // Save registers
     
     lea     Echo_FMVolTable(pc), a0 // Determine FM volume
@@ -428,10 +414,9 @@ FUNC Echo_SetVolume
     move.b  #1, (0xA01FF1)           // Tell Echo to update the volume levels
     
     movem.l (sp)+, d0-d1/a0-a1      // Restore registers
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
+    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
     rts                             // End of subroutine
 
-//----------------------------------------------------------------------------
 
 Echo_FMVolTable:
     .byte    0x7F,0x7B,0x77,0x73,0x70,0x6C,0x68,0x65,0x61,0x5E,0x5A,0x57,0x54,0x50,0x4D,0x4A
@@ -445,19 +430,18 @@ Echo_PSGVolTable:
     .byte    0x04,0x03,0x03,0x03,0x03,0x03,0x02,0x02,0x02,0x02,0x02,0x02,0x01,0x01,0x01,0x01
     .byte    0x01,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 
-//****************************************************************************
-// Echo_SetVolumeEx
-// Changes the global volume for each individual channel.
-//
-// input a0.l ... Pointer to 16 bytes
-//                  8 bytes with FM volumes (0..127)
-//                  4 bytes with PSG volumes (0..15)
-//                  1 byte with PCM toggle (0/1)
-//                  3 reserved (unused for now)
-//****************************************************************************
-
+/**
+ * \fn Echo_SetVolumeEx
+ * \brief Change volume for individual channels
+ * \param[in] A0.l Pointer to volume structure
+ * \details The volume structure is defined like so:
+ *   8 bytes of FM channel volumes (0 to 127)
+ *   4 bytes of PSG channel volumes (0 to 15)
+ *   1 byte with PCM toggle (0 or 1)
+ *   3 reserved (currently unused)
+ */
 FUNC Echo_SetVolumeEx
-    Z80_BUSREQUEST                 // We need the Z80 bus
+    Z80_DO_BUSREQ                 // We need the Z80 bus
     movem.l a0-a1, -(sp)            // Save registers
     
     lea     (0xA01FE0), a1           // Copy new volume values
@@ -481,25 +465,23 @@ FUNC Echo_SetVolumeEx
     move.b  #1, (0xA01FF1)           // Tell Echo to update the volume levels
     
     movem.l (sp)+, a0-a1            // Restore registers
-    Z80_BUSRELEASE                 // We're done with the Z80 bus
+    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_GetStatus
-// Gets the current status of Echo
-//
-// output d0.w ... Echo status
-//                   Bit #0: SFX is playing
-//                   Bit #1: BGM is playing
-//                   Bit #14: direct events not played
-//                   Bit #15: command still not parsed
-//****************************************************************************
-
+/**
+ * \fn Echo_GetStatus
+ * \brief Get the current status of the Echo driver
+ * \param[out] D0.w Status
+ * \n Bit 0: SFX playing
+ * \n Bit 1: BGM playing
+ * \n Bit 14: Direct events not played
+ * \n Bit 15: Command not yet parsed
+ */
 FUNC Echo_GetStatus
     movem.l d1-d2/a1, -(sp)         // Save registers
 
     clr.w   d0                      // Set all needed bits to 0
-    Z80_BUSREQUEST                 // We need the Z80 bus
+    Z80_DO_BUSREQ                 // We need the Z80 bus
     move.b  (0xA01FF0), d0           // Get the status flags
 
     tst.b   (0xA01FFB)               // Check if any commands can be sent
@@ -531,7 +513,7 @@ FUNC Echo_GetStatus
     move.b  OrTable-AndTable(a1,d1.w), d2
     or.b    d2, d0
 
-4:  Z80_BUSRELEASE                 // Let the Z80 go!
+4:  Z80_DO_BUSRELEASE                 // Let the Z80 go!
     movem.l (sp)+, d1-d2/a1         // Restore registers
     rts                             // End of subroutine
 
@@ -555,9 +537,9 @@ OrTable:   .byte 0x00,0x00, 0x01,0x00,0x02,0x00, 0x00,0x00,0x00
 //****************************************************************************
 
 FUNC Echo_GetFlags
-    Z80_BUSREQUEST                 // Request Z80 bus
+    Z80_DO_BUSREQ                 // Request Z80 bus
     move.b  (0xA01FF2), d0           // Get the flags
-    Z80_BUSRELEASE                 // Done with Z80 RAM
+    Z80_DO_BUSRELEASE                 // Done with Z80 RAM
     rts                             // End of subroutine
 
 //****************************************************************************

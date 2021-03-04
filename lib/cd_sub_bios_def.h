@@ -249,120 +249,85 @@
 //******************************************************************************
 
 /**
- * CD BIOS system call vector
+ * \fn _CDBIOS
+ * \brief CD BIOS system call vector
+ * \param[in] D0.w Syscall ID
  */
 #define _CDBIOS 0x00005F22
 
 /**
- * BIOS_MSCSTOP (CD-DA)
- * Stops playing CD audio if it is playing
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _MSCSTOP
+ * \brief Stops playing CD audio if it is playing
  */
-#define MSCSTOP 0x0002
+#define _MSCSTOP    0x0002
 
 /**
- * BIOS_MSCPAUSEON (CD-DA)
- * Pauses the drive when a track is playing.  If the drive is left paused it
- * will stop after a programmable delay (see CDBPAUSE)
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * 
+ * \def _MSCPAUSEON
+ * \brief Pauses the drive when a track is playing. 
+ * 
+ * \note If the drive is left paused it will stop after a programmable delay
+ * (see \ref _CDBPAUSE)
  */
-#define MSCPAUSEON 0x0003
+#define _MSCPAUSEON 0x0003
 
 /**
- * BIOS_MSCPAUSEOFF (CD-DA)
- * Resumes playing a track after a pause
- * If the drive has timed out and stopped, the BIOS will seek to the pause
+ * \def _MSCPAUSEOFF
+ * \brief Resumes playing a track after a pause
+ * \ingroup bios_syscall bios_cdda
+ *
+ * \note If the drive has timed out and stopped, the BIOS will seek to the pause
  * time (with the attendant delay) and resume playing
- *
- * IN:
- *  none
- * OUT:
- *  none
  */
-#define MSCPAUSEOFF 0x0004
+#define _MSCPAUSEOFF 0x0004
 
 /**
- * BIOS_MSCSCANFF (CD-DA)
- * Starts playing from the current position in fast forward
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _MSCSCANFF
+ * \brief Starts playing from the current position in fast forward
  */
-#define MSCSCANFF 0x0005
+#define _MSCSCANFF 0x0005
 
 /**
- * BIOS_MSCSCANFR (CD-DA)
- * Starts playing from the current position in fast reverse
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _MSCSCANFR
+ * \brief Starts playing from the current position in fast reverse
  */
-#define MSCSCANFR 0x0006
+#define _MSCSCANFR 0x0006
 
 /**
- * BIOS_MSCSCANOFF (CD-DA)
- * Returns to normal play mode.  If the drive waspaused before the scan was
- * initiated, it will be returned to pause.
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _MSCSCANOFF
+ * \brief Returns to normal play mode
+ * 
+ * \note If the drive waspaused before the scan was initiated, it will be
+ * returned to pause.
  */
-#define MSCSCANOFF 0x0007
+#define _MSCSCANOFF 0x0007
 
 /**
- * BIOS_ROMPAUSEON (CD-ROM)
- * Stops reading data into the CDC and pauses.
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _ROMPAUSEON
+ * \brief Stops reading data into the CDC and pauses
  */
-#define ROMPAUSEON 0x0008
+#define _ROMPAUSEON 0x0008
 
 /**
- * BIOS_ROMPAUSEOFF (CD-ROM)
- * Resumes reading data into the CDC from the current
- * logical sector
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _ROMPAUSEOFF
+ * \brief Resumes reading data into the CDC from the current logical sector
  */
-#define ROMPAUSEOFF 0x0009
+#define _ROMPAUSEOFF 0x0009
 
 /**
- * BIOS_DRVOPEN (CD Drive)
- * Opens the CD drive door
- * (Only applicable to Model 1 hardware)
- *
- * IN:
- *  none
- * OUT:
- *  none
+ * \def _DRVOPEN
+ * \brief Opens the CD drive door
+ * 
+ * \note This is only applicable to Model 1 hardware.
  */
-#define DRVOPEN 0x000A
+#define _DRVOPEN 0x000A
 
 /**
- * BIOS_DRVINIT (Drive/CD-ROM)
- * Closes the disk tray and reads the TOC from the CD
+ * \def _DRVINIT
+ * \brief Closes the disk tray and reads the TOC from the CD
+ * \param[in] A0.l Pointer to initilization parameters
  *
- * Takes a pointer to two bytes (initialization params):
+ * \details Takes a pointer to two bytes (initialization params):
  *  byte 1 - track number from which to read TOC (normally 0x01); if bit 7 of
  *           this value is set, BIOS will start to play the first track
              automatically
@@ -370,13 +335,8 @@
  *
  * Pauses for 2 seconds after reading the TOC. Waits for a DRVOPEN request if
  * there is no disk in the drive.
- *
- * IN:
- *  A0 - pointer to initialization parameters
- * OUT:
- *  none
  */
-#define DRVINIT 0x0010
+#define _DRVINIT 0x0010
 
 /**
  * BIOS_MSCPLAY (CD-DA)

@@ -12,16 +12,28 @@
  The values here are the ones used in Sonic CD
 -----------------------------------------------------------------------
 */
-// Result OK
+
+/**
+ * \def RESULT_OK
+ * \brief No problems during the process
+ */
 #define RESULT_OK 0x64
-// Error in core load_data_sub subroutine
+
+/**
+ * \def RESULT_LOAD_FAIL
+ * \brief Error in core load_data_sub routine
+ */
 #define RESULT_LOAD_FAIL 0xff9c
-// Error occurred when trying to load file list from directory
+/**
+ * \def RESULT_DIR_FAIL
+ * \brief Error occurred when trying to load file list from directory
+ */
 #define RESULT_DIR_FAIL 0xffff
-// File not found when trying to load file
+/**
+ * \def RESULT_NOT_FOUND
+ * \brief Filename not found on load attempt
+ */
 #define RESULT_NOT_FOUND 0xfffe
-// Error in load_data_sub while trying to load a file
-#define ACCRES_LOAD_FILE_ERR 0xfffd
 
 /**
  * Access Operations

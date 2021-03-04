@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['wait_5f2m_229',['wait_2m',['../cd__main_8h.html#a8267f2147953da8c7bc1e22fae44a6d3',1,'cd_main.h']]]
+  ['decompress_5fnemesis_5fvram_276',['decompress_nemesis_vram',['../cd__main__boot_8h.html#a78db1c2aa4c0df82089f5e855c71292a',1,'cd_main_boot.h']]]
 ];
