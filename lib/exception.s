@@ -73,9 +73,9 @@ ex_group1_stack_copy:
 FUNC handle_exception
 	ori #0x700,sr
 	// todo: should probably reset VDP first
-	jbsr _VDP_CLEAR_NMTBL
-	jbsr _LOAD_FONT_INTERN_DEFAULTS
-	move.w #0, (_TILE_BASE)
+	jbsr _BOOT_CLEAR_NMTBL
+	jbsr _BOOT_LOAD_FONT_DEFAULTS
+	move.w #0, (_FONT_TILE_BASE)
 
 	// set color to white
 	move.l #0xC0020000, (VDP_CTRL)
@@ -85,13 +85,13 @@ FUNC handle_exception
 	move.w #0x0205, d0
 	jbsr nmtbl_xy_pos
 	movea.l (err_str_ptr), a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
 	// PC=
 	move.w #0x0306, d0
 	jbsr nmtbl_xy_pos
 	lea str_pc, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
 	// pc val
 	move.l (pc_val), d0
@@ -100,13 +100,13 @@ FUNC handle_exception
 	move.w #0x0806, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
 	// SR=
 	move.w #0x0307, d0
 	jbsr nmtbl_xy_pos
 	lea str_sr, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
   // sr val
 	move.w (sr_val), d0
@@ -115,13 +115,13 @@ FUNC handle_exception
 	move.w #0x0807, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
 	// OP=
 	move.w #0x0308, d0
 	jbsr nmtbl_xy_pos
 	lea str_op, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
   // op val
 	move.w (op_val), d0
@@ -130,13 +130,13 @@ FUNC handle_exception
 	move.w #0x0808, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
 	// ADDR=
 	move.w #0x0309, d0
 	jbsr nmtbl_xy_pos
 	lea str_addr, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
   // addr val
 	move.l (addr_val), d0
@@ -145,9 +145,9 @@ FUNC handle_exception
 	move.w #0x0809, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _PRINT_TEXT
+	jbsr _BOOT_PRINT_STRING
 
-1:jbsr _UPDATE_INPUT
+1:jbsr _BOOT_UPDATE_INPUTS
   and.b #PAD_START_MSK, _INPUT_P1_PRESS
 	beq 1b
 

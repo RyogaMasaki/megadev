@@ -7,7 +7,7 @@
 .endm
 
 .macro BIOS_DRVINIT
-	CDBIOS #DRVINIT
+	CDBIOS #_DRVINIT
 .endm
 
 .macro BIOS_DRVOPEN

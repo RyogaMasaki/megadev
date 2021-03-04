@@ -37,7 +37,8 @@
  * \var word _VDP_REGS
  * 
  * RAM buffer of all VDP registers (except DMA regs), making up 19 entries. 
- * You will need to keep these updated manually unless you use _VDP_REG_LOAD.
+ * You will need to keep these updated manually unless you use
+ * _BOOT_LOAD_VDPREGS
  * 
  * \ingroup boot_vdp
  */
@@ -181,14 +182,14 @@
 #define _BOOT_SET_HINT_DEFAULT 0x000294
 
 /**
- * \fn _BOOT_UPDATE_INPUT
+ * \fn _BOOT_UPDATE_INPUTS
  * \brief Update state of P1/P2 controllers
  * \param[out] _INPUT_P1
  * \param[out] _INPUT_P2
  * 
  * \break d6-d7/a5-a6
  */
-#define _BOOT_UPDATE_INPUT 0x000298
+#define _BOOT_UPDATE_INPUTS 0x000298
 
 /*
 Still unsure exactly what this does. Reads inputs and filters for D-pad, then
@@ -386,13 +387,13 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _PAL_LOAD_UPDATE 0x0002E4
 
 /**
- * \fn _GFX_DECMP
+ * \fn _BOOT_GFX_DECOMP
  * \brief Decompress graphics data in the "Nemesis" format to VRAM
  * \param[in] A1.l Pointer to compressed data
  * \note You must set the destination on the VDP control port before calling
  * this routine!
  */
-#define _GFX_DECMP      0x0002EC
+#define _BOOT_GFX_DECOMP      0x0002EC
 
 /**
  * \fn _GFX_DECMP
@@ -468,7 +469,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _VINT_WAIT_DEFAULT  0x000308
 
 /**
- * \fn _COPY_SPRITE_LIST
+ * \fn _BOOT_COPY_SPRLIST
  * \brief Copies sprite list buffer to VDP via DMA
  * \break d4/a4
  * 
@@ -476,7 +477,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * Will only perform the copy of bit 0 of VINT_FLAGS is set (so this is likely
  * intended to be called from VINT, probably VINT_EX)
  */
-#define _COPY_SPRITE_LIST  0x00030C
+#define _BOOT_COPY_SPRLIST  0x00030C
 
 /**
  * \fn _UNKNOWN_24
@@ -518,7 +519,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _DISABLE_HINT   0x000318
 
 /**
- * \fn _PRINT_STRING
+ * \fn _BOOT_PRINT_STRING
  * \brief Displays an ASCII string
  * \param[in] A1.l Pointer to string
  * \param[in] D0.l VRAM destination (vdpaddr)
@@ -531,8 +532,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * at the earliest (where _FONT_TILE_BASE is 0).
  * Note that this can only use palette line 0.
  */
-#define _PRINT_STRING   0x00031C
-
+#define _BOOT_PRINT_STRING   0x00031C
 
 /**
  * \fn _LOAD_1BPP_TILES
@@ -568,7 +568,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _LOAD_FONT   0x000324
 
 /**
- * \fn _LOAD_FONT_DEFAULTS
+ * \fn _BOOT_LOAD_FONT_DEFAULTS
  * \brief Load the internal 1bpp ASCII font with default settings
  * \break d0-d4/a1/a5
  * 
@@ -576,7 +576,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * This will place the tiles starting at index 0x20, making it compatible with
  * _PRINT_STRING, and sets the font color to index 1.
  */
-#define _LOAD_FONT_DEFAULTS   0x000328
+#define _BOOT_LOAD_FONT_DEFAULTS   0x000328
 
 /**
  * \fn _DPAD_DELAY
@@ -634,14 +634,14 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _PRNG   0x00033C
 
 /**
- * \fn _CLEAR_COMM_REGS
+ * \fn _BOOT_CLEAR_COMM
  * \brief Clears all Gate Array communication registers
  * \break d0/a6
  * 
  * \details This clears the COMFLAGS and COMCMD registers directly as well as
  * their RAM buffers
  */
-#define _CLEAR_COMM_REGS   0x000340
+#define _BOOT_CLEAR_COMM   0x000340
 
 /**
  * \fn _TRIGGER_IFL2

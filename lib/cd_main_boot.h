@@ -39,7 +39,7 @@
 
 #define PLANE_WIDTH (*(u16*)_PLANE_WIDTH)
 
-#define TILE_BASE (*(u16*)_TILE_BASE)
+#define FONT_TILE_BASE (*(u16*)_FONT_TILE_BASE)
 
 /**
  * P1 Controller input (hold)
@@ -74,17 +74,17 @@ inline void boot_vint() {
  */
 inline void boot_set_hint_default(void* hint_routine) {
 	register u16 a1_ptr asm("a1") = (u16)hint_routine;
-	asm("jsr %p0" :: "i"(_BOOT_SET_HINT_DEFAULT), "a"(a1_data));
+	asm("jsr %p0" :: "i"(_BOOT_SET_HINT_DEFAULT), "a"(a1_ptr));
 }
 
 /**
  * \brief Wrapper for \ref _BOOT_UPDATE_INPUT
  */
-inline void boot_update_input() {
+inline void boot_update_inputs() {
 	asm(R"(
   move.l a6, -(sp)
 	jsr %p0
-	move.l (sp)+, a6)" :: "i"(_BOOT_UPDATE_INPUT) : "d6", "d7", "a5");
+	move.l (sp)+, a6)" :: "i"(_BOOT_UPDATE_INPUTS) : "d6", "d7", "a5");
 }
 
 /**
@@ -190,21 +190,10 @@ inline boot_load_map(u32 vdpaddr, u16 width, u16 height, void* map) {
  * this routine!
  * 
  */
-inline void decompress_nemesis_vram(u8* data) {
+inline void boot_gfx_decomp(u8* data) {
   register u32 a1_data asm("a1") = (u32)data;
-  asm("jsr %p0" ::"i"(_DECMP_VRAM), "a"(a1_data));
+  asm("jsr %p0" ::"i"(_BOOT_GFX_DECOMP), "a"(a1_data));
 }
-
-/**
- * Load multiple values into VDP registers. 
- * Data should consist of word sized values, where the upper byte is the
- * register ID (e.g. 80, 81, etc) and the lower byte is the value. Each value
- *  will be stored in RAM in VDP_REG_CACH.
- */
-inline void load_vdp_regs(u16 const * reg_data) {
-	register u32 a1_reg_data asm("a1") = (u32)reg_data;
-	asm("jsr %p0" ::"i"(_VDP_REG_LOAD), "a"(a1_reg_data));
-};
 
 /**
  * Enable VDP output
@@ -233,34 +222,17 @@ inline void vint_wait_ex(u8 flags) {
 
 extern bool vdp_pal_fadeout(u8 index, u8 length);
 
-inline void load_internal_font() {
-	asm(R"(jsr %p0)" :: "i"(_LOAD_FONT_INTERN_DEFAULTS) : "d0", "d1", "d2", "d3", "d4", "a1", "a5");
+inline void boot_load_font_defaults() {
+	asm(R"(jsr %p0)" :: "i"(_BOOT_LOAD_FONT_DEFAULTS) : "d0", "d1", "d2", "d3", "d4", "a1", "a5");
 };
 
-inline void print_text(u8 const * string, u32 vdpaddr_pos) {
+inline void boot_print_string(u8 const * string, u32 vdpaddr_pos) {
 	register u32 a1_string asm("a1") = (u32)string;
 	register u32 d0_vdpaddr_pos asm("d0") = vdpaddr_pos;
 
-	asm(R"(jsr %p0)" :: "i"(_PRINT_TEXT), "a"(a1_string), "d"(d0_vdpaddr_pos));
+	asm(R"(jsr %p0)" :: "i"(_BOOT_PRINT_STRING), "a"(a1_string), "d"(d0_vdpaddr_pos));
 
 };
-
-inline void vdp_clear_vram() {
-	asm(R"(
-  move.l a6, -(sp)
-	jsr %p0
-	move.l (sp)+, a6
-)" :: "i"(_VDP_CLEAR_VRAM) : "d0","d1","d2","d3");
-};
-
-inline void vdp_clear_nmtbl() {
-	asm(R"(
-	move.l a6, -(sp)
-	jsr %p0
-	move.l (sp)+, a6
-)" :: "i"(_VDP_CLEAR_NMTBL) : "d0","d1","d2","d3");
-};
-
 
 inline void vdp_dma_xfer(u32 vdpaddr_dest, u8 const * source, u16 length) {
 	register u32 d0_vdpaddr_dest asm("d0") = vdpaddr_dest;
@@ -286,7 +258,7 @@ inline void vdp_dma_wordram_xfer(u32 vdpaddr_dest, u8 const * source, u16 length
 )"::"i"(_VDP_DMA_WORDRAM_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
 };
 
-inline void vdp_dma_fill_new(u32 vdpaddr, u16 length, u8 value) {
+inline void vdp_dma_fill(u32 vdpaddr, u16 length, u8 value) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_length asm("d1") = length;
 	register u8 d2_value asm("d2") = value;
@@ -295,7 +267,7 @@ inline void vdp_dma_fill_new(u32 vdpaddr, u16 length, u8 value) {
   move.l a6, -(sp)
   jsr %p0
   move.l (sp)+, a6
-)" :: "i"(_VDP_DMA_FILL), "d"(d0_vdpaddr), "d"(d1_length), "d"(d2_value) : "d3");
+)" :: "i"(_BOOT_DMA_FILL), "d"(d0_vdpaddr), "d"(d1_length), "d"(d2_value) : "d3");
 };
 
 inline void vdp_dma_copy(u32 vdpaddr, u16 source, u16 length) {
@@ -310,8 +282,8 @@ inline void vdp_dma_copy(u32 vdpaddr, u16 source, u16 length) {
 )" :: "i"(_VDP_DMA_COPY), "d"(d0_vdpaddr), "d"(d1_source), "d"(d2_length) : "d3");
 };
 
-inline void vdp_copy_sprlist(){
-	asm("jsr %p0" :: "i"(_COPY_SPRLIST) : "d4", "a4");
+inline void boot_copy_sprlist(){
+	asm("jsr %p0" :: "i"(_BOOT_COPY_SPRLIST) : "d4", "a4");
 };
 
 
@@ -327,20 +299,6 @@ inline void clear_region(u8* region, u32 long_count) {
 
 };
 
-
-/**
- * Poll controllers
- */
-inline void update_inputs() {
-	/*
-  We're manually pushing/popping because it seems A6 is a fixed register
-  that GCC is using for a link/unlk operation
-  */
-	asm(R"(
-  move.l a6,-(sp)
-	jsr %p0
-	move.l (sp)+, a6)" :: "i"(_UPDATE_INPUT) : "d6","d7","a5");
-};
 
 inline void palette_load(u8* pal_data) {
 	register u32 a1_pal_data asm("a1") = (u32)pal_data;
