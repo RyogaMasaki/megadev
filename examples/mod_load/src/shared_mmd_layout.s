@@ -1,0 +1,15 @@
+.equ MMD_DEST, 0
+.global MMD_DEST
+
+.equ MODULE_ROM_ORIGIN, 0x200100
+.global MODULE_ROM_ORIGIN
+
+.equ MODULE_ROM_LENGTH, 0x40000 - 0x100
+.global MODULE_ROM_LENGTH
+
+.equ MODULE_RAM_ORIGIN, 0xFFC000
+.global MODULE_RAM_ORIGIN
+
+/* system memory begins at 0xFFF700, so that's our cutoff*/
+.equ MODULE_RAM_LENGTH, 0xFFF700 - 0xFFC000
+.global MODULE_RAM_LENGTH

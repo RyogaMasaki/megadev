@@ -117,6 +117,19 @@
 #define _INPUT_P2_HOLD 0xfffe22
 #define _INPUT_P2_PRESS 0xfffe23
 
+/******************************************************************************/
+
+// This is the VRAM layout and commonly referenced settings
+// when using the default VDP registers
+
+#define BOOT_WINDOW_ADDR 0xA000
+#define BOOT_PLANEA_ADDR 0xC000
+#define BOOT_PLANEB_ADDR 0xD000
+#define BOOT_SPRTBL_ADDR 0xB800
+#define BOOT_HSCROL_ADDR 0xBC00
+#define BOOT_PLANE_WIDTH 128
+
+/******************************************************************************/
 /**
  * _RESET
  * This is used as the default reset vector. Leads to Mega CD title screen.
@@ -130,7 +143,7 @@
  * clearing VRAM. On warm boot, skips directly to region check, then jumps to
  * the reset vector. Leads to Mega CD title screen.
  */
-#define _ENTRY         0x000284
+#define _BOOT_ENTRY         0x000284
 
 /**
  * Sets default VDP regs, clears VRAM, sets default vectors, inits controllers,
@@ -328,17 +341,17 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _VDP_LOAD_MAP_CONST  0x0002CC
 
 /**
- * \fn _VDP_DMA_XFER
+ * \fn _BOOT_VDP_DMA_XFER
  * \brief Performs a data transfer to VRAM via DMA
  * \param[in] D0.l VRAM destination address (vdpaddr format)
  * \param[in] D1.l Source address
  * \param[in] D2.w Length (in words)
  * \break d0-d3/a6
  */
-#define _VDP_DMA_XFER  0x0002D0
+#define _BOOT_VDP_DMA_XFER  0x0002D0
 
 /**
- * \fn _VDP_DMA_WORDRAM_XFER
+ * \fn _BOOT_VDP_DMA_WORDRAM_XFER
  * \brief Performs a data transfer from Word RAM to VRAM via DMA
  * \param[in] D0.l VRAM destination (vdpaddr format)
  * \param[in] D1.l Source address
@@ -350,15 +363,15 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * data port. This subroutine takes care of that extra step.
 
  */
-#define _VDP_DMA_WORDRAM_XFER  0x0002D4
+#define _BOOT_VDP_DMA_WORDRAM_XFER  0x0002D4
 
 /**
- * \fn _VDP_DISP_ENABLE
+ * \fn _BOOT_VDP_DISP_ENABLE
  * \brief Enable VDP output
  * 
  * \details Sets bit 6 on VDP reg. #1. The VDP register buffer is updated.
  */
-#define _VDP_DISP_ENABLE 0x0002D8
+#define _BOOT_VDP_DISP_ENABLE 0x0002D8
 
 /**
  * \fn _VDP_DISP_DISABLE
@@ -450,15 +463,15 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _DISP_SPR_STRUCT    0x000300
 
 /**
- * \fn _VINT_WAIT
+ * \fn _BOOT_VINT_WAIT
  * \brief Wait for vertical interrupt
  * \break d0
  * \note This will also make a call to _PRNG
  */
-#define _VINT_WAIT          0x00304
+#define _BOOT_VINT_WAIT          0x00304
 
 /**
- * \fn _VINT_WAIT_DEFAULT
+ * \fn _BOOT_VINT_WAIT_DEFAULT
  * \brief Wait for vertical interrupt with default flags
  * \break d0
  * 
@@ -466,7 +479,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * before waiting for VINT
  * This will also make a call to _PRNG
  */
-#define _VINT_WAIT_DEFAULT  0x000308
+#define _BOOT_VINT_WAIT_DEFAULT  0x000308
 
 /**
  * \fn _BOOT_COPY_SPRLIST
@@ -535,7 +548,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _BOOT_PRINT_STRING   0x00031C
 
 /**
- * \fn _LOAD_1BPP_TILES
+ * \fn _BOOT_LOAD_1BPP_TILES
  * \brief Displays an ASCII string
  * \param[in] A1.l Pointer to 1bpp graphics data
  * \param[in] D0.l VRAM destination (VDPADDR)
@@ -551,10 +564,10 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * For example, to have your 1bpp graphics use palette index 2 for the "main"
  * color and a blank background (index 0), then put 00022022 in d1.
  */
-#define _LOAD_1BPP_TILES   0x000320
+#define _BOOT_LOAD_1BPP_TILES   0x000320
 
 /**
- * \fn _LOAD_FONT
+ * \fn _BOOT_LOAD_FONT
  * \brief Load the internal 1bpp ASCII font
  * \param[in] D0.l VRAM destination (VDPADDR)
  * \param[in] D1.l Color bit map
@@ -565,7 +578,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * The VRAM destination should place the font no earlier than tile index
  * 0x20 if you are planning to use this with the _PRINT_STRING function.
  */
-#define _LOAD_FONT   0x000324
+#define _BOOT_LOAD_FONT   0x000324
 
 /**
  * \fn _BOOT_LOAD_FONT_DEFAULTS
@@ -797,15 +810,6 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 
 #define _UNKNOWN_46 0x0003A0
 
-/*
-VDP layout for Boot ROM
-
-0xb800 - sprite list?
-0xa000 (size 0xE00)
-0xc000 (size 0x2000)
-0xe000 (size 0x2000)
-
-*/
 
 #endif
 

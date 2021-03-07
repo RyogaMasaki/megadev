@@ -188,7 +188,6 @@ inline boot_load_map(u32 vdpaddr, u16 width, u16 height, void* map) {
  * Decompress graphics data in the "Nemesis" format to VRAM
  * You must set the destination on the VDP control port before calling
  * this routine!
- * 
  */
 inline void boot_gfx_decomp(u8* data) {
   register u32 a1_data asm("a1") = (u32)data;
@@ -200,7 +199,7 @@ inline void boot_gfx_decomp(u8* data) {
  * (Controls the setting in VDP Reg. #1)
  */
 inline void vdp_enable_display() {
-	asm("jsr %p0" :: "i"(_VDP_DISP_ENABLE));
+	asm("jsr %p0" :: "i"(_BOOT_VDP_DISP_ENABLE));
 }
 
 /**
@@ -212,12 +211,12 @@ inline void vdp_disable_display() {
 }
 
 inline void vint_wait() {
-	asm("jsr %p0" :: "i"(_VINT_WAIT_DEFAULT));
+	asm("jsr %p0" :: "i"(_BOOT_VINT_WAIT_DEFAULT));
 }
 
 inline void vint_wait_ex(u8 flags) {
 	register u8 d0_flags asm("d0") = flags;
-	asm("jsr %p0" :: "i"(_VINT_WAIT), "d"(d0_flags));
+	asm("jsr %p0" :: "i"(_BOOT_VINT_WAIT), "d"(d0_flags));
 }
 
 extern bool vdp_pal_fadeout(u8 index, u8 length);
@@ -243,7 +242,7 @@ inline void vdp_dma_xfer(u32 vdpaddr_dest, u8 const * source, u16 length) {
   move.l a6, -(sp)
   jsr %p0
   move.l (sp)+, a6
-)" :: "i"(_VDP_DMA_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
+)" :: "i"(_BOOT_VDP_DMA_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
 };
 
 inline void vdp_dma_wordram_xfer(u32 vdpaddr_dest, u8 const * source, u16 length) {
@@ -255,7 +254,7 @@ inline void vdp_dma_wordram_xfer(u32 vdpaddr_dest, u8 const * source, u16 length
 	move.l a6, -(sp)
   jsr %p0
 	move.l (sp)+, a6
-)"::"i"(_VDP_DMA_WORDRAM_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
+)"::"i"(_BOOT_VDP_DMA_WORDRAM_XFER), "d"(d0_vdpaddr_dest), "d"(d1_source), "d"(d2_length) : "d3");
 };
 
 inline void vdp_dma_fill(u32 vdpaddr, u16 length, u8 value) {

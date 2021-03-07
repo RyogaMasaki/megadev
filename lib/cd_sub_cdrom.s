@@ -74,7 +74,7 @@ loop:
  * BREAK: a0
  */
 .macro PROCESS_ACC_LOOP
-  movea.l  acc_loop_breakpt, a0  /*load the jump ptr*/
+  movea.l  acc_loop_jump, a0  /*load the jump ptr*/
   jmp      (a0)                    /*and pick up where we left off*/
 .endm
 
@@ -83,7 +83,7 @@ loop:
  * This should be called in sp_init before VINT has been enabled
  */
 .macro INIT_ACC_LOOP
-  move.l  #access_op_idle, acc_loop_breakpt
+  move.l  #access_op_idle, acc_loop_jump
   move.w  #ACC_OP_IDLE, access_op
 .endm
 
@@ -522,7 +522,7 @@ load_data_dma_failure:
   Should be called as subroutine rather than directly
 */
 accloop_break:
-  POP      acc_loop_breakpt
+  POP      acc_loop_jump
   rts
 
 .section .bss
@@ -530,7 +530,7 @@ accloop_break:
 /**
  * Points to the last location in the access loop
  */
-acc_loop_breakpt: .long 0
+acc_loop_jump: .long 0
 
 load_method_ptr: .long 0
 

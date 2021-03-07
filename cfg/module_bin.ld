@@ -24,7 +24,7 @@ SECTIONS
   {
 		/* MMD header */
     _mod_text_org = .;
-		*(.main*)
+		*(.init*)
     *(.text*)
     *(.rodata*)
     _mod_text_len = ABSOLUTE(. - _mod_text_org);

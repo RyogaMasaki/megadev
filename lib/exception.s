@@ -151,7 +151,7 @@ FUNC handle_exception
   and.b #PAD_START_MSK, _INPUT_P1_PRESS
 	beq 1b
 
-	jmp _ENTRY
+	jmp _BOOT_ENTRY
 
 FUNC nmtbl_xy_pos
 1:move.w (_PLANE_WIDTH), d1  // d1 - tiles per row

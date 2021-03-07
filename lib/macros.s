@@ -1,6 +1,6 @@
 /**
  * \file macros.s
- * General purpose asm macros
+ * \brief General purpose asm macros
  */
 
 #ifndef MACROS_S
@@ -22,11 +22,11 @@
 .endm
 
 .macro INTERRUPT_DISABLE
-	move	#0x2700, sr	
+  ori #0x700, sr
 .endm
 
 .macro INTERRUPT_ENABLE
-	move	#0x2000, sr	
+  andi #0xF8FF, sr
 .endm
 
 .altmacro
@@ -63,19 +63,22 @@ loop:
     move.w  #0x100, (Z80_RESET)        // Release reset line
 .endm                            // End of
 
-/*
------------------------------------------------------------------------
- HEX2BCD
- Convert hex value to BCD
------------------------------------------------------------------------
- IN:
-  d0 - hex value
- OUT:
-  d0 - bcd value
- BREAK:
-  d1
------------------------------------------------------------------------
-*/
+/**
+ * \brief Convert 16 bit VRAM address to vdpaddr format
+ */
+.macro TO_VDPADDR dreg
+	and.l #0xffff, \dreg
+	lsl.l #2, \dreg
+	lsr.w #2, \dreg
+	swap \dreg
+.endm
+
+/**
+ * \brief Convert a value to binary coded decimal
+ * \param[in] D0.w Value to convert
+ * \param[out] D0.w Value as BCD
+ * \break D1
+ */
 .macro HEX2BCD
 	ext.l	d0
 	divu.w	#0xa, d0
@@ -86,73 +89,36 @@ loop:
 	abcd	d1, d0
 .endm
 
-
-/*
------------------------------------------------------------------------
- PUSH
- Push register/value on to stack
------------------------------------------------------------------------
- IN:
-   register name/value
- OUT:
-  none
- BREAK:
-  none
------------------------------------------------------------------------
-*/
-.macro PUSH value
-	move.l \value, -(sp)
+/**
+ * \brief Push a value on to the stack
+ * \param reg Register holding the value to push
+ */
+.macro PUSH reg
+	move.l \reg, -(sp)
 .endm
 
-/*
------------------------------------------------------------------------
- POP
- Pop register/value from stack
------------------------------------------------------------------------
- IN:
-   register name/value
- OUT:
-  none
- BREAK:
-  none
------------------------------------------------------------------------
-*/
-.macro POP value
-	move.l  (sp)+, \value
+/**
+ * \brief Pop a value from the stack
+ * \param reg Register to hold the popped value
+ */
+.macro POP reg
+	move.l  (sp)+, \reg
 .endm
 
-/*
------------------------------------------------------------------------
- PUSHM
- Saves multiple registers to stack
------------------------------------------------------------------------
- IN:
-   register names
- OUT:
-  none
- BREAK:
-  none
------------------------------------------------------------------------
-*/
-.macro PUSHM registers
-	movem.l \registers, -(sp)
+/**
+ * \brief Push multiple values on to the stack
+ * \param regs Register list
+ */
+.macro PUSHM regs
+	movem.l \regs, -(sp)
 .endm
 
-/*
------------------------------------------------------------------------
- POPM
- Restore specified registers from stack
------------------------------------------------------------------------
- IN:
-   register names
- OUT:
-  none
- BREAK:
-  none
------------------------------------------------------------------------
-*/
-.macro POPM registers
-	movem.l (sp)+, \registers
+/**
+ * \brief Pop multiple values from the stack
+ * \param regs Register list
+ */
+.macro POPM regs
+	movem.l (sp)+, \regs
 .endm
 
 #endif
