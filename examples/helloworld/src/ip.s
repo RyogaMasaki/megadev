@@ -46,6 +46,13 @@ ip_entry:
   move.l #0xC0020000, (VDP_CTRL)
   move.w #0x0EEE, (VDP_DATA)
 
+  // Call our utility function to get the x/y position of a tile
+  move.w #0x0205, d0
+  jbsr nmtbl_xy_pos
+
+  lea str_hello, a1
+  jbsr _PRINT_TEXT
+
   // And finally enable the display
   jbsr _BOOT_VDP_DISP_ENABLE
 
@@ -60,3 +67,29 @@ loop:
 	
   jmp _BOOT_ENTRY
 
+FUNC nmtbl_xy_pos
+1:move.w (_PLANE_WIDTH), d1  // d1 - tiles per row
+  move.w d0, d2  // d0 - x/y offsey (upper/lower bytes of the word)
+  lsr.w #8, d2  // d2 has x pos
+  and.w #0xff, d0  // filter d0 so it only has y pos
+  mulu d1, d0
+  # d0 is now y pos * tiles per row
+  # add x pos
+  add.b d2, d0
+  # multiply by 2 for tilemap entry size
+  lsl.l #1, d0
+  # TODO: make this dynamic
+  # or make sure we set the nmtbl base register
+  add.w #0xc000, d0
+
+  and.l #0xffff, d0
+  lsl.l #2, d0
+  lsr.w #2, d0
+  or.l #0x4000, d0
+  swap d0
+  rts
+
+.section .rodata
+str_hello:
+.ascii "Hello World!\xff"
+.align 2

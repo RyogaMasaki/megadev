@@ -457,4 +457,13 @@
 #define FIFO_FULL 0x0100
 #define FIFO_EMPTY 0x0200
 
+// VDP command/bus
+// OR these values on to the vdpaddr formatted base address
+#define VDP_VRAM_R   0x00000000
+#define VDP_VRAM_W   0x40000000
+#define VDP_CRAM_R   0x00000020
+#define VDP_CRAM_W   0xC0000000
+#define VDP_VSRAM_R  0x00000010
+#define VDP_VSRAM_W  0x40000010
+
 #endif

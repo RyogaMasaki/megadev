@@ -229,7 +229,7 @@ inline void boot_print_string(u8 const * string, u32 vdpaddr_pos) {
 	register u32 a1_string asm("a1") = (u32)string;
 	register u32 d0_vdpaddr_pos asm("d0") = vdpaddr_pos;
 
-	asm(R"(jsr %p0)" :: "i"(_BOOT_PRINT_STRING), "a"(a1_string), "d"(d0_vdpaddr_pos));
+	asm(R"(jsr %p0)" :: "i"(_BOOT_PRINT_STRING), "a"(a1_string), "d"(d0_vdpaddr_pos) : "d1", "d2", "a5");
 
 };
 

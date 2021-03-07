@@ -15,7 +15,11 @@ ip_entry:
 
   move.l	#_BOOT_VINT, (_mlevel6 + 2)
 
-	jsr _BOOT_CLEAR_COMM
+	jbsr _BOOT_CLEAR_COMM
+
+  jbsr _BOOT_LOAD_VDPREGS_DEFAULT
+
+  jbsr _BOOT_CLEAR_VRAM
 
   jbsr _BOOT_LOAD_FONT_DEFAULTS
   
@@ -44,5 +48,6 @@ ip_entry:
 
 	// Reset the stack
 	movea.l (0), sp
-	
-  jmp (MAIN_2M_BASE+8)
+testing_label:
+  lea (MAIN_2M_BASE+8), a6
+  jra (a6)

@@ -6,7 +6,10 @@
 
 
 void main() {
-	boot_print_string("Example file Number One!", to_vdpaddr(NMT_POS_PLANE(10,10,BOOT_PLANE_WIDTH,BOOT_PLANEA_ADDR)));
+	boot_print_string("Example file Number One!\xff", 
+		(to_vdpaddr(
+			NMT_POS_PLANE(10,10,BOOT_PLANE_WIDTH,BOOT_PLANEA_ADDR))
+			 | VDP_VRAM_W));
 
 	do {
 		vint_wait();
