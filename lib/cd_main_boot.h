@@ -100,7 +100,7 @@ inline void boot_clear_vram() {
 /**
  * \brief Wrapper for \ref _BOOT_CLEAR_NMTBL
  */
-inline boot_clear_nmtbl() {
+inline void boot_clear_nmtbl() {
 	asm(R"(
   move.l a6, -(sp)
 	jsr %p0
@@ -132,7 +132,7 @@ inline void boot_load_vdpregs(void* hint_routine) {
 /**
  * Wrapper for \ref _BOOT_VDP_FILL
  */
-inline boot_vdp_fill(u32 vdpaddr, u16 length, u16 value) {
+inline void boot_vdp_fill(u32 vdpaddr, u16 length, u16 value) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_length asm("d1") = length;
 	register u16 d2_value asm("d2") = value;
@@ -142,7 +142,7 @@ inline boot_vdp_fill(u32 vdpaddr, u16 length, u16 value) {
 /**
  * Wrapper for \ref _BOOT_VDP_FILL_CLEAR
  */
-inline boot_vdp_fill_clear(u32 vdpaddr, u16 length) {
+inline void boot_vdp_fill_clear(u32 vdpaddr, u16 length) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_length asm("d1") = length;
 	asm("jsr %p0" :: "i"(_BOOT_VDP_FILL_CLEAR), "d"(d0_vdpaddr), "d"(d1_length) : "d2");
@@ -151,7 +151,7 @@ inline boot_vdp_fill_clear(u32 vdpaddr, u16 length) {
 /**
  * Wrapper for \ref _BOOT_DMA_FILL_CLEAR
  */
-inline boot_dma_fill_clear(u32 vdpaddr, u16 length) {
+inline void boot_dma_fill_clear(u32 vdpaddr, u16 length) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_length asm("d1") = length;
 	asm(R"(
@@ -163,7 +163,7 @@ inline boot_dma_fill_clear(u32 vdpaddr, u16 length) {
 /**
  * Wrapper for \ref _BOOT_DMA_FILL
  */
-inline boot_dma_fill(u32 vdpaddr, u16 length, u16 value) {
+inline void boot_dma_fill(u32 vdpaddr, u16 length, u16 value) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_length asm("d1") = length;
 	register u16 d2_value asm("d2") = value;
@@ -176,7 +176,7 @@ inline boot_dma_fill(u32 vdpaddr, u16 length, u16 value) {
 /**
  * Wrapper for \ref _BOOT_LOAD_MAP
  */
-inline boot_load_map(u32 vdpaddr, u16 width, u16 height, void* map) {
+inline void boot_load_map(u32 vdpaddr, u16 width, u16 height, void* map) {
 	register u32 d0_vdpaddr asm("d0") = vdpaddr;
 	register u16 d1_width asm("d1") = width;
 	register u16 d2_height asm("d2") = height;
@@ -225,11 +225,11 @@ inline void boot_load_font_defaults() {
 	asm(R"(jsr %p0)" :: "i"(_BOOT_LOAD_FONT_DEFAULTS) : "d0", "d1", "d2", "d3", "d4", "a1", "a5");
 };
 
-inline void boot_print_string(u8 const * string, u32 vdpaddr_pos) {
+inline void boot_print_string(char const * string, u32 vdpaddr_pos) {
 	register u32 a1_string asm("a1") = (u32)string;
 	register u32 d0_vdpaddr_pos asm("d0") = vdpaddr_pos;
 
-	asm(R"(jsr %p0)" :: "i"(_BOOT_PRINT_STRING), "a"(a1_string), "d"(d0_vdpaddr_pos) : "d1", "d2", "a5");
+	asm(R"(jsr %p0)" :: "i"(_BOOT_PRINT), "a"(a1_string), "d"(d0_vdpaddr_pos) : "d1", "d2", "a5");
 
 };
 

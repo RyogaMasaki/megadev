@@ -1,0 +1,9 @@
+Marking a function as an interrupt handler in GCC:
+__attribute__((interrupt)) void hint()  {
+	return;
+}
+
+Equivalent to a JMP/BRA for a defined address:
+void vint() {
+	goto *_BOOT_VINT;
+}

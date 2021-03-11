@@ -1,3 +1,8 @@
+/*
+	This is the initial Sub CPU side code
+  This example is too simple to have anything going on here!
+	Check out one of the other examples for something more substantial.
+*/
 
 #include "macros.s"
 #include "cd_sub_def.h"
@@ -17,36 +22,15 @@ sp_header:
 
 sp_jmptbl:
 .word		sp_init-sp_jmptbl
-.word		sp_main-sp_jmptbl
-.word		sp_vint-sp_jmptbl
-.word		sp_userdefined-sp_jmptbl
+.word		sp_null-sp_jmptbl
+.word		sp_null-sp_jmptbl
+.word		sp_null-sp_jmptbl
 .word		0
 
-sp_vint:
-  rts
-
-
-
-
 sp_init:
-	lea			drvinit_tracklist, a0		/* setup the BIOS DRVINIT call */
-	BIOS_DRVINIT
-0:BIOS_CDBSTAT
-	andi.b	#0xf0, (_CDSTAT).w		/* loop until done reading TOC */
-	bne			0b
 	CLEAR_COMM_REGS
-	//move.b #0, (GA_COMFLAGS+1)
   rts
 
-drvinit_tracklist:
-	.byte 1, 0xff
-
-sp_main:
+sp_null:
   rts
-
-sp_userdefined:
-  rts
-
-.section .bss
-test_var: .long 0
 

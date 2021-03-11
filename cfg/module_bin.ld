@@ -15,8 +15,8 @@ SECTIONS
 		LONG(MMD_DEST)
 		SHORT(_mod_text_len >> 2)
 		LONG(main)
-		LONG(HINT)
-		LONG(VINT)
+		LONG(DEFINED(hint) ? hint : 0)
+		LONG(DEFINED(vint) ? vint : 0)
 		. = 0x100;
 	} > MODULE_ROM
 

@@ -32,12 +32,12 @@ SECTIONS
 	ENTRY(main)
 	.header :
 	{
-		SHORT(0)
+		SHORT(DEFINED(MMD_FLAGS) ? MMD_FLAGS : 0)
 		LONG(MMD_DEST)
 		SHORT(_mod_text_len >> 2)
 		LONG(main)
-		LONG(hint)
-		LONG(vint)
+		LONG(DEFINED(hint) ? hint : 0)
+		LONG(DEFINED(vint) ? vint : 0)
 		. = 0x100;
 	} > MODULE_ROM
 
@@ -49,6 +49,8 @@ SECTIONS
     *(.text*)
     *(.rodata*)
     _mod_text_len = ABSOLUTE(. - _mod_text_org);
+		/* Align to 4 since the MMD loader reads size in words */
+		. = ALIGN(4);
   } > MODULE_ROM
 
   .data MODULE_RAM_ORIGIN : AT ( ADDR(.header) + SIZEOF(.header) + SIZEOF(.text) )

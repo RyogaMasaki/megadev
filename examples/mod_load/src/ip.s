@@ -2,6 +2,7 @@
 #include "cd_main_boot_def.h"
 #include "cd_main.s"
 #include "vdp_def.h"
+#include "macros.s"
 
 .section .text
 
@@ -14,8 +15,6 @@ ip_entry:
   ori #0x700,sr
 
   move.l	#_BOOT_VINT, (_mlevel6 + 2)
-
-	jbsr _BOOT_CLEAR_COMM
 
   jbsr _BOOT_LOAD_VDPREGS_DEFAULT
 
@@ -30,24 +29,35 @@ ip_entry:
   // And finally enable the display
   jbsr _BOOT_VDP_DISP_ENABLE
 
+  jbsr _BOOT_CLEAR_COMM
+
   // and restore interrupts
   andi #0xF8FF,sr
 
-	GRANT_2M
+  move.w #0, (global_mode)
 
-  move.w	#1, GA_COMCMD0	//send the command to command register #0
-	move.w  #0, GA_COMCMD1  // send sub command to reg #1 
-0:tst.w		GA_COMSTAT0			//wait for response on status register #0
+prep_load:
+  movea.l (0), sp  // Reset the stack since we're "starting fresh"
+
+  jbsr _BOOT_CLEAR_NMTBL // clear the screen
+
+  GRANT_2M  // give Word RAM to Sub
+
+  move.w	#1, GA_COMCMD0	//send the command to sub
+	move.w  (global_mode), GA_COMCMD1  // send the param to sub
+0:tst.w		GA_COMSTAT0			//wait for response on status reg #0
 	beq			0b
 	move.w	#0, GA_COMCMD0	//send idle command
-1:tst.w		GA_COMSTAT0			//wait for response
+1:tst.w		GA_COMSTAT0			//wait for response (wait for 0 from Sub)
 	bne			1b
 
-  // The file should now be present in Word RAM. We'll jump its main routine
-  // pointer
+  jbsr mmd_exec  // launch the loaded module
+  bra prep_load
 
-	// Reset the stack
-	movea.l (0), sp
-testing_label:
-  lea (MAIN_2M_BASE+8), a6
-  jra (a6)
+// Include the code for the MMD loader here
+#include "mmd_exec_main.s"
+
+.section .bss
+.global global_mode
+global_mode: .word 0
+

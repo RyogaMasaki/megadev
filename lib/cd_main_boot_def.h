@@ -532,7 +532,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
 #define _DISABLE_HINT   0x000318
 
 /**
- * \fn _BOOT_PRINT_STRING
+ * \fn _BOOT_PRINT
  * \brief Displays an ASCII string
  * \param[in] A1.l Pointer to string
  * \param[in] D0.l VRAM destination (vdpaddr)
@@ -545,7 +545,7 @@ adds/multiplies D7. As far as I can tell, the result will always be 0x0D in D7
  * at the earliest (where _FONT_TILE_BASE is 0).
  * Note that this can only use palette line 0.
  */
-#define _BOOT_PRINT_STRING   0x00031C
+#define _BOOT_PRINT   0x00031C
 
 /**
  * \fn _BOOT_LOAD_1BPP_TILES

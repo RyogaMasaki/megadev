@@ -85,13 +85,13 @@ FUNC handle_exception
 	move.w #0x0205, d0
 	jbsr nmtbl_xy_pos
 	movea.l (err_str_ptr), a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 	// PC=
 	move.w #0x0306, d0
 	jbsr nmtbl_xy_pos
 	lea str_pc, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 	// pc val
 	move.l (pc_val), d0
@@ -100,13 +100,13 @@ FUNC handle_exception
 	move.w #0x0806, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 	// SR=
 	move.w #0x0307, d0
 	jbsr nmtbl_xy_pos
 	lea str_sr, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
   // sr val
 	move.w (sr_val), d0
@@ -115,13 +115,13 @@ FUNC handle_exception
 	move.w #0x0807, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 	// OP=
 	move.w #0x0308, d0
 	jbsr nmtbl_xy_pos
 	lea str_op, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
   // op val
 	move.w (op_val), d0
@@ -130,13 +130,13 @@ FUNC handle_exception
 	move.w #0x0808, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 	// ADDR=
 	move.w #0x0309, d0
 	jbsr nmtbl_xy_pos
 	lea str_addr, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
   // addr val
 	move.l (addr_val), d0
@@ -145,7 +145,7 @@ FUNC handle_exception
 	move.w #0x0809, d0
 	jbsr nmtbl_xy_pos
 	lea str_cache, a1
-	jbsr _BOOT_PRINT_STRING
+	jbsr _BOOT_PRINT
 
 1:jbsr _BOOT_UPDATE_INPUTS
   and.b #PAD_START_MSK, _INPUT_P1_PRESS

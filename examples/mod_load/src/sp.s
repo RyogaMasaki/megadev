@@ -19,7 +19,7 @@ sp_header:
 sp_jmptable:
   .word		sp_init-sp_jmptable
   .word		sp_main-sp_jmptable
-  .word		int2-sp_jmptable
+  .word		sp_int2-sp_jmptable
   .word		sp_user-sp_jmptable
   .word		0
 
@@ -27,12 +27,12 @@ sp_jmptable:
 #include "cd_sub_cdrom.s"
 .section .text
 /*
-  int2
+  sp_int2
   The CD-ROM access code works in a loop. PROCESS_ACC_LOOP is the "pump" that
 	keeps that loop flowing. We will need to call it on every INT2, which is sent
 	from the Main CPU on every vblank (VINT).
 */
-int2:
+sp_int2:
   PROCESS_ACC_LOOP
   rts
 
@@ -180,11 +180,12 @@ sp_fatal:
 	c) include an alignment after the filename to prevent address exceptions!
 */
 mmd_ex1:
-  .asciz "EX1.MMD;1"
-	.align 2
+// .asciz "DUMMY0.MMD;1"
+   .asciz "EX1.MMD;1"
+  .align 2
 mmd_ex2:
   .asciz "EX2.MMD;1"
-	.align 2
+  .align 2
 mmd_ex3:
   .asciz "EX3.MMD;1"
-	.align 2
+  .align 2

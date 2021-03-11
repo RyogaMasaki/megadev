@@ -11,37 +11,41 @@
 #include "macros.s"
 #include "z80_def.h"
 
+#define ECHO_CMD_PLAY_SFX 2
+#define ECHO_CMD_STOP_SFX 3
+#define ECHO_CMD_PLAY_BGM 4
+#define ECHO_CMD_STOP_BGM 5
+#define ECHO_CMD_RESUME_BGM 6
+#define ECHO_CMD_SET_PCM_RATE 7
+#define ECHO_CMD_PAUSE_BGM 8
+#define ECHO_CMD_SET_STEREO 9
+
 .section .text
 
-/**
- * \fn echo_init
- * \brief Initialize driver with default settings and load instrument list
- * \param[in] A0.l Pointer to instrument list
- */
 FUNC echo_init
-    movem.l d0-d1, -(sp)
+    movem.l d0-d1/a0, -(sp)
 
     Z80_DO_RESET
     Z80_DO_BUSREQ
 
-    move.b  #0x01, (0xA01FFF)         // Command: load pointer list
-    move.b  #0x00, (0xA01FFB)         // No other command yet
+    move.b  #0x01, (0xA01FFF)  // Command: load pointer list
+    move.b  #0x00, (0xA01FFB)  // No other command yet
 
-    move.l  a0, d0                  // Easier to manipulate here
-    move.b  d0, (0xA01FFD)           // Store low address byte
-    lsr.l   #7, d0                  // Get high address byte
-    lsr.b   #1, d0                    // We skip one bit
-    bset.l  #7, d0                    // Point into bank window
-    move.b  d0, (0xA01FFE)           // Store high address byte
-    lsr.w   #8, d0                  // Get bank byte
-    move.w  d0, d1                    // Parse 32X bit separately
-    lsr.w   #1, d1                    // Put 32X bit in place
-    and.b   #0x7F, d0                  // Filter out unused bit from addresses
-    and.b   #0x80, d1                  // Filter out all but 32X bit
-    or.b    d1, d0                    // Put everything together
-    move.b  d0, (0xA01FFC)           // Store bank byte
+    move.l  a0, d0             // Easier to manipulate here
+    move.b  d0, (0xA01FFD)     // Store low address byte
+    lsr.l   #7, d0             // Get high address byte
+    lsr.b   #1, d0             // We skip one bit
+    bset.l  #7, d0             // Point into bank window
+    move.b  d0, (0xA01FFE)     // Store high address byte
+    lsr.w   #8, d0             // Get bank byte
+    move.w  d0, d1             // Parse 32X bit separately
+    lsr.w   #1, d1             // Put 32X bit in place
+    and.b   #0x7F, d0          // Filter out unused bit from addresses
+    and.b   #0x80, d1          // Filter out all but 32X bit
+    or.b    d1, d0             // Put everything together
+    move.b  d0, (0xA01FFC)     // Store bank byte
 
-    moveq   #0, d0                  // Set default global volumes
+    moveq   #0, d0             // Set default global volumes
     lea     (0xA01FE0), a0
     move.b  d0, (a0)+
     move.b  d0, (a0)+
@@ -67,67 +71,57 @@ FUNC echo_init
     Z80_DO_RESET
     Z80_DO_BUSRELEASE
 
-    movem.l (sp)+, d0-d1
+    movem.l (sp)+, d0-d1/a0
     rts
 
 FUNC echo_convert_inst_list
-    movem.l d0-d1/a1, -(sp)
+    movem.l d0-d1/a0-a1, -(sp)
     move.l     a0,a1
-1:  move.l  (a0)+, d0                  // Easier to manipulate here
+1:  move.l  (a0)+, d0   // Easier to manipulate here
     beq 2f
-    move.b  d0, 1(a1)        // Store low address byte
-    lsr.l   #7, d0                  // Get high address byte
-    lsr.b   #1, d0                    // We skip one bit
-    bset.l  #7, d0                    // Point into bank window
-    move.b  d0, (a1)          // Store high address byte
-    lsr.w   #8, d0                  // Get bank byte
-    move.w  d0, d1                    // Parse 32X bit separately
-    lsr.w   #1, d1                    // Put 32X bit in place
-    and.b   #0x7F, d0                  // Filter out unused bit from addresses
-    and.b   #0x80, d1                  // Filter out all but 32X bit
-    or.b    d1, d0                    // Put everything together
-    move.b  d0, 2(a1)        // Store bank byte
+    move.b  d0, 1(a1)   // Store low address byte
+    lsr.l   #7, d0      // Get high address byte
+    lsr.b   #1, d0      // We skip one bit
+    bset.l  #7, d0      // Point into bank window
+    move.b  d0, (a1)    // Store high address byte
+    lsr.w   #8, d0      // Get bank byte
+    move.w  d0, d1      // Parse 32X bit separately
+    lsr.w   #1, d1      // Put 32X bit in place
+    and.b   #0x7F, d0   // Filter out unused bit from addresses
+    and.b   #0x80, d1   // Filter out all but 32X bit
+    or.b    d1, d0      // Put everything together
+    move.b  d0, 2(a1)   // Store bank byte
     adda    #3, a1
     bra 1b
 2:  move.b  #0, (a1)
-    movem.l (sp)+, d0-d1/a1
+    movem.l (sp)+, d0-d1/a0-a1
     rts
 
-/**
- * \fn Echo_SendCommand
- * \brief Send command to Echo driver
- * \param[in] D0.b Command
- */
+
 FUNC Echo_SendCommand
-    movem.l d1/a1, -(sp)            // Save registers
 1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
-    lea     (0xA01FFF), a1           // First try the 1st slot
-    tst.b   (a1)                    // Is 1st slot available?
-    beq.s   3f                    // If so, move on
-    subq.l  #4, a1                  // Try 2nd slot otherwise
+    lea     (0xA01FFF), a1  // First try the 1st slot
+    tst.b   (a1)            // Is 1st slot available?
+    beq.s   3f              // If so, move on
+    subq.l  #4, a1          // Try 2nd slot otherwise
 
-    tst.b   (a1)                    // Check if 2nd slot is ready
-    beq.s   3f                  // Too busy?
-    Z80_DO_BUSRELEASE                   // Let Echo continue
-2:  move.w  #0x1FF, d1                 // Give it some time
-    dbf     d1, 2b                       // ...
-    bra.s   1b                      // Try again
+    tst.b   (a1)            // Check if 2nd slot is ready
+    beq.s   3f              // Too busy?
+    Z80_DO_BUSRELEASE       // Let Echo continue
+2:  move.w  #0x1FF, d1      // Give it some time
+    dbf     d1, 2b
+    bra.s   1b              // Try again
 
-3:  move.b  d0, (a1)                // Write command ID
-    Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
-
-    movem.l (sp)+, d1/a1            // Restore registers
-    rts                             // End of subroutine
+3:  move.b  d0, (a1)        // Write command ID
+    Z80_DO_BUSRELEASE       // We're done with the Z80 bus
+    rts                     // End of subroutine
 
 /**
- * \fn Echo_SendCommandEx
- * \brief Send a command to Echo driver with address parameter
- * \param[in] D0.b Command
- * \param[in] A0.l Address
+ * \break d1/a1
  */
 FUNC Echo_SendCommandEx
-    movem.l d0-d1/a1, -(sp)         // Save registers
+    movem.l d0, -(sp)         // Save registers
 1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
     lea     (0xA01FFF), a1           // First try the 1st slot
@@ -161,18 +155,14 @@ FUNC Echo_SendCommandEx
 
     Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
 
-    movem.l (sp)+, d0-d1/a1         // Restore registers
+    movem.l (sp)+, d0         // Restore registers
     rts                             // End of subroutine
 
+
 /**
- * \fn Echo_SendCommandEx
- * \brief Send a command to Echo driver with byte parameter
- * \param[in] D0.b Command
- * \param[in] D1.b Parameter
+ * \break d2/a1
  */
 FUNC Echo_SendCommandByte
-    movem.l d1-d2/a1, -(sp)         // Save registers
-
 1:  Z80_DO_BUSREQ                 // We need the Z80 bus
 
     lea     (0xA01FFF), a1           // First try the 1st slot
@@ -190,57 +180,30 @@ FUNC Echo_SendCommandByte
 3:  move.b  d0, (a1)                // Write command ID
     move.b  d1, -3(a1)              // Write parameter
     Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
-
-    movem.l (sp)+, d1-d2/a1         // Restore registers
     rts                             // End of subroutine
 
-/**
- * \fn Echo_PlaySFX
- * \brief Play a sound effect
- * param[in] A0.l Pointer to SFX data
- */
+
 FUNC Echo_PlaySFX
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x02, d0                // Command 0x02 = play SFX
-    bsr     Echo_SendCommandEx    // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
-    
+    move.b  #ECHO_CMD_PLAY_SFX, d0                // Command 0x02 = play SFX
+    bsr     Echo_SendCommandEx    // Send command to Echo   
     rts                             // End of subroutine
 
-/**
- * \fn Echo_StopSFX
- * \brief Stop currently playing sound effect
- */
+
 FUNC Echo_StopSFX
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x03, d0                // Command 0x03 = stop SFX
-    bsr     Echo_SendCommand        // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
-    
+    move.b  #ECHO_CMD_STOP_SFX, d0                // Command 0x03 = stop SFX
+    bsr     Echo_SendCommand        // Send command to Echo    
     rts                             // End of subroutine
 
-/**
- * \fn Echo_PlayBGM
- * \brief Play background music
- * \param[in] A0.l Pointer to BGM data
- */
+
 FUNC Echo_PlayBGM
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x04, d0                // Command 0x04 = play BGM
+    move.b  #ECHO_CMD_PLAY_BGM, d0                // Command 0x04 = play BGM
     bsr     Echo_SendCommandEx    // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
-    
     rts                             // End of subroutine
 
-/**
- * \fn Echo_StopBGM
- * \brief Stop currently playing background music
- */
+
 FUNC Echo_StopBGM
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x05, d0                // Command 0x05 = stop BGM
+    move.b  #ECHO_CMD_STOP_BGM, d0                // Command 0x05 = stop BGM
     bsr     Echo_SendCommand        // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
     rts                             // End of subroutine
 
 /**
@@ -248,28 +211,17 @@ FUNC Echo_StopBGM
  * \brief Pause background music playback
  */
 FUNC Echo_PauseBGM
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x08, d0                // Command 0x08 = pause BGM
+    move.b  #ECHO_CMD_PAUSE_BGM, d0                // Command 0x08 = pause BGM
     bsr     Echo_SendCommand        // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
     rts                             // End of subroutine
 
-/**
- * \fn Echo_ResumeBGM
- * \brief Resume background music playback
- */
+
 FUNC Echo_ResumeBGM
-    move.w  d0, -(sp)               // Save register
-    move.b  #0x06, d0                // Command 0x06 = resume BGM
+    move.b  #ECHO_CMD_RESUME_BGM, d0                // Command 0x06 = resume BGM
     bsr     Echo_SendCommand        // Send command to Echo
-    move.w  (sp)+, d0               // Restore register
     rts                             // End of subroutine
 
-/**
- * \fn Echo_PlayDirect
- * \brief Injects events into the BGM stream for the next tick.
- * \param[in] A0.l Pointer to stream data
- */
+
 FUNC Echo_PlayDirect
     Z80_DO_BUSREQ              // We need the Z80 bus
     movem.l d0-d1/a0-a2, -(sp)  // Save registers
@@ -331,48 +283,23 @@ ArgTable:
     .byte    0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0      // 0xE0-0xEF (lock channel)
     .byte    1,1,1,0, 1,1,1,0, 2,2,1,1, 0,0,1,0      // 0xF0-0xFF (miscellaneous)
 
-/**
- * \fn Echo_SetPCMRate
- * \brief Sets the playback rate of PCM
- * \param[in] D0.b New rate (timer A value)
- */
+
 FUNC Echo_SetPCMRate
-    movem.l d0-d1, -(sp)            // Save registers
-    move.b  d0, d1                  // Put parameter in place
-    move.b  #0x07, d0                // Command 0x07 = set PCM rate
+    move.b  #ECHO_CMD_SET_PCM_RATE, d0                // Command 0x07 = set PCM rate
     bsr     Echo_SendCommandByte    // Send command to Echo
-    movem.l (sp)+, d0-d1            // Restore registers
     rts                             // End of subroutine
 
-//****************************************************************************
-// Echo_SetStereo
-// Sets whether stereo is enabled or not
-//
-// input d0.b ... 0 to disable, otherwise to enable
-//****************************************************************************
 
-/**
- * \fn Echo_SetStereo
- * \brief Enable/disable stereo output
- * \param[in] D0.b Stereo output
- * \n 0: Disable
- * \n 1: Enable
- */
 FUNC Echo_SetStereo
     movem.l d0-d1, -(sp)            // Save registers
     tst.b   d0                      // Check what we want to do
     seq.b   d1                      // Put parameter in place
-    move.b  #0x09, d0                // Command 0x09 = set stereo
+    move.b  #ECHO_CMD_SET_STEREO, d0                // Command 0x09 = set stereo
     bsr     Echo_SendCommandByte    // Send command to Echo
     movem.l (sp)+, d0-d1            // Restore registers
     rts                             // End of subroutine
 
-/**
- * \fn Echo_SetVolume
- * \brief Changes the global volume for every channel
- * \param[in] D0.b New volume
- * \n (0: quiet, 255: loud)
- */
+
 FUNC Echo_SetVolume
     Z80_DO_BUSREQ                 // We need the Z80 bus
     movem.l d0-d1/a0-a1, -(sp)      // Save registers
@@ -430,16 +357,7 @@ Echo_PSGVolTable:
     .byte    0x04,0x03,0x03,0x03,0x03,0x03,0x02,0x02,0x02,0x02,0x02,0x02,0x01,0x01,0x01,0x01
     .byte    0x01,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 
-/**
- * \fn Echo_SetVolumeEx
- * \brief Change volume for individual channels
- * \param[in] A0.l Pointer to volume structure
- * \details The volume structure is defined like so:
- *   8 bytes of FM channel volumes (0 to 127)
- *   4 bytes of PSG channel volumes (0 to 15)
- *   1 byte with PCM toggle (0 or 1)
- *   3 reserved (currently unused)
- */
+
 FUNC Echo_SetVolumeEx
     Z80_DO_BUSREQ                 // We need the Z80 bus
     movem.l a0-a1, -(sp)            // Save registers
@@ -468,15 +386,7 @@ FUNC Echo_SetVolumeEx
     Z80_DO_BUSRELEASE                 // We're done with the Z80 bus
     rts                             // End of subroutine
 
-/**
- * \fn Echo_GetStatus
- * \brief Get the current status of the Echo driver
- * \param[out] D0.w Status
- * \n Bit 0: SFX playing
- * \n Bit 1: BGM playing
- * \n Bit 14: Direct events not played
- * \n Bit 15: Command not yet parsed
- */
+
 FUNC Echo_GetStatus
     movem.l d1-d2/a1, -(sp)         // Save registers
 

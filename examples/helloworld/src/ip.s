@@ -51,7 +51,7 @@ ip_entry:
   jbsr nmtbl_xy_pos
 
   lea str_hello, a1
-  jbsr _PRINT_TEXT
+  jbsr _BOOT_PRINT
 
   // And finally enable the display
   jbsr _BOOT_VDP_DISP_ENABLE
@@ -62,6 +62,7 @@ ip_entry:
 loop:
   jbsr _BOOT_VINT_WAIT_DEFAULT
   // Inputs are updated as part of the default vint wait subroutine
+  // so we can assume the input value is current
   and.b #PAD_START_MSK, _INPUT_P1_PRESS
 	beq loop
 	

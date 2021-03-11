@@ -14,12 +14,9 @@ PROJECT_NAME=project
 SRC_PATH:=src
 
 # Build project in debug mode
+#(This doesn't currently do anything with Megadev directly, but you can use
+# #ifdef DEBUG in your code to compile debug builds.)
 DEBUG:=1
-
-# Resources path
-# This is where graphics, audio and any other non-code content should be
-# stored.
-RES_PATH:=res
 
 # Output path
 # This will be the location of the final output ISO, as well as the build

@@ -54,24 +54,11 @@
 
 /**
  * \fn to_vdpaddr
- * \brief Converts a 16 bit VRAM address into VDP format
+ * \brief Converts a 16 bit VRAM address into VDP format during runtime
  */
 inline u32 to_vdpaddr(u16 addr) {
   u32 vdpaddr = (u32)addr;
-  u32 work;
 
-/*
-  asm(R"(
-  swap %0
-  move.l %0, %1
-  rol.l #2, %0
-  and.l #3, %0
-  or.l %1, %0
-  and.l #0x3fff0003, %0
-  )" : "+d" (vdpaddr) : "d" (work));
-*/
-  
-  
   asm(R"(
   and.l #0xffff, %0
   lsl.l #2, %0
